@@ -1,0 +1,1064 @@
+<!-- FAMILY VERSION v1.2 — before publishing, set the two values below in the script:
+     DRIVE_FILE_ID: the ID from the shared Drive file link, e.g. https://drive.google.com/file/d/DRIVE_FILE_ID/view
+     LATEST_DATA_DATE: the date of the newest history in that Drive file, e.g. 2026-10-23
+     If both are left blank, the Drive button asks for the file ID once and saves it in that browser.
+     Manual upload of records.csv still works as an alternative, and always replaces (never adds to) the saved history. On load, the app strips 9-digit CUSIP codes from descriptions, so an original extract with all columns works as-is and no CUSIP shows in the app. -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>CD Guarantee App</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #f4f6f4;
+        --surface: #ffffff;
+        --surface-2: #edf1ed;
+        --ink: #16211a;
+        --ink-2: #43534a;
+        --ink-3: #718076;
+        --line: #d8ded8;
+        --accent: #14532d;
+        --accent-ink: #ffffff;
+        --good: #166e4f;
+        --good-bg: #e2f1e8;
+        --bad: #a83226;
+        --bad-bg: #f9e7e4;
+        --warn: #8a5a12;
+        --warn-bg: #f7ecd4;
+        --chip: #e7ece7;
+        --input-bg: #ffffff;
+        --shadow: 0 1px 2px rgba(18, 32, 22, .06), 0 8px 24px rgba(18, 32, 22, .06);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101613;
+          --surface: #18201b;
+          --surface-2: #1f2922;
+          --ink: #e8efe9;
+          --ink-2: #b3c0b6;
+          --ink-3: #84958a;
+          --line: #2e3a32;
+          --accent: #7fc79b;
+          --accent-ink: #0e2416;
+          --good: #6fcea4;
+          --good-bg: #173627;
+          --bad: #f0937f;
+          --bad-bg: #3d201b;
+          --warn: #e5bc6a;
+          --warn-bg: #38300f;
+          --chip: #263129;
+          --input-bg: #121815;
+          --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 20px 16px 56px; }
+
+      /* ---------- header ---------- */
+      header.top {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+        padding: 6px 0 16px;
+      }
+      header.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; margin: 0; }
+      .ver {
+        font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600;
+        background: var(--accent); color: var(--accent-ink);
+        padding: 3px 9px; border-radius: 999px; letter-spacing: .04em;
+      }
+      .mode-tag {
+        font-family: "IBM Plex Mono", monospace; font-size: 12px;
+        background: var(--chip); color: var(--ink-2);
+        padding: 3px 9px; border-radius: 999px;
+      }
+      header.top .spacer { flex: 1; }
+      .today { color: var(--ink-2); font-size: 13px; }
+
+      /* ---------- cards ---------- */
+      .card {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: 10px; box-shadow: var(--shadow);
+        padding: 18px; margin-bottom: 16px;
+      }
+      .card h2 { font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: .01em; }
+      .card .sub { color: var(--ink-2); font-size: 13px; margin: 0 0 12px; }
+      .card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+      .card-head .right { margin-left: auto; }
+
+      /* ---------- verdict ---------- */
+      .verdict { border-left: 6px solid var(--line); }
+      .verdict.ahead { border-left-color: var(--good); }
+      .verdict.behind { border-left-color: var(--bad); }
+      .verdict .big {
+        font-size: clamp(30px, 6vw, 46px); font-weight: 800; letter-spacing: -.02em;
+        line-height: 1.08; margin: 2px 0 4px;
+      }
+      .verdict.ahead .big { color: var(--good); }
+      .verdict.behind .big { color: var(--bad); }
+      .verdict .biglabel { font-size: 13px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .08em; }
+      .statgrid {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px 18px; margin-top: 16px;
+      }
+      .stat .k { font-size: 12px; color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+      .stat .v { font-size: 19px; font-weight: 700; margin-top: 2px; }
+      .stat .n { font-size: 12px; color: var(--ink-3); margin-top: 1px; }
+      .eq {
+        margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line);
+        font-size: 13.5px; color: var(--ink-2);
+      }
+      .eq b { color: var(--ink); }
+
+      /* ---------- controls ---------- */
+      .btn {
+        appearance: none; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+        font: inherit; font-weight: 600; font-size: 14px;
+        padding: 9px 16px; border-radius: 8px; cursor: pointer;
+      }
+      .btn:hover { filter: brightness(1.08); }
+      .btn:disabled { opacity: .55; cursor: wait; }
+      .btn.ghost { background: transparent; color: var(--accent); }
+      .btn.small { padding: 6px 11px; font-size: 13px; }
+      .btn.danger { border-color: var(--bad); color: var(--bad); background: transparent; }
+      .dropzone {
+        border: 1.5px dashed var(--line); border-radius: 10px;
+        padding: 18px; text-align: center; color: var(--ink-2);
+        transition: border-color .15s, background .15s;
+      }
+      .dropzone.drag { border-color: var(--accent); background: var(--surface-2); }
+      .dropzone p { margin: 0 0 10px; }
+      .controls-row { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
+      .field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+      .field input[type="number"], .field input[type="text"], .field select {
+        font: inherit; font-size: 15px; padding: 8px 10px;
+        border: 1px solid var(--line); border-radius: 8px;
+        background: var(--input-bg); color: var(--ink);
+      }
+      .field .with-unit { display: flex; align-items: center; gap: 6px; }
+      .price-status { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+      .price-status .err { color: var(--bad); }
+      .stale { color: var(--warn); font-weight: 600; }
+
+      /* ---------- tables ---------- */
+      .tbl-wrap { overflow-x: auto; margin: 0 -18px; padding: 0 18px; }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
+      th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); font-weight: 600; padding: 8px 10px 6px 0; border-bottom: 2px solid var(--line); white-space: nowrap; }
+      td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+      td.num, th.num { text-align: right; padding-right: 0; padding-left: 10px; }
+      td.num { font-family: "IBM Plex Mono", monospace; font-size: 13.5px; }
+      tr:last-child td { border-bottom: none; }
+      tfoot td { border-top: 2px solid var(--line); border-bottom: none; font-weight: 700; }
+      .pos { color: var(--good); } .neg { color: var(--bad); }
+      .price-input { width: 104px; font-family: "IBM Plex Mono", monospace; font-size: 13.5px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--input-bg); color: var(--ink); text-align: right; }
+      .src { font-size: 11.5px; color: var(--ink-3); }
+      .pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--chip); color: var(--ink-2); white-space: nowrap; }
+      .pill.open { background: var(--good-bg); color: var(--good); }
+      .pill.closed { background: var(--chip); }
+      .pill.manual { background: var(--warn-bg); color: var(--warn); }
+
+      .txn-list { max-height: 340px; overflow-y: auto; margin: 0 -18px; padding: 0 18px; }
+      .empty { text-align: center; color: var(--ink-2); padding: 26px 10px; }
+      .empty .big-ic { font-size: 30px; display: block; margin-bottom: 8px; }
+
+      details.how { margin-top: 4px; }
+      details.how summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--accent); }
+      details.how div { color: var(--ink-2); font-size: 13.5px; margin-top: 8px; max-width: 72ch; }
+      details.how li { margin-bottom: 5px; }
+
+      .targetbar { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: baseline; }
+      .targetbar .t-big { font-size: 19px; font-weight: 700; }
+      footer { color: var(--ink-3); font-size: 12.5px; text-align: center; margin-top: 26px; }
+      .today-flash { font-weight: 800; animation: todayflash 1.1s ease-in-out infinite alternate; }
+      @keyframes todayflash { from { color: var(--warn); } to { color: var(--accent); } }
+      @media (prefers-reduced-motion: reduce) { .today-flash { animation: none; color: var(--warn); } }
+      .hidden { display: none !important; }
+      @media (max-width: 560px) {
+        .card { padding: 14px; }
+        .tbl-wrap, .txn-list { margin: 0 -14px; padding: 0 14px; }
+        .price-input { width: 88px; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="top">
+        <h1>CD Guarantee Tracker</h1>
+        <span class="ver">v1.2</span>
+        <span class="mode-tag" id="modeTag">standalone</span>
+        <span class="spacer"></span>
+        <span class="today" id="todayLine"></span>
+      </header>
+
+      <!-- ============ VERDICT ============ -->
+      <section class="card verdict" id="verdictCard">
+        <div class="biglabel" id="verdictLabel">Guarantee status</div>
+        <div class="big" id="verdictBig">No transactions loaded yet</div>
+        <p class="sub" id="verdictSub" style="margin-bottom:0">Upload the account's complete transaction history (records.csv) below. This compares what the account has actually produced against what the same deposits would have earned at the CD rate.</p>
+        <div class="statgrid hidden" id="statGrid">
+          <div class="stat"><div class="k">Account value</div><div class="v mono" id="stAccount">—</div><div class="n" id="stAccountN">holdings + cash</div></div>
+          <div class="stat"><div class="k">Money taken out, in savings</div><div class="v mono" id="stWithdrawn">—</div><div class="n" id="stWithdrawnN">grown at the savings rate</div></div>
+          <div class="stat"><div class="k">Total actual</div><div class="v mono" id="stActual">—</div><div class="n">Account value + savings</div></div>
+          <div class="stat"><div class="k">What the CD would have paid today</div><div class="v mono" id="stBench">—</div><div class="n" id="stBenchN">deposits only, at 4.32%/yr</div></div>
+          <div class="stat"><div class="k">Money put in, minus money taken out</div><div class="v mono" id="stNet">—</div><div class="n" id="stNetN">deposits − withdrawals</div></div>
+        </div>
+        <div class="eq hidden" id="verdictEq"></div>
+      </section>
+
+      <!-- ============ TARGET ============ -->
+      <section class="card hidden" id="targetCard">
+        <div class="card-head">
+          <h2>First check</h2>
+          <span class="right src" id="targetSrc"></span>
+        </div>
+        <div class="targetbar">
+          <span class="t-big" id="targetDate">—</span>
+          <span id="targetDays">—</span>
+          <span class="src">What the CD would have paid on that date (deposits only, no new money in or out): <b class="mono" id="targetBench" style="color:var(--ink)">—</b></span>
+        </div>
+      </section>
+
+      <!-- ============ DRIVE ============ -->
+      <section class="card" id="driveCard">
+        <div class="card-head"><h2>Get the latest history</h2></div>
+        <p class="sub">Press <b>Load records.csv from Drive</b> to try to load it directly. If that does not work — for example, if the file is restricted — press <b>Open in Drive</b> instead, download records.csv, then upload it below. A new complete history always replaces the old one, never adds to it.</p>
+        <div id="driveBanner" class="hidden" style="margin:10px 0;padding:10px;border:1px solid #b45309;border-radius:8px">Newer history is available. Press <b>Load records.csv from Drive</b> to get it.</div>
+        <div class="controls-row" style="margin-top:12px">
+          <div class="field" style="flex:2">
+            <label for="driveId">Drive file ID</label>
+            <input id="driveId" type="text" placeholder="From the shared Drive file link" style="width:100%" />
+          </div>
+          <div class="field">
+            <label>Latest data available</label>
+            <div id="latestDataLabel" style="padding:8px 0">Not set</div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <button class="btn" id="loadDriveBtn" type="button">Load records.csv from Drive</button>
+          <button class="btn" id="openDriveBtn" type="button" style="margin-left:8px">Open in Drive</button>
+        </div>
+        <p class="src" id="driveStatus" style="margin:10px 0 0"></p>
+        <p class="sub" style="margin-top:10px">Manual upload below still works as an alternative.</p>
+      </section>
+
+      <!-- ============ CONTROLS ============ -->
+      <section class="card">
+        <div class="card-head"><h2>Transactions &amp; prices</h2></div>
+        <p class="sub">A re-upload is a complete history from day one — it replaces everything saved. Transactions, rates, and prices are saved in this browser only.</p>
+        <div class="dropzone" id="dropzone">
+          <p id="dzText"><b>Drop the transaction CSV here</b>, or</p>
+          <label class="btn" for="fileInput" style="display:inline-block">Upload transaction history (CSV)</label>
+          <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
+          <p class="src" id="fileInfo" style="margin:10px 0 0"></p>
+        </div>
+        <div class="controls-row" style="margin-top:18px">
+          <div class="field">
+            <label for="cdRate">Guaranteed CD rate (annual)</label>
+            <div class="with-unit">
+              <input type="number" id="cdRate" step="0.01" min="0" max="30" value="4.32" style="width:96px" />
+              <span>% / yr</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="savRate">Savings rate (annual)</label>
+            <div class="with-unit">
+              <input type="number" id="savRate" step="0.01" min="0" max="30" value="3.5" style="width:96px" />
+              <span>% / yr</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="priceMode">Price source</label>
+            <select id="priceMode">
+              <option value="auto">Auto (web)</option>
+                            <option value="browser">Web only</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <button class="btn" id="updatePricesBtn" type="button">Update prices</button>
+          </div>
+        </div>
+        <div class="price-status" id="priceStatus">Prices are fetched only when you press <b>Update prices</b> — never automatically.</div>
+      </section>
+
+      <!-- ============ HOLDINGS ============ -->
+      <section class="card hidden" id="holdingsCard">
+        <div class="card-head">
+          <h2>Holdings</h2>
+          <span class="right src" id="holdingsSrc"></span>
+        </div>
+        <p class="sub">Shares and cost come from the uploaded history. Fetch prices above or type them in — a typed price is kept and marked manual.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead>
+              <tr><th>Symbol</th><th class="num">Shares</th><th class="num">Price</th><th class="num">Prev close</th><th class="num">Day</th><th class="num">Market value</th><th class="num">Cost basis</th><th class="num">Gain</th></tr>
+            </thead>
+            <tbody id="holdingsBody"></tbody>
+            <tfoot>
+              <tr><td>Cash in account</td><td></td><td></td><td></td><td></td><td class="num mono" id="cashCell">—</td><td></td><td></td></tr>
+              <tr><td>Total account value</td><td></td><td></td><td></td><td></td><td class="num mono" id="totalCell">—</td><td class="num mono" id="costCell">—</td><td class="num mono" id="gainCell">—</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ CD BENCHMARK DETAIL ============ -->
+      <section class="card hidden" id="benchCard">
+        <div class="card-head"><h2>How the CD comparison is built</h2></div>
+        <p class="sub">Every deposit is counted at the CD rate from its own date — money put in later has had less time to earn. Money taken out is <i>not</i> subtracted here: it sits in savings and is counted once, grown at the savings rate, on the actual side.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Flow</th><th class="num">Amount</th><th class="num">Days at CD rate</th><th class="num">Worth today at CD rate</th></tr></thead>
+            <tbody id="benchBody"></tbody>
+            <tfoot><tr><td colspan="2">What the CD would have paid today</td><td></td><td></td><td class="num mono" id="benchTotal">—</td></tr></tfoot>
+          </table>
+        </div>
+        <div id="savingsBlock" class="hidden">
+          <h2 style="margin-top:18px">Money taken out, in savings</h2>
+          <p class="sub">Each amount taken out grows at the savings rate from the day it left the account.</p>
+          <div class="tbl-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Flow</th><th class="num">Amount</th><th class="num">Days at savings rate</th><th class="num">Worth today in savings</th></tr></thead>
+              <tbody id="savingsBody"></tbody>
+              <tfoot><tr><td colspan="2">Money taken out, in savings today</td><td></td><td></td><td class="num mono" id="savingsTotal">—</td></tr></tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ TRANSACTIONS ============ -->
+      <section class="card hidden" id="txnCard">
+        <div class="card-head">
+          <h2>Transactions</h2>
+          <span class="right src" id="txnSummary"></span>
+        </div>
+        <div class="txn-list">
+          <table>
+            <thead><tr><th>Date</th><th>Symbol</th><th>Type</th><th>Description</th><th class="num">Units</th><th class="num">Amount</th></tr></thead>
+            <tbody id="txnBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ============ SETTINGS / HELP ============ -->
+      <section class="card">
+        <div class="card-head"><h2>About this app</h2><span class="right"><button class="btn danger small" id="clearBtn" type="button">Erase saved data</button></span></div>
+        <details class="how">
+          <summary>How the guarantee math works</summary>
+          <div>
+            <ul>
+              <li><b>CD comparison:</b> each deposit is counted at the CD rate from the day it went in, up to today. Money taken out is not subtracted from the comparison.</li>
+              <li><b>What it's worth in total:</b> today's account value (holdings at current prices + cash) <i>plus</i> each amount taken out, grown at the savings rate from the day it left. Money taken out is counted exactly once — here, on the actual side.</li>
+              <li><b>Amount needed:</b> CD comparison minus what it's worth in total. If that number is positive, that is the amount needed now to match the CD. If it is negative, the account is ahead of the CD and nothing is needed — anything above stays in the account.</li>
+              <li><b>Dividends</b> need no special handling: reinvested dividends show up as purchases (they're in the holdings), and dividends paid into savings show up as money taken out (counted above, at the savings rate).</li>
+              <li><b>Yearly return so far:</b> <span id="xirrDetail">—</span> This is the yearly pace of the account so far, for comparison with the CD rate. It is shown here, in the details, rather than in the main numbers above.</li>
+            </ul>
+          </div>
+        </details>
+        <details class="how">
+          <summary>How prices are fetched</summary>
+          <div>
+            <ul>
+              <li><b>Web mode:</b> the browser asks Yahoo's chart endpoint through a public CORS proxy, one symbol at a time, trying the next proxy if one fails. If every route fails for a symbol, its last saved price is kept and marked stale, and you can always type a price in by hand.</li>
+              <li><b>Intraday:</b> the price used is Yahoo's <span class="mono">regularMarketPrice</span> — the live intraday quote while the market is open, the last close when it isn't. The previous close is only used for the day-change column, never as the price itself. Each holding shows whether the market was open and the quote's own timestamp.</li>
+              <li>Prices and their fetch time are saved in this browser, so reopening the page shows the last update and its timestamp rather than silently refetching.</li>
+            </ul>
+          </div>
+        </details>
+      </section>
+
+      <footer>CD Guarantee App · v1.2 · Data is saved in this browser only.</footer>
+    </div>
+
+    <script>
+    (function () {
+      'use strict';
+
+      /* ================= storage ================= */
+      var K_TXN = 'cdg_txns_v1', K_SET = 'cdg_settings_v1', K_PRC = 'cdg_prices_v1', K_META = 'cdg_meta_v1';
+      function loadJSON(k, fallback) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
+      function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+      /* Publisher settings for this family version: set DRIVE_FILE_ID and LATEST_DATA_DATE before publishing. */
+      var DRIVE_FILE_ID = '';
+      var LATEST_DATA_DATE = '';
+
+      var state = {
+        txns: loadJSON(K_TXN, []),                 // parsed transaction rows
+        meta: loadJSON(K_META, null),              // {fileName, uploadedAt, rowCount}
+        settings: loadJSON(K_SET, { cdRate: 4.32, savingsRate: 3.5, priceMode: 'auto' }),
+        prices: loadJSON(K_PRC, {})                // SYM -> {price, prevClose, isMarketOpen, regularMarketTime, fetchedAt, source, error, manual}
+      };
+      if (typeof state.settings.cdRate !== 'number') state.settings.cdRate = 4.32;
+      if (typeof state.settings.savingsRate !== 'number') state.settings.savingsRate = 3.5;
+      if (!state.settings.priceMode) state.settings.priceMode = 'auto';
+
+      /* ================= helpers ================= */
+      function $(id) { return document.getElementById(id); }
+      function fmtMoney(n, signed) {
+        if (n == null || !isFinite(n)) return '—';
+        var s = Math.abs(n).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        if (signed) return (n < 0 ? '−' : '+') + s;
+        return (n < 0 ? '−' : '') + s;
+      }
+      function fmtNum(n, dp) {
+        if (n == null || !isFinite(n)) return '—';
+        return n.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
+      }
+      function fmtPct(n, dp) { if (n == null || !isFinite(n)) return '—'; return (n < 0 ? '−' : '') + Math.abs(n).toFixed(dp == null ? 2 : dp) + '%'; }
+      function parseDateStr(s) {
+        if (!s) return null;
+        s = String(s).replace(/^[ "]+|[ "]+$/g, '').trim();
+        // Parse calendar dates as written, in local terms — never via UTC ISO
+        // parsing, which shifts the day back in US timezones (Aug 10 -> Aug 9).
+        var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (m) return new Date(+m[1], +m[2] - 1, +m[3]);
+        m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (m) return new Date(+m[3], +m[1] - 1, +m[2]);
+        var d = new Date(s);
+        if (isNaN(d)) return null;
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+      }
+      function toLocalISODate(d) {
+        function p(n) { return (n < 10 ? '0' : '') + n; }
+        return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+      }
+      function todayDate() { var d = new Date(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+      function daysBetween(a, b) { return Math.round((b - a) / 86400000); }
+      function fmtDate(d) { return d ? d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'; }
+      function fmtDateTime(ts) { return ts ? new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'; }
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+      function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+
+      /* ================= CSV parsing ================= */
+      // Small RFC-4180-ish parser: quoted fields, embedded commas, "" escapes.
+      function parseCSV(text) {
+        var rows = [], row = [], field = '', inQ = false, i, c;
+        text = text.replace(/^\uFEFF/, '');
+        for (i = 0; i < text.length; i++) {
+          c = text[i];
+          if (inQ) {
+            if (c === '"') {
+              if (text[i + 1] === '"') { field += '"'; i++; } else { inQ = false; }
+            } else { field += c; }
+          } else if (c === '"') { inQ = true; }
+          else if (c === ',') { row.push(field); field = ''; }
+          else if (c === '\n') { row.push(field); field = ''; rows.push(row); row = []; }
+          else if (c === '\r') { /* skip */ }
+          else { field += c; }
+        }
+        if (field.length || row.length) { row.push(field); rows.push(row); }
+        return rows.filter(function (r) { return r.length > 1 || (r.length === 1 && r[0].trim() !== ''); });
+      }
+      function parseAmount(s) {
+        if (s == null) return null;
+        s = String(s).replace(/[$,\s]/g, '');
+        if (s === '' || s === '--') return null;
+        var neg = false;
+        if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+        var n = parseFloat(s);
+        if (isNaN(n)) return null;
+        return neg ? -n : n;
+      }
+      function classify(row) {
+        var type = (row.type || '').toUpperCase();
+        var desc = row.description || '';
+        var dl = desc.toLowerCase();
+        if (type === 'TRANSFER' || type === 'CASH') {
+          if (dl.indexOf('withdraw') >= 0 || (row.amount != null && row.amount < 0)) return 'withdrawal';
+          return 'deposit';
+        }
+        if (type === 'DIVIDEND') return 'dividend';
+        if (type === 'PURCHASED' || type === 'BUY' || type === 'BOUGHT') return 'purchase';
+        if (type === 'SOLD' || type === 'SELL' || type === 'SALE') return 'sale';
+        if (dl.indexOf('dividend') >= 0) return 'dividend';
+        if (dl.indexOf('purchased') >= 0) return 'purchase';
+        if (dl.indexOf('sold') >= 0) return 'sale';
+        if (dl.indexOf('withdraw') >= 0) return 'withdrawal';
+        if (dl.indexOf('deposit') >= 0) return 'deposit';
+        return 'other';
+      }
+      function ingestCSV(text, fileName) {
+        var rows = parseCSV(text);
+        if (!rows.length) throw new Error('The file appears to be empty.');
+        var header = rows[0].map(function (h) { return h.trim().toLowerCase(); });
+        function col(names) { for (var i = 0; i < names.length; i++) { var j = header.indexOf(names[i]); if (j >= 0) return j; } return -1; }
+        var iDate = col(['date']), iSym = col(['symbol', 'ticker']), iDesc = col(['description']),
+            iType = col(['transaction type', 'type']), iAmt = col(['amount']),
+            iUnits = col(['units', 'shares', 'quantity']), iUPrice = col(['unit price', 'price']);
+        if (iDate < 0 || iAmt < 0) throw new Error('Could not find the expected Date and Amount columns. This app reads the brokerage transaction-history CSV format.');
+        var out = [];
+        for (var r = 1; r < rows.length; r++) {
+          var cells = rows[r];
+          var d = parseDateStr(cells[iDate]);
+          var amt = parseAmount(cells[iAmt]);
+          if (!d || amt == null) continue;
+          var rec = {
+            date: toLocalISODate(d),
+            symbol: iSym >= 0 ? (cells[iSym] || '').trim().toUpperCase() : '',
+            description: iDesc >= 0 ? (cells[iDesc] || '').replace(/\b\d{9}\b/g, '').replace(/\s{2,}/g, ' ').trim() : '',
+            type: iType >= 0 ? (cells[iType] || '').trim() : '',
+            amount: amt,
+            units: iUnits >= 0 ? parseAmount(cells[iUnits]) : null,
+            unitPrice: iUPrice >= 0 ? parseAmount(cells[iUPrice]) : null
+          };
+          rec.kind = classify(rec);
+          out.push(rec);
+        }
+        if (!out.length) throw new Error('No usable transaction rows were found in that file.');
+        out.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+        // A re-upload is the complete history from day one: replace, never merge.
+        state.txns = out;
+        state.meta = { fileName: fileName || 'uploaded CSV', uploadedAt: Date.now(), rowCount: out.length };
+        saveJSON(K_TXN, state.txns);
+        saveJSON(K_META, state.meta);
+      }
+
+      /* ================= account model ================= */
+      function buildModel() {
+        var m = {
+          flows: [],            // external: {date: Date, amount: signed} deposits +, withdrawals −
+          depositFlows: [],     // deposits only — grown at the CD rate for the comparison
+          withdrawalFlows: [],  // withdrawals, positive amounts — grown at the savings rate
+          deposits: 0, withdrawals: 0, dividends: 0,
+          holdings: {},         // SYM -> {shares, cost}
+          cash: 0, firstDate: null, lastDate: null
+        };
+        state.txns.forEach(function (t) {
+          var d = parseDateStr(t.date);
+          if (!m.firstDate || d < m.firstDate) m.firstDate = d;
+          if (!m.lastDate || d > m.lastDate) m.lastDate = d;
+          if (t.kind === 'deposit') {
+            m.deposits += t.amount; m.cash += t.amount;
+            m.flows.push({ date: d, amount: t.amount, kind: 'deposit' });
+            m.depositFlows.push({ date: d, amount: t.amount, kind: 'deposit' });
+          } else if (t.kind === 'withdrawal') {
+            var w = Math.abs(t.amount);
+            m.withdrawals += w; m.cash -= w;
+            m.flows.push({ date: d, amount: -w, kind: 'withdrawal' });
+            m.withdrawalFlows.push({ date: d, amount: w, kind: 'withdrawal' });
+          } else if (t.kind === 'dividend') {
+            m.dividends += t.amount; m.cash += t.amount;
+          } else if (t.kind === 'purchase') {
+            m.cash -= t.amount;
+            if (t.symbol && t.units) {
+              var h = m.holdings[t.symbol] || (m.holdings[t.symbol] = { shares: 0, cost: 0 });
+              h.shares += t.units; h.cost += t.amount;
+            }
+          } else if (t.kind === 'sale') {
+            m.cash += Math.abs(t.amount);
+            if (t.symbol && t.units) {
+              var s = m.holdings[t.symbol] || (m.holdings[t.symbol] = { shares: 0, cost: 0 });
+              var avg = s.shares > 0 ? s.cost / s.shares : 0;
+              s.cost -= avg * t.units; s.shares -= t.units;
+              if (s.shares < 1e-9) { s.shares = 0; s.cost = 0; }
+            }
+          }
+        });
+        m.symbols = Object.keys(m.holdings).filter(function (s) { return m.holdings[s].shares > 1e-9; }).sort();
+        return m;
+      }
+      function cdValue(flows, ratePct, asOf) {
+        var r = ratePct / 100, total = 0;
+        flows.forEach(function (f) {
+          var days = Math.max(0, daysBetween(f.date, asOf));
+          total += f.amount * Math.pow(1 + r, days / 365);
+        });
+        return total;
+      }
+      function xirr(flows, terminalValue, asOf) {
+        // flows signed from the investor's view: deposits −, withdrawals +; terminal value + at asOf.
+        var cf = flows.map(function (f) { return { date: f.date, amount: -f.amount }; });
+        cf.push({ date: asOf, amount: terminalValue });
+        if (!cf.length) return null;
+        var t0 = cf[0].date;
+        function npv(rate) {
+          var s = 0;
+          for (var i = 0; i < cf.length; i++) s += cf[i].amount / Math.pow(1 + rate, daysBetween(t0, cf[i].date) / 365);
+          return s;
+        }
+        var lo = -0.9999, hi = 10, flo = npv(lo), fhi = npv(hi), i, mid, fm;
+        if (!isFinite(flo) || !isFinite(fhi) || flo * fhi > 0) return null;
+        for (i = 0; i < 100; i++) {
+          mid = (lo + hi) / 2; fm = npv(mid);
+          if (Math.abs(fm) < 1e-7) break;
+          if (flo * fm < 0) { hi = mid; fhi = fm; } else { lo = mid; flo = fm; }
+        }
+        return mid * 100;
+      }
+
+      /* ================= price providers ================= */
+      // Both providers return the same normalized record per symbol:
+      // {price, prevClose, isMarketOpen, regularMarketTime, fetchedAt, source, error}
+      function currentTradingDateET() {
+        return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+      }
+      function fetchViaServer(symbols) {
+        var result = {};
+        return Promise.all(symbols.map(function (sym) {
+          var base = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: Date.now(), source: 'server /api/history' };
+          var url = '/api/history?symbol=' + encodeURIComponent(sym) + '&range=1d&interval=1d';
+          return fetch(url).then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          }).then(function (data) {
+            if (data.error) throw new Error(data.error);
+            var points = data.points || [];
+            var last = points.length ? points[points.length - 1] : null;
+            var price = data.regularMarketPrice != null ? data.regularMarketPrice : (last ? last.c : null);
+            var prevClose = data.previousClose != null ? data.previousClose : null;
+            var lastBarDate = last ? new Date(last.t * 1000).toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) : null;
+            result[sym] = {
+              price: price, prevClose: prevClose,
+              isMarketOpen: !!(lastBarDate && lastBarDate > currentTradingDateET()),
+              regularMarketTime: data.regularMarketTime || (last ? last.t : null),
+              fetchedAt: Date.now(), source: 'server /api/history',
+              error: price == null ? 'no price in response' : null
+            };
+          }).catch(function (e) {
+            result[sym] = Object.assign(base, { error: e.message });
+          });
+        })).then(function () { return result; });
+      }
+      var PROXIES = [
+        { name: 'corsproxy.io', wrap: function (u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); }, wrapped: false },
+        { name: 'allorigins', wrap: function (u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, wrapped: false },
+        { name: 'codetabs', wrap: function (u) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, wrapped: false }
+      ];
+      function fetchOneViaBrowser(sym) {
+        var target = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) +
+                     '?interval=1d&range=1d&_=' + Math.floor(Date.now() / 60000);
+        var chain = Promise.reject(new Error('start'));
+        PROXIES.forEach(function (p) {
+          chain = chain.catch(function () {
+            return fetch(p.wrap(target)).then(function (res) {
+              if (!res.ok) throw new Error('HTTP ' + res.status);
+              return res.json();
+            }).then(function (data) {
+              var meta = data && data.chart && data.chart.result && data.chart.result[0] && data.chart.result[0].meta;
+              if (!meta || meta.regularMarketPrice == null) throw new Error('no price data');
+              var nowSec = Math.floor(Date.now() / 1000);
+              var reg = meta.currentTradingPeriod && meta.currentTradingPeriod.regular;
+              return {
+                price: meta.regularMarketPrice,
+                prevClose: meta.chartPreviousClose != null ? meta.chartPreviousClose : (meta.previousClose != null ? meta.previousClose : null),
+                isMarketOpen: !!(reg && nowSec >= reg.start && nowSec < reg.end),
+                regularMarketTime: meta.regularMarketTime || null,
+                fetchedAt: Date.now(),
+                source: 'Yahoo via ' + p.name,
+                error: null
+              };
+            });
+          });
+        });
+        return chain;
+      }
+      function fetchViaBrowser(symbols) {
+        var result = {};
+        var seq = Promise.resolve();
+        symbols.forEach(function (sym) {
+          seq = seq.then(function () {
+            return fetchOneViaBrowser(sym).then(function (rec) { result[sym] = rec; })
+              .catch(function (e) {
+                result[sym] = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: Date.now(), source: 'Yahoo via proxy', error: e.message || 'all proxies failed' };
+              });
+          }).then(function () { return sleep(400); });
+        });
+        return seq.then(function () { return result; });
+      }
+      function detectMode() {
+        var forced = state.settings.priceMode;
+        if (forced === 'browser') return forced;
+        if (forced === 'server') return 'browser';
+        var h = location.hostname || '';
+        if (h === 'localhost' || h === '127.0.0.1' || /^192\.168\./.test(h) || /^10\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h)) return 'server';
+        return 'browser';
+      }
+      function updateModeTag() {
+        var mode = detectMode();
+        var proto = location.protocol;
+        var label = proto === 'file:' ? 'opened as a file' : (mode === 'server' ? 'server mode' : 'web mode');
+        $('modeTag').textContent = 'v1.2 · ' + label;
+      }
+
+      /* ================= rendering ================= */
+      function render() {
+        updateModeTag();
+        updateDriveBanner();
+        $('todayLine').textContent = 'Status as of ' + fmtDate(todayDate());
+        $('cdRate').value = state.settings.cdRate;
+        $('savRate').value = state.settings.savingsRate;
+        var hasTxns = state.txns.length > 0;
+        var model = hasTxns ? buildModel() : null;
+        var asOf = todayDate();
+        var rate = state.settings.cdRate;
+        var savRate = state.settings.savingsRate;
+
+        // file info
+        if (state.meta) {
+          $('fileInfo').textContent = 'Loaded: ' + state.meta.fileName + ' · ' + state.meta.rowCount + ' transactions · uploaded ' + fmtDateTime(state.meta.uploadedAt) + ' (saved in this browser)';
+          $('dzText').innerHTML = '<b>Drop a newer complete history to replace it</b>, or';
+        } else {
+          $('fileInfo').textContent = '';
+        }
+
+        if (!hasTxns) {
+          $('verdictCard').className = 'card verdict';
+          $('statGrid').classList.add('hidden');
+          $('verdictEq').classList.add('hidden');
+          $('targetCard').classList.add('hidden');
+          $('holdingsCard').classList.add('hidden');
+          $('benchCard').classList.add('hidden');
+          $('txnCard').classList.add('hidden');
+          $('verdictBig').textContent = 'No transactions loaded yet';
+          return;
+        }
+
+        // ---- valuations ----
+        var holdingsMV = 0, missingPrices = [];
+        model.symbols.forEach(function (sym) {
+          var p = state.prices[sym];
+          if (p && p.price != null) holdingsMV += model.holdings[sym].shares * p.price;
+          else missingPrices.push(sym);
+        });
+        var pricesComplete = missingPrices.length === 0;
+        var accountValue = pricesComplete ? holdingsMV + model.cash : null;
+        // Single count: the comparison grows deposits only; each withdrawal is
+        // counted once, on the actual side, grown at the savings rate.
+        var savingsToday = cdValue(model.withdrawalFlows, savRate, asOf);
+        var totalActual = pricesComplete ? accountValue + savingsToday : null;
+        var benchToday = cdValue(model.depositFlows, rate, asOf);
+        var shortfall = pricesComplete ? benchToday - totalActual : null;
+
+        // ---- verdict ----
+        var card = $('verdictCard');
+        if (!pricesComplete) {
+          card.className = 'card verdict';
+          $('verdictLabel').textContent = 'Guarantee status — prices needed';
+          $('verdictBig').textContent = 'Add prices to see the verdict';
+          $('verdictSub').textContent = 'No current price for ' + missingPrices.join(', ') + ' yet. Press “Update prices” above, or type a price in the Holdings table.';
+        } else if (shortfall > 0.005) {
+          card.className = 'card verdict behind';
+          $('verdictLabel').innerHTML = 'Behind the CD — amount needed · <span class="today-flash">TODAY</span>';
+          $('verdictBig').textContent = fmtMoney(shortfall);
+          $('verdictSub').textContent = 'Amount needed now to match what the CD would have paid.';
+        } else {
+          card.className = 'card verdict ahead';
+          $('verdictLabel').innerHTML = 'Ahead of the CD — nothing owed · <span class="today-flash">TODAY</span>';
+          $('verdictBig').textContent = fmtMoney(-shortfall) + ' ahead';
+          $('verdictSub').textContent = 'The account has produced more than the CD would have on the same deposits. Nothing is needed if settled today.';
+        }
+        $('statGrid').classList.remove('hidden');
+        $('stAccount').textContent = pricesComplete ? fmtMoney(accountValue) : '—';
+        $('stAccountN').textContent = 'holdings ' + (pricesComplete ? fmtMoney(holdingsMV) : '—') + ' + cash ' + fmtMoney(model.cash);
+        $('stWithdrawn').textContent = fmtMoney(savingsToday);
+        $('stWithdrawnN').textContent = fmtMoney(model.withdrawals) + ' taken · grown at ' + fmtPct(savRate) + '/yr in savings';
+        $('stActual').textContent = pricesComplete ? fmtMoney(totalActual) : '—';
+        $('stBench').textContent = fmtMoney(benchToday);
+        $('stBenchN').textContent = 'deposits only, at ' + fmtPct(rate) + '/yr';
+        $('stNet').textContent = fmtMoney(model.deposits - model.withdrawals);
+        $('stNetN').textContent = fmtMoney(model.deposits) + ' in · ' + fmtMoney(model.withdrawals) + ' out · dividends ' + fmtMoney(model.dividends);
+        // XIRR treats the account + savings as one pot: external flows are the deposits,
+        // terminal value is total actual. Withdrawals are internal transfers.
+        var xr = pricesComplete ? xirr(model.depositFlows, totalActual, asOf) : null;
+        if ($('stXirr')) $('stXirr').textContent = xr == null ? '—' : fmtPct(xr);
+        if ($('xirrDetail')) $('xirrDetail').textContent = xr == null ? 'not enough history to work out' : (fmtPct(xr) + ' a year, vs CD ' + fmtPct(rate) + ' a year');
+        if ($('stXirrN')) $('stXirrN').textContent = xr == null ? 'not enough history to solve' : ('vs CD ' + fmtPct(rate) + ' — ' + (xr >= rate ? 'running ahead of CD pace' : 'running behind CD pace'));
+        var eq = $('verdictEq');
+        eq.classList.remove('hidden');
+        eq.innerHTML = pricesComplete
+          ? 'Check: <b>' + fmtMoney(accountValue) + '</b> in the account + <b>' + fmtMoney(savingsToday) + '</b> in savings (money taken out, grown at ' + fmtPct(savRate) + '/yr) = <b>' + fmtMoney(totalActual) + '</b> total actual, against a CD comparison of <b>' + fmtMoney(benchToday) + '</b> (deposits only).'
+          : 'The What the CD would have paid today is <b>' + fmtMoney(benchToday) + '</b>. The actual side needs current prices for every holding.';
+
+        // ---- target ----
+        var target = new Date(model.firstDate.getFullYear(), model.firstDate.getMonth() + 6, model.firstDate.getDate());
+        $('targetCard').classList.remove('hidden');
+        $('targetDate').textContent = fmtDate(target);
+        $('targetSrc').textContent = 'six months after the first deposit, ' + fmtDate(model.firstDate);
+        var dLeft = daysBetween(asOf, target);
+        $('targetDays').textContent = dLeft > 0 ? dLeft + ' days to go' : (dLeft === 0 ? 'today is the target date' : 'passed ' + Math.abs(dLeft) + ' days ago');
+        $('targetBench').textContent = fmtMoney(cdValue(model.depositFlows, rate, target));
+
+        // ---- holdings ----
+        $('holdingsCard').classList.remove('hidden');
+        var hb = $('holdingsBody'); hb.innerHTML = '';
+        var totCost = 0;
+        model.symbols.forEach(function (sym) {
+          var h = model.holdings[sym]; totCost += h.cost;
+          var p = state.prices[sym] || {};
+          var mv = p.price != null ? h.shares * p.price : null;
+          var gain = mv != null ? mv - h.cost : null;
+          var dayHtml = '—';
+          if (p.price != null && p.prevClose) {
+            var dpct = (p.price - p.prevClose) / p.prevClose * 100;
+            dayHtml = '<span class="' + (dpct >= 0 ? 'pos' : 'neg') + '">' + fmtPct(dpct) + '</span>';
+          }
+          var srcBits = [];
+          if (p.manual) srcBits.push('<span class="pill manual">manual</span>');
+          else if (p.price != null) srcBits.push('<span class="pill ' + (p.isMarketOpen ? 'open' : 'closed') + '">' + (p.isMarketOpen ? 'market open' : 'last close') + '</span>');
+          if (p.error && !p.manual) srcBits.push('<span class="stale">update failed: ' + esc(p.error) + '</span>');
+          var tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td><b>' + esc(sym) + '</b><div class="src">' + srcBits.join(' ') + (p.fetchedAt && !p.manual ? ' · quote ' + (p.regularMarketTime ? fmtDateTime(p.regularMarketTime * 1000) : fmtDateTime(p.fetchedAt)) : '') + '</div></td>' +
+            '<td class="num">' + fmtNum(h.shares, 5) + '</td>' +
+            '<td class="num"><input class="price-input" data-sym="' + esc(sym) + '" type="number" step="0.01" min="0" placeholder="—" value="' + (p.price != null ? p.price : '') + '" aria-label="Price for ' + esc(sym) + '" /></td>' +
+            '<td class="num">' + (p.prevClose != null ? fmtMoney(p.prevClose) : '—') + '</td>' +
+            '<td class="num">' + dayHtml + '</td>' +
+            '<td class="num">' + (mv != null ? fmtMoney(mv) : '—') + '</td>' +
+            '<td class="num">' + fmtMoney(h.cost) + '</td>' +
+            '<td class="num ' + (gain == null ? '' : gain >= 0 ? 'pos' : 'neg') + '">' + (gain != null ? fmtMoney(gain, true) : '—') + '</td>';
+          hb.appendChild(tr);
+        });
+        $('cashCell').textContent = fmtMoney(model.cash);
+        $('totalCell').textContent = pricesComplete ? fmtMoney(accountValue) : '—';
+        $('costCell').textContent = fmtMoney(totCost + model.cash);
+        $('gainCell').textContent = pricesComplete ? fmtMoney(accountValue - (totCost + model.cash), true) : '—';
+        $('holdingsSrc').textContent = model.symbols.length + ' holdings from the uploaded history';
+        Array.prototype.forEach.call(hb.querySelectorAll('.price-input'), function (inp) {
+          inp.addEventListener('change', function () {
+            var sym = inp.getAttribute('data-sym');
+            var v = parseFloat(inp.value);
+            if (isNaN(v) || v < 0) { delete state.prices[sym]; }
+            else {
+              var prev = state.prices[sym] || {};
+              state.prices[sym] = { price: v, prevClose: prev.prevClose != null ? prev.prevClose : null, isMarketOpen: false, regularMarketTime: null, fetchedAt: Date.now(), source: 'manual entry', error: null, manual: true };
+            }
+            saveJSON(K_PRC, state.prices);
+            render();
+          });
+        });
+
+        // ---- comparison detail ----
+        $('benchCard').classList.remove('hidden');
+        var bb = $('benchBody'); bb.innerHTML = '';
+        model.depositFlows.slice().sort(function (a, b) { return a.date - b.date; }).forEach(function (f) {
+          var days = Math.max(0, daysBetween(f.date, asOf));
+          var val = f.amount * Math.pow(1 + rate / 100, days / 365);
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td>' + fmtDate(f.date) + '</td><td>Deposit</td>' +
+            '<td class="num">' + fmtMoney(f.amount, true) + '</td><td class="num">' + days + '</td><td class="num">' + fmtMoney(val, true) + '</td>';
+          bb.appendChild(tr);
+        });
+        $('benchTotal').textContent = fmtMoney(benchToday);
+        var eb = $('savingsBody'); eb.innerHTML = '';
+        if (model.withdrawalFlows.length) {
+          $('savingsBlock').classList.remove('hidden');
+          model.withdrawalFlows.slice().sort(function (a, b) { return a.date - b.date; }).forEach(function (f) {
+            var days = Math.max(0, daysBetween(f.date, asOf));
+            var val = f.amount * Math.pow(1 + savRate / 100, days / 365);
+            var tr = document.createElement('tr');
+            tr.innerHTML = '<td>' + fmtDate(f.date) + '</td><td>Withdrawal</td>' +
+              '<td class="num">' + fmtMoney(f.amount, true) + '</td><td class="num">' + days + '</td><td class="num">' + fmtMoney(val, true) + '</td>';
+            eb.appendChild(tr);
+          });
+          $('savingsTotal').textContent = fmtMoney(savingsToday);
+        } else {
+          $('savingsBlock').classList.add('hidden');
+        }
+
+        // ---- transactions ----
+        $('txnCard').classList.remove('hidden');
+        $('txnSummary').textContent = state.txns.length + ' rows · ' + fmtDate(model.firstDate) + ' → ' + fmtDate(model.lastDate);
+        var tb = $('txnBody'); tb.innerHTML = '';
+        state.txns.slice().reverse().forEach(function (t) {
+          var tr = document.createElement('tr');
+          tr.innerHTML = '<td style="white-space:nowrap">' + fmtDate(parseDateStr(t.date)) + '</td><td>' + esc(t.symbol || '') + '</td>' +
+            '<td><span class="pill">' + esc(t.kind) + '</span></td><td>' + esc(t.description) + '</td>' +
+            '<td class="num">' + (t.units != null ? fmtNum(t.units, 5) : '—') + '</td><td class="num">' + fmtMoney(t.amount, true) + '</td>';
+          tb.appendChild(tr);
+        });
+
+        renderPriceStatus();
+      }
+
+      function renderPriceStatus() {
+        var syms = state.txns.length ? buildModel().symbols : [];
+        var el = $('priceStatus');
+        if (!syms.length) { el.innerHTML = 'Prices are fetched only when you press <b>Update prices</b> — never automatically.'; return; }
+        var parts = [], anyFetched = false, anyError = false, latest = 0, srcs = {};
+        syms.forEach(function (s) {
+          var p = state.prices[s];
+          if (p && p.fetchedAt) { anyFetched = true; latest = Math.max(latest, p.fetchedAt); if (p.source) srcs[p.source] = true; }
+          if (p && p.error && !p.manual) anyError = true;
+        });
+        if (!anyFetched) { el.innerHTML = 'No prices fetched yet in this browser. Press <b>Update prices</b> or type prices into the Holdings table.'; return; }
+        var open = syms.some(function (s) { var p = state.prices[s]; return p && p.isMarketOpen; });
+        parts.push('Prices last updated <b>' + fmtDateTime(latest) + '</b> (your local time)');
+        parts.push('source: ' + Object.keys(srcs).join(', '));
+        parts.push(open ? 'market was open — intraday quotes' : 'market closed — last close prices');
+        if (anyError) parts.push('<span class="err">some symbols failed and kept their previous price (marked in Holdings)</span>');
+        el.innerHTML = parts.join(' · ') + '.';
+      }
+
+      /* ================= price update ================= */
+      var updating = false;
+      function updatePrices() {
+        if (updating) return;
+        var model = buildModel();
+        var syms = model.symbols;
+        if (!syms.length) { $('priceStatus').innerHTML = '<span class="err">Upload a transaction history first — there are no holdings to price.</span>'; return; }
+        updating = true;
+        var btn = $('updatePricesBtn');
+        btn.disabled = true; btn.textContent = 'Updating…';
+        var mode = detectMode();
+        $('priceStatus').textContent = 'Fetching ' + syms.join(', ') + ' via ' + (mode === 'server' ? 'this server’s /api/history endpoint' : 'Yahoo through a web proxy') + '…';
+        var job = mode === 'server' ? fetchViaServer(syms) : fetchViaBrowser(syms);
+        // In auto mode, a total server failure falls back to the web provider.
+        job = job.then(function (res) {
+          var allFailed = syms.every(function (s) { return !res[s] || res[s].price == null; });
+          if (allFailed && state.settings.priceMode === 'auto' && mode === 'server') {
+            $('priceStatus').textContent = 'Server endpoint did not answer — falling back to the web provider…';
+            return fetchViaBrowser(syms);
+          }
+          return res;
+        });
+        job.then(function (res) {
+          var now = Date.now(), failed = [];
+          syms.forEach(function (s) {
+            var rec = res[s];
+            if (rec && rec.price != null) {
+              state.prices[s] = { price: rec.price, prevClose: rec.prevClose, isMarketOpen: rec.isMarketOpen, regularMarketTime: rec.regularMarketTime, fetchedAt: now, source: rec.source, error: null, manual: false };
+            } else {
+              failed.push(s);
+              var prev = state.prices[s];
+              if (prev && prev.price != null) {
+                state.prices[s] = Object.assign({}, prev, { error: rec ? (rec.error || 'fetch failed') : 'fetch failed', manual: false });
+              } else {
+                state.prices[s] = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: now, source: rec ? rec.source : '—', error: rec ? (rec.error || 'fetch failed') : 'fetch failed', manual: false };
+              }
+            }
+          });
+          saveJSON(K_PRC, state.prices);
+          updating = false; btn.disabled = false; btn.textContent = 'Update prices';
+          render();
+          if (failed.length) {
+            $('priceStatus').innerHTML += ' <span class="err">Could not update: ' + failed.join(', ') + '.</span>';
+          }
+        }).catch(function (e) {
+          updating = false; btn.disabled = false; btn.textContent = 'Update prices';
+          $('priceStatus').innerHTML = '<span class="err">Price update failed: ' + esc(e.message) + '</span> Saved prices, if any, are unchanged.';
+        });
+      }
+
+
+      /* ================= Drive load ================= */
+      function driveIdVal() { var v = $('driveId') ? $('driveId').value.trim() : ''; return v || DRIVE_FILE_ID || (state.settings.driveId || ''); }
+      function openDrive() {
+        var id = driveIdVal();
+        if (!id) { $('driveStatus').innerHTML = '<span class="err">Add the Drive file ID first.</span>'; return; }
+        window.open('https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view', '_blank');
+        $('driveStatus').textContent = 'Drive file opened in a new tab. Download records.csv, then upload it below.';
+      }
+      function loadFromDrive() {
+        var id = driveIdVal();
+        if (!id) { $('driveStatus').innerHTML = '<span class="err">Add the Drive file ID first.</span>'; return; }
+        if ($('driveId')) { state.settings.driveId = id; saveJSON(K_SET, state.settings); }
+        $('driveStatus').textContent = 'Loading records.csv from Drive…';
+        fetch('https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id))
+          .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+          .then(function (text) {
+            if (!/date/i.test(text.slice(0, 500)) || !/amount/i.test(text.slice(0, 500))) throw new Error('That did not look like a transaction file.');
+            ingestCSV(text, 'records.csv');
+            render();
+            $('driveStatus').textContent = 'Loaded records.csv from Drive — ' + state.txns.length + ' rows saved in this browser. Press Update prices for current prices.';
+          })
+          .catch(function (e) {
+            $('driveStatus').innerHTML = '<span class="err">Could not load directly (' + esc(e.message) + '). Press Open in Drive, download records.csv, then upload it below.</span>';
+          });
+      }
+      function updateDriveBanner() {
+        var el = $('latestDataLabel');
+        if (el) el.textContent = LATEST_DATA_DATE ? LATEST_DATA_DATE : 'Not set';
+        var banner = $('driveBanner');
+        if (!banner) return;
+        if (!LATEST_DATA_DATE || !state.txns.length) { banner.classList.add('hidden'); return; }
+        var latestLoaded = state.txns[state.txns.length - 1].date;
+        banner.classList.toggle('hidden', !(latestLoaded && latestLoaded < LATEST_DATA_DATE));
+      }
+
+      /* ================= events ================= */
+      function handleFile(file) {
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            ingestCSV(String(reader.result || ''), file.name);
+            render();
+            $('priceStatus').innerHTML = 'Transaction history replaced — <b>' + state.txns.length + ' rows</b> saved in this browser. Press <b>Update prices</b> for current prices.';
+          } catch (e) {
+            $('priceStatus').innerHTML = '<span class="err">Could not read that file: ' + esc(e.message) + '</span> The previously saved history was not changed.';
+          }
+        };
+        reader.onerror = function () { $('priceStatus').innerHTML = '<span class="err">That file could not be read.</span>'; };
+        reader.readAsText(file);
+      }
+      $('fileInput').addEventListener('change', function () { handleFile(this.files && this.files[0]); this.value = ''; });
+      var dz = $('dropzone');
+      ['dragenter', 'dragover'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('drag'); }); });
+      ['dragleave', 'drop'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('drag'); }); });
+      dz.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; handleFile(f); });
+
+      if ($('driveId')) {
+        $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
+        $('driveId').addEventListener('change', function () { state.settings.driveId = this.value.trim(); saveJSON(K_SET, state.settings); });
+      }
+      if ($('loadDriveBtn')) $('loadDriveBtn').addEventListener('click', loadFromDrive);
+      if ($('openDriveBtn')) $('openDriveBtn').addEventListener('click', openDrive);
+      $('cdRate').addEventListener('change', function () {
+        var v = parseFloat(this.value);
+        if (isNaN(v) || v < 0 || v > 30) { this.value = state.settings.cdRate; return; }
+        state.settings.cdRate = v;
+        saveJSON(K_SET, state.settings);
+        render();
+      });
+      $('savRate').addEventListener('change', function () {
+        var v = parseFloat(this.value);
+        if (isNaN(v) || v < 0 || v > 30) { this.value = state.settings.savingsRate; return; }
+        state.settings.savingsRate = v;
+        saveJSON(K_SET, state.settings);
+        render();
+      });
+      $('priceMode').value = state.settings.priceMode;
+      $('priceMode').addEventListener('change', function () {
+        state.settings.priceMode = this.value;
+        saveJSON(K_SET, state.settings);
+        updateModeTag();
+      });
+      $('updatePricesBtn').addEventListener('click', updatePrices);
+      var clearArmed = false, clearTimer = null;
+      $('clearBtn').addEventListener('click', function () {
+        var btn = this;
+        if (!clearArmed) {
+          clearArmed = true;
+          btn.textContent = 'Click again to confirm erase';
+          clearTimer = setTimeout(function () { clearArmed = false; btn.textContent = 'Erase saved data'; }, 4000);
+          return;
+        }
+        clearTimeout(clearTimer); clearArmed = false; btn.textContent = 'Erase saved data';
+        [K_TXN, K_SET, K_PRC, K_META].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+        state.txns = []; state.meta = null; state.prices = {}; state.settings = { cdRate: 4.32, savingsRate: 3.5, priceMode: 'auto' };
+        $('priceMode').value = 'auto';
+        if ($('driveId')) $('driveId').value = '';
+        render();
+        $('priceStatus').textContent = 'Saved data erased. Upload a transaction history to start again.';
+      });
+
+      render();
+    })();
+    </script>
+  </body>
+</html>
