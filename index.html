@@ -1,5 +1,5 @@
-<!-- FAMILY VERSION v1.3 — before publishing, you may set DRIVE_FILE_ID below in the script.
-     Leave it blank and family pastes the ID once: it is saved in their browser and hidden after linking.
+<!-- FAMILY VERSION v1.4 — before publishing, you may set DRIVE_FILE_ID below in the script.
+     Leave it blank and family pastes the ID or the full Drive link once: it is saved in their browser and hidden after linking. v1.4 accepts a link or an ID, tries Drive directly then through a web proxy, and offers a small download link as a fallback.
      There is no latest-data date to set in this version: the app shows the last transaction date in the
      loaded history automatically, and pressing Load from Drive always fetches the newest Drive version. -->
 <!doctype html>
@@ -197,7 +197,7 @@
     <div class="wrap">
       <header class="top">
         <h1>CD Guarantee Tracker</h1>
-        <span class="ver">v1.3</span>
+        <span class="ver">v1.4</span>
         <span class="mode-tag" id="modeTag">standalone</span>
         <span class="spacer"></span>
         <span class="today" id="todayLine"></span>
@@ -242,10 +242,11 @@
           <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
         </div>
         <div id="driveIdRow" style="margin-top:10px;display:flex;gap:8px">
-          <input id="driveId" type="text" placeholder="Paste the Drive file ID once, then press Load from Drive" style="flex:1" />
+          <input id="driveId" type="text" placeholder="Paste the Drive link or file ID once, then press Load from Drive" style="flex:1" />
         </div>
         <div id="driveLinkedRow" class="hidden" style="margin-top:10px">Drive linked &#10003; <button class="btn small" id="changeDriveIdBtn" type="button" style="margin-left:8px">Change</button> <button class="btn small" id="clearDriveIdBtn" type="button" style="margin-left:4px">Remove</button></div>
         <p class="src" id="driveStatus" style="margin:8px 0 0"></p>
+        <p class="src hidden" id="driveDownloadRow" style="margin:4px 0 0"><a id="driveDownloadLink" href="#" target="_blank" rel="noopener">Download records.csv from Drive</a> — then press Upload records.csv above.</p>
         <p class="src" id="fileInfo" style="margin:4px 0 0"></p>
         <div class="dropzone" id="dropzone" style="padding:8px;margin-top:10px">
           <p id="dzText" style="margin:0">Or drop a newer complete history here to replace it.</p>
@@ -366,7 +367,7 @@
         </details>
       </section>
 
-      <footer>CD Guarantee App · v1.3 · Data is saved in this browser only.</footer>
+      <footer>CD Guarantee App · v1.4 · Data is saved in this browser only.</footer>
     </div>
 
     <script>
@@ -677,7 +678,7 @@
         var mode = detectMode();
         var proto = location.protocol;
         var label = proto === 'file:' ? 'opened as a file' : (mode === 'server' ? 'server mode' : 'web mode');
-        $('modeTag').textContent = 'v1.3 · ' + label;
+        $('modeTag').textContent = 'v1.4 · ' + label;
       }
 
       /* ================= rendering ================= */
@@ -710,7 +711,9 @@
           $('holdingsCard').classList.add('hidden');
           $('benchCard').classList.add('hidden');
           $('txnCard').classList.add('hidden');
+          $('verdictLabel').textContent = 'Guarantee status';
           $('verdictBig').textContent = 'No transactions loaded yet';
+          $('verdictSub').textContent = "Upload the account's complete transaction history (records.csv) below. This compares what the account has actually produced against what the same deposits would have earned at the CD rate.";
           return;
         }
 
@@ -942,29 +945,55 @@
 
 
       /* ================= Drive load ================= */
-      function driveIdVal() { var v = $('driveId') ? $('driveId').value.trim() : ''; return v || (state.settings.driveId || '') || DRIVE_FILE_ID; }
+      function extractDriveId(raw) {
+        var v = String(raw || '').trim();
+        if (!v) return '';
+        var m = v.match(/\/d\/([^\/\?#]+)/);
+        if (m) return decodeURIComponent(m[1]);
+        var m2 = v.match(/[?&]id=([^&]+)/);
+        if (m2) return decodeURIComponent(m2[1]);
+        return v;
+      }
+      function driveIdVal() { var v = $('driveId') ? $('driveId').value.trim() : ''; return extractDriveId(v || (state.settings.driveId || '') || DRIVE_FILE_ID); }
       function updateDriveUI() {
-        var linked = !!(state.settings.driveId || DRIVE_FILE_ID);
-        var row = $('driveIdRow'), link = $('driveLinkedRow');
+        var id = driveIdVal();
+        var linked = !!id;
+        var row = $('driveIdRow'), link = $('driveLinkedRow'), dlRow = $('driveDownloadRow'), dl = $('driveDownloadLink');
         if (row) row.classList.toggle('hidden', linked);
         if (link) link.classList.toggle('hidden', !linked);
         if (row && !linked && $('driveId')) $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
+        if (dlRow) dlRow.classList.toggle('hidden', !linked);
+        if (dl && linked) dl.href = 'https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view';
+      }
+      function looksLikeCSV(text) { return !!text && /date/i.test(text.slice(0, 500)) && /amount/i.test(text.slice(0, 500)); }
+      function fetchDriveText(id) {
+        var url = 'https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id);
+        var chain = fetch(url).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+          .then(function (text) { if (!looksLikeCSV(text)) throw new Error('Drive did not return a transaction file.'); return text; });
+        (typeof PROXIES !== 'undefined' ? PROXIES : []).forEach(function (pr) {
+          chain = chain.catch(function () {
+            return fetch(pr.wrap(url)).then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+              .then(function (text) { if (!looksLikeCSV(text)) throw new Error('Proxy did not return a transaction file.'); return text; });
+          });
+        });
+        return chain;
       }
       function loadFromDrive() {
         var id = driveIdVal();
-        if (!id) { $('driveStatus').innerHTML = '<span class="err">Paste the Drive file ID first.</span>'; return; }
+        if (!id) { $('driveStatus').innerHTML = '<span class="err">Paste the Drive link or file ID first.</span>'; return; }
         state.settings.driveId = id; saveJSON(K_SET, state.settings);
+        if ($('driveId')) $('driveId').value = id;
+        updateDriveUI();
         $('driveStatus').textContent = 'Loading records.csv from Drive…';
-        fetch('https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id))
-          .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
+        fetchDriveText(id)
           .then(function (text) {
-            if (!/date/i.test(text.slice(0, 500)) || !/amount/i.test(text.slice(0, 500))) throw new Error('That did not look like a transaction file.');
             ingestCSV(text, 'records.csv');
             render();
             $('driveStatus').textContent = 'Loaded records.csv from Drive — ' + state.txns.length + ' rows saved in this browser. Press Update prices for current prices.';
           })
           .catch(function (e) {
-            $('driveStatus').innerHTML = '<span class="err">Could not load directly (' + esc(e.message) + '). Use Upload records.csv with a downloaded copy instead.</span>';
+            updateDriveUI();
+            $('driveStatus').innerHTML = '<span class="err">Could not load directly (' + esc(e.message) + '). Use the Download link above, then Upload records.csv.</span>';
           });
       }
 
@@ -992,7 +1021,7 @@
 
       if ($('loadDriveBtn')) $('loadDriveBtn').addEventListener('click', loadFromDrive);
       if ($('changeDriveIdBtn')) $('changeDriveIdBtn').addEventListener('click', function () {
-        if ($('driveId')) $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
+        if ($('driveId')) $('driveId').value = extractDriveId(state.settings.driveId || DRIVE_FILE_ID || '');
         var row = $('driveIdRow'), link = $('driveLinkedRow');
         if (row) row.classList.remove('hidden');
         if (link) link.classList.add('hidden');
