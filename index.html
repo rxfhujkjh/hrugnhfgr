@@ -1,8 +1,7 @@
-<!-- FAMILY VERSION v1.2 — before publishing, set the two values below in the script:
-     DRIVE_FILE_ID: the ID from the shared Drive file link, e.g. https://drive.google.com/file/d/DRIVE_FILE_ID/view
-     LATEST_DATA_DATE: the date of the newest history in that Drive file, e.g. 2026-10-23
-     If both are left blank, the Drive button asks for the file ID once and saves it in that browser.
-     Manual upload of records.csv still works as an alternative, and always replaces (never adds to) the saved history. On load, the app strips 9-digit CUSIP codes from descriptions, so an original extract with all columns works as-is and no CUSIP shows in the app. -->
+<!-- FAMILY VERSION v1.3 — before publishing, you may set DRIVE_FILE_ID below in the script.
+     Leave it blank and family pastes the ID once: it is saved in their browser and hidden after linking.
+     There is no latest-data date to set in this version: the app shows the last transaction date in the
+     loaded history automatically, and pressing Load from Drive always fetches the newest Drive version. -->
 <!doctype html>
 <html lang="en">
   <head>
@@ -198,7 +197,7 @@
     <div class="wrap">
       <header class="top">
         <h1>CD Guarantee Tracker</h1>
-        <span class="ver">v1.2</span>
+        <span class="ver">v1.3</span>
         <span class="mode-tag" id="modeTag">standalone</span>
         <span class="spacer"></span>
         <span class="today" id="todayLine"></span>
@@ -232,38 +231,24 @@
         </div>
       </section>
 
-      <!-- ============ DRIVE ============ -->
-      <section class="card" id="driveCard">
-        <div class="card-head"><h2>Get the latest history</h2></div>
-        <p class="sub">Press <b>Load records.csv from Drive</b> to try to load it directly. If that does not work — for example, if the file is restricted — press <b>Open in Drive</b> instead, download records.csv, then upload it below. A new complete history always replaces the old one, never adds to it.</p>
-        <div id="driveBanner" class="hidden" style="margin:10px 0;padding:10px;border:1px solid #b45309;border-radius:8px">Newer history is available. Press <b>Load records.csv from Drive</b> to get it.</div>
-        <div class="controls-row" style="margin-top:12px">
-          <div class="field" style="flex:2">
-            <label for="driveId">Drive file ID</label>
-            <input id="driveId" type="text" placeholder="From the shared Drive file link" style="width:100%" />
-          </div>
-          <div class="field">
-            <label>Latest data available</label>
-            <div id="latestDataLabel" style="padding:8px 0">Not set</div>
-          </div>
-        </div>
-        <div style="margin-top:12px">
-          <button class="btn" id="loadDriveBtn" type="button">Load records.csv from Drive</button>
-          <button class="btn" id="openDriveBtn" type="button" style="margin-left:8px">Open in Drive</button>
-        </div>
-        <p class="src" id="driveStatus" style="margin:10px 0 0"></p>
-        <p class="sub" style="margin-top:10px">Manual upload below still works as an alternative.</p>
-      </section>
+      <!-- ============ HISTORY & PRICES ============ -->
 
-      <!-- ============ CONTROLS ============ -->
-      <section class="card">
-        <div class="card-head"><h2>Transactions &amp; prices</h2></div>
-        <p class="sub">A re-upload is a complete history from day one — it replaces everything saved. Transactions, rates, and prices are saved in this browser only.</p>
-        <div class="dropzone" id="dropzone">
-          <p id="dzText"><b>Drop the transaction CSV here</b>, or</p>
-          <label class="btn" for="fileInput" style="display:inline-block">Upload transaction history (CSV)</label>
+      <section class="card" id="historyCard">
+        <div class="card-head"><h2>History &amp; prices</h2></div>
+        <p class="sub" style="margin-bottom:10px">A new complete history replaces the old one, never adds to it. Saved in this browser only.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="loadDriveBtn" type="button">Load from Drive</button>
+          <label class="btn" for="fileInput" style="display:inline-block">Upload records.csv</label>
           <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
-          <p class="src" id="fileInfo" style="margin:10px 0 0"></p>
+        </div>
+        <div id="driveIdRow" style="margin-top:10px;display:flex;gap:8px">
+          <input id="driveId" type="text" placeholder="Paste the Drive file ID once, then press Load from Drive" style="flex:1" />
+        </div>
+        <div id="driveLinkedRow" class="hidden" style="margin-top:10px">Drive linked &#10003; <button class="btn small" id="changeDriveIdBtn" type="button" style="margin-left:8px">Change</button> <button class="btn small" id="clearDriveIdBtn" type="button" style="margin-left:4px">Remove</button></div>
+        <p class="src" id="driveStatus" style="margin:8px 0 0"></p>
+        <p class="src" id="fileInfo" style="margin:4px 0 0"></p>
+        <div class="dropzone" id="dropzone" style="padding:8px;margin-top:10px">
+          <p id="dzText" style="margin:0">Or drop a newer complete history here to replace it.</p>
         </div>
         <div class="controls-row" style="margin-top:18px">
           <div class="field">
@@ -381,7 +366,7 @@
         </details>
       </section>
 
-      <footer>CD Guarantee App · v1.2 · Data is saved in this browser only.</footer>
+      <footer>CD Guarantee App · v1.3 · Data is saved in this browser only.</footer>
     </div>
 
     <script>
@@ -393,9 +378,9 @@
       function loadJSON(k, fallback) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
       function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
-      /* Publisher settings for this family version: set DRIVE_FILE_ID and LATEST_DATA_DATE before publishing. */
+      /* Publisher setting for this family version: DRIVE_FILE_ID may be left blank.
+         Family pastes the ID once; it is saved in their browser and hidden after linking. */
       var DRIVE_FILE_ID = '';
-      var LATEST_DATA_DATE = '';
 
       var state = {
         txns: loadJSON(K_TXN, []),                 // parsed transaction rows
@@ -692,13 +677,13 @@
         var mode = detectMode();
         var proto = location.protocol;
         var label = proto === 'file:' ? 'opened as a file' : (mode === 'server' ? 'server mode' : 'web mode');
-        $('modeTag').textContent = 'v1.2 · ' + label;
+        $('modeTag').textContent = 'v1.3 · ' + label;
       }
 
       /* ================= rendering ================= */
       function render() {
         updateModeTag();
-        updateDriveBanner();
+        updateDriveUI();
         $('todayLine').textContent = 'Status as of ' + fmtDate(todayDate());
         $('cdRate').value = state.settings.cdRate;
         $('savRate').value = state.settings.savingsRate;
@@ -710,8 +695,9 @@
 
         // file info
         if (state.meta) {
-          $('fileInfo').textContent = 'Loaded: ' + state.meta.fileName + ' · ' + state.meta.rowCount + ' transactions · uploaded ' + fmtDateTime(state.meta.uploadedAt) + ' (saved in this browser)';
-          $('dzText').innerHTML = '<b>Drop a newer complete history to replace it</b>, or';
+          var lastTxn = state.txns.length ? fmtDate(parseDateStr(state.txns[state.txns.length - 1].date)) : '—';
+          $('fileInfo').textContent = 'Loaded: ' + state.meta.fileName + ' · ' + state.meta.rowCount + ' transactions · history up to ' + lastTxn + ' · saved in this browser';
+          if ($('dzText')) $('dzText').textContent = 'Or drop a newer complete history here to replace it.';
         } else {
           $('fileInfo').textContent = '';
         }
@@ -956,17 +942,18 @@
 
 
       /* ================= Drive load ================= */
-      function driveIdVal() { var v = $('driveId') ? $('driveId').value.trim() : ''; return v || DRIVE_FILE_ID || (state.settings.driveId || ''); }
-      function openDrive() {
-        var id = driveIdVal();
-        if (!id) { $('driveStatus').innerHTML = '<span class="err">Add the Drive file ID first.</span>'; return; }
-        window.open('https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view', '_blank');
-        $('driveStatus').textContent = 'Drive file opened in a new tab. Download records.csv, then upload it below.';
+      function driveIdVal() { var v = $('driveId') ? $('driveId').value.trim() : ''; return v || (state.settings.driveId || '') || DRIVE_FILE_ID; }
+      function updateDriveUI() {
+        var linked = !!(state.settings.driveId || DRIVE_FILE_ID);
+        var row = $('driveIdRow'), link = $('driveLinkedRow');
+        if (row) row.classList.toggle('hidden', linked);
+        if (link) link.classList.toggle('hidden', !linked);
+        if (row && !linked && $('driveId')) $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
       }
       function loadFromDrive() {
         var id = driveIdVal();
-        if (!id) { $('driveStatus').innerHTML = '<span class="err">Add the Drive file ID first.</span>'; return; }
-        if ($('driveId')) { state.settings.driveId = id; saveJSON(K_SET, state.settings); }
+        if (!id) { $('driveStatus').innerHTML = '<span class="err">Paste the Drive file ID first.</span>'; return; }
+        state.settings.driveId = id; saveJSON(K_SET, state.settings);
         $('driveStatus').textContent = 'Loading records.csv from Drive…';
         fetch('https://drive.google.com/uc?export=download&id=' + encodeURIComponent(id))
           .then(function (res) { if (!res.ok) throw new Error('HTTP ' + res.status); return res.text(); })
@@ -977,17 +964,8 @@
             $('driveStatus').textContent = 'Loaded records.csv from Drive — ' + state.txns.length + ' rows saved in this browser. Press Update prices for current prices.';
           })
           .catch(function (e) {
-            $('driveStatus').innerHTML = '<span class="err">Could not load directly (' + esc(e.message) + '). Press Open in Drive, download records.csv, then upload it below.</span>';
+            $('driveStatus').innerHTML = '<span class="err">Could not load directly (' + esc(e.message) + '). Use Upload records.csv with a downloaded copy instead.</span>';
           });
-      }
-      function updateDriveBanner() {
-        var el = $('latestDataLabel');
-        if (el) el.textContent = LATEST_DATA_DATE ? LATEST_DATA_DATE : 'Not set';
-        var banner = $('driveBanner');
-        if (!banner) return;
-        if (!LATEST_DATA_DATE || !state.txns.length) { banner.classList.add('hidden'); return; }
-        var latestLoaded = state.txns[state.txns.length - 1].date;
-        banner.classList.toggle('hidden', !(latestLoaded && latestLoaded < LATEST_DATA_DATE));
       }
 
       /* ================= events ================= */
@@ -1012,12 +990,20 @@
       ['dragleave', 'drop'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('drag'); }); });
       dz.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; handleFile(f); });
 
-      if ($('driveId')) {
-        $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
-        $('driveId').addEventListener('change', function () { state.settings.driveId = this.value.trim(); saveJSON(K_SET, state.settings); });
-      }
       if ($('loadDriveBtn')) $('loadDriveBtn').addEventListener('click', loadFromDrive);
-      if ($('openDriveBtn')) $('openDriveBtn').addEventListener('click', openDrive);
+      if ($('changeDriveIdBtn')) $('changeDriveIdBtn').addEventListener('click', function () {
+        if ($('driveId')) $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
+        var row = $('driveIdRow'), link = $('driveLinkedRow');
+        if (row) row.classList.remove('hidden');
+        if (link) link.classList.add('hidden');
+        if ($('driveId')) $('driveId').focus();
+      });
+      if ($('clearDriveIdBtn')) $('clearDriveIdBtn').addEventListener('click', function () {
+        delete state.settings.driveId; saveJSON(K_SET, state.settings);
+        if ($('driveId')) $('driveId').value = '';
+        updateDriveUI();
+        $('driveStatus').textContent = 'Drive link removed.';
+      });
       $('cdRate').addEventListener('change', function () {
         var v = parseFloat(this.value);
         if (isNaN(v) || v < 0 || v > 30) { this.value = state.settings.cdRate; return; }
