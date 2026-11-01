@@ -1,5 +1,8 @@
-<!-- FAMILY VERSION v1.4 — before publishing, you may set DRIVE_FILE_ID below in the script.
-     Leave it blank and family pastes the ID or the full Drive link once: it is saved in their browser and hidden after linking. v1.4 accepts a link or an ID, tries Drive directly then through a web proxy, and offers a small download link as a fallback.
+<!-- MARKET SCORECARD v2.3 — 2.3 changes: verdict card removed (2x2 box is now the only main view); Price source dropdown removed (Auto always, server probed by actual fetch, not hostname); mode pill shows actual last price source, or "local" for an unconfirmed local origin, instead of claiming "server" from hostname alone; Settings split into Rates / Saved data headers so Erase is clearly separate from rates — presentation box is 2x2 grouped cards (Account / Diffs / Yearly rate / How it changed, revised mockup content: vs money in first with $ reference, vs CD as projection, CD pace note fixed rate); Settings gear moved to far right of head-row; Changes toggle From baseline / Last update, sticky, with previous snapshot saved only on a new price pull — asterisk jumps to Holdings (footnote removed, box space reclaimed); Settings is a gear icon right of the version badge, expanding a hidden block below the header that pushes content down temporarily — second line is Tracked over time + Prices up to last fetch; Prices as of line removed; asterisk only if all priced but fetched >1h apart; missing case shows message below buttons, no asterisk; within 1h = same effective time — header: Investments vs CD (no fixed, no comma), subtitle Tracked over time + last fetch, Prices as of, mode pill server/web highlighted on server, mixed as asterisk+footnote, empty top messages reclaim space — fetch order: missing first, then oldest prices first; progress says from Yahoo™, no order list; each price saved as soon as it succeeds, so a paused/killed fetch does not lose completed prices — top-area live fetch progress + top general mixed signal (no per-ticker dates/currencies in top; those live in Holdings) — message fixes: stale Drive error cleared on upload/price fetch; live price progress; old prices kept with date/currency — refaced draft, for workspace testing only, NOT yet uploaded to GitHub.
+     Thin top row, preprimed presentation box, collapsible settings near the top, details below collapsed by default (sticky).
+     Wipe keeps the Drive link and the rates as set. Dollar amounts in the display are whole dollars (math underneath still uses cents).
+     Gap sign: Value today minus CD value today, so a negative gap means below the CD, a positive gap means above it.
+     How it changed: change since the first price pull in this browser (baseline snapshot), one timeframe label for the whole block.
      There is no latest-data date to set in this version: the app shows the last transaction date in the
      loaded history automatically, and pressing Load from Drive always fetches the newest Drive version. -->
 <!doctype html>
@@ -9,7 +12,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="data:," />
-    <title>CD Guarantee App</title>
+    <title>Market Scorecard: Investments vs CD — Tracked over time</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -134,13 +137,6 @@
       .btn.ghost { background: transparent; color: var(--accent); }
       .btn.small { padding: 6px 11px; font-size: 13px; }
       .btn.danger { border-color: var(--bad); color: var(--bad); background: transparent; }
-      .dropzone {
-        border: 1.5px dashed var(--line); border-radius: 10px;
-        padding: 18px; text-align: center; color: var(--ink-2);
-        transition: border-color .15s, background .15s;
-      }
-      .dropzone.drag { border-color: var(--accent); background: var(--surface-2); }
-      .dropzone p { margin: 0 0 10px; }
       .controls-row { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
       .field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
       .field input[type="number"], .field input[type="text"], .field select {
@@ -186,6 +182,45 @@
       @keyframes todayflash { from { color: var(--warn); } to { color: var(--accent); } }
       @media (prefers-reduced-motion: reduce) { .today-flash { animation: none; color: var(--warn); } }
       .hidden { display: none !important; }
+      .toprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0 4px; }
+      .toprow .drive-input { flex: 1 1 260px; font: inherit; font-size: 15px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--ink); }
+      .linked { font-size: 14px; font-weight: 600; }
+      .tinysignal { font-size: 13px; color: var(--ink-2); margin: 4px 0 0; }
+      .tinysignal:empty { display: none; margin: 0; }
+      .head-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+      .subtitle { font-size: 15px; font-style: italic; color: var(--ink-2); margin-top: 4px; }
+      .mode-tag.server { background: var(--accent); color: var(--accent-ink); }
+      .icon-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--line); background: var(--chip); color: var(--ink-2); font-size: 18px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+      .icon-btn.open { background: var(--accent); color: var(--accent-ink); }
+      .asterisk-btn { background: none; border: none; padding: 0 4px; margin: 0; cursor: pointer; font: inherit; font-weight: 700; color: var(--warn); }
+      .tinysignal .err { color: var(--bad); }
+      .present { padding: 20px; }
+      .present .area { padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .present .area:last-child { border-bottom: none; padding-bottom: 0; }
+      .present .area:first-child { padding-top: 0; }
+      .present .k { font-size: 12px; color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+      .present .v { font-size: 28px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; margin-top: 2px; }
+      .present .v.pos { color: var(--good); } .present .v.neg { color: var(--bad); }
+      .present .n { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+      .present .pair { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+      .present .pair .v { font-size: 22px; }
+      .present-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .present-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--surface-2); }
+      .present-card .group { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; color: var(--ink-2); margin-bottom: 10px; text-transform: uppercase; }
+      .present-card .v { font-size: 22px; }
+      .present-card .lab { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+      .present-card .lab:first-of-type { margin-top: 0; }
+      .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
+      .toggle-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+      .toggle-btn.active { background: var(--accent); color: var(--accent-ink); }
+      .settings-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 16px; margin: 10px 0 16px; }
+      .settings-subhead { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin: 14px 0 6px; }
+      .settings-subhead:first-of-type { margin-top: 10px; }
+      .settings-divider { border: none; border-top: 1px solid var(--line); margin: 16px 0 2px; }
+      .settings-panel summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+      .tinyfoot { color: var(--ink-3); font-size: 12.5px; text-align: center; margin-top: 18px; line-height: 1.8; }
+      .tinyfoot a, .tinyfoot label { color: var(--ink-3); text-decoration: underline; cursor: pointer; }
+      .details-toggle { margin: 4px 0 12px; }
       @media (max-width: 560px) {
         .card { padding: 14px; }
         .tbl-wrap, .txn-list { margin: 0 -14px; padding: 0 14px; }
@@ -196,28 +231,96 @@
   <body>
     <div class="wrap">
       <header class="top">
-        <h1>CD Guarantee Tracker</h1>
-        <span class="ver">v1.4</span>
-        <span class="mode-tag" id="modeTag">standalone</span>
-        <span class="spacer"></span>
-        <span class="today" id="todayLine"></span>
+        <div class="head-row">
+          <h1>Market Scorecard: Investments vs CD</h1>
+          <span class="ver">v2.3</span>
+          <span class="mode-tag" id="modeTag">web</span>
+          <span class="spacer"></span>
+          <button class="icon-btn" id="settingsIconBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⚙</button>
+        </div>
+        <div class="subtitle">Tracked over time<button id="mixedAsterisk" type="button" class="asterisk-btn hidden" title="Prices were not all fetched at the same time — see Holdings" aria-label="Prices were not all fetched at the same time — see Holdings">*</button><span id="lastFetchLine"></span></div>
       </header>
 
-      <!-- ============ VERDICT ============ -->
-      <section class="card verdict" id="verdictCard">
-        <div class="biglabel" id="verdictLabel">Guarantee status</div>
-        <div class="big" id="verdictBig">No transactions loaded yet</div>
-        <p class="sub" id="verdictSub" style="margin-bottom:0">Upload the account's complete transaction history (records.csv) below. This compares what the account has actually produced against what the same deposits would have earned at the CD rate.</p>
-        <div class="statgrid hidden" id="statGrid">
-          <div class="stat"><div class="k">Account value</div><div class="v mono" id="stAccount">—</div><div class="n" id="stAccountN">holdings + cash</div></div>
-          <div class="stat"><div class="k">Money taken out, in savings</div><div class="v mono" id="stWithdrawn">—</div><div class="n" id="stWithdrawnN">grown at the savings rate</div></div>
-          <div class="stat"><div class="k">Total actual</div><div class="v mono" id="stActual">—</div><div class="n">Account value + savings</div></div>
-          <div class="stat"><div class="k">What the CD would have paid today</div><div class="v mono" id="stBench">—</div><div class="n" id="stBenchN">deposits only, at 4.32%/yr</div></div>
-          <div class="stat"><div class="k">Money put in, minus money taken out</div><div class="v mono" id="stNet">—</div><div class="n" id="stNetN">deposits − withdrawals</div></div>
+      <!-- Settings: hidden block below the header, opened by the gear icon.
+           When open it pushes everything below down; when closed it takes no space. -->
+      <div class="settings-panel hidden" id="settingsPanel">
+        <div style="font-weight:700;font-size:14px">Settings</div>
+        <div class="settings-subhead">Rates</div>
+        <p class="sub" style="margin:10px 0 12px">Rates used in the comparison. The CD rate grows deposits; the savings rate grows money taken out, on the actual side. Changing a rate recalculates the box below.</p>
+        <div class="controls-row">
+          <div class="field">
+            <label for="cdRate">CD rate (annual)</label>
+            <div class="with-unit"><input type="number" id="cdRate" step="0.01" min="0" max="30" value="4.32" style="width:96px" /><span>% / yr</span></div>
+          </div>
+          <div class="field">
+            <label for="savRate">Savings rate (annual)</label>
+            <div class="with-unit"><input type="number" id="savRate" step="0.01" min="0" max="30" value="3.5" style="width:96px" /><span>% / yr</span></div>
+          </div>
         </div>
-        <div class="eq hidden" id="verdictEq"></div>
+        <hr class="settings-divider" />
+        <div class="settings-subhead">Saved data</div>
+        <div class="controls-row">
+          <div class="field"><button class="btn danger small" id="clearBtn" type="button">Erase saved data</button></div>
+        </div>
+        <p class="src" style="margin-top:10px">Erase clears transactions, prices and the change baseline, and returns the box to dashes. It keeps the Drive link and the rates as set. Erase asks for a second click to confirm.</p>
+      </div>
+      <!-- ============ TOP ROW (thin layer) ============ -->
+      <div class="toprow" id="topRow">
+        <button class="btn" id="loadDriveBtn" type="button">Load from Drive</button>
+        <button class="btn" id="updatePricesBtn" type="button">Update prices</button>
+        <input id="driveId" type="text" class="drive-input" placeholder="Paste the Drive link or file ID once, then press Load from Drive" />
+        <span id="driveLinkedRow" class="linked hidden">Drive ID Saved <button class="btn small" id="changeDriveIdBtn" type="button" style="margin-left:8px">Change</button> <button class="btn small" id="clearDriveIdBtn" type="button" style="margin-left:4px">Remove</button></span>
+      </div>
+      <p class="tinysignal" id="driveStatus"></p>
+      <p class="tinysignal" id="topFetchStatus"></p>
+      <section class="card present" id="presentBox">
+        <div class="present-grid">
+          <div class="present-card">
+            <div class="group">Account</div>
+            <div class="lab">Money in</div>
+            <div class="v mono" id="pMoneyIn">—</div>
+            <div class="n" id="pMoneyInN">deposits minus money taken out</div>
+            <div class="lab">Value today</div>
+            <div class="v mono" id="pValueToday">—</div>
+            <div class="n" id="pValueTodayN">total: account + savings</div>
+          </div>
+          <div class="present-card">
+            <div class="group">Diffs</div>
+            <div class="lab">vs money in</div>
+            <div class="v mono" id="pGapMoneyIn">—</div>
+            <div class="n" id="pGapMoneyInN">money in —</div>
+            <div class="lab">vs CD projection</div>
+            <div class="v mono" id="pGap">—</div>
+            <div class="n" id="pGapN">projected to today: —</div>
+          </div>
+          <div class="present-card">
+            <div class="group">Yearly rate</div>
+            <div class="lab">Actual</div>
+            <div class="v mono" id="pPaceActual">—</div>
+            <div class="lab">CD</div>
+            <div class="v mono" id="pPaceCD">—</div>
+            <div class="n">fixed rate</div>
+          </div>
+          <div class="present-card">
+            <div class="group" id="pChangeK">How it changed</div>
+            <div class="lab">Change in gap</div>
+            <div class="v mono" id="pGapChange">—</div>
+            <div class="lab">Change in pace</div>
+            <div class="v mono" id="pPaceChange">—</div>
+            <div class="change-toggle">
+              <button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From baseline</button>
+              <button class="toggle-btn" id="changeModeLastBtn" type="button">Last update</button>
+            </div>
+            <div class="n" id="pChangeN">No baseline yet — the first price pull in this browser sets it.</div>
+          </div>
+        </div>
       </section>
+      <p class="src" id="fileInfo" style="margin:-8px 0 12px"></p>
+      <p class="price-status" id="priceStatus" style="margin:-4px 0 16px">Prices are fetched only when you press <b>Update prices</b> — never automatically.</p>
+      <!-- 2.3: verdict card removed — the 2x2 presentation box above is now the only main view. Its numbers were duplicates of the box; Holdings in details still shows the holdings + cash split, and First check in details still shows the Feb 10 target. -->
 
+      <button class="btn ghost small details-toggle" id="detailsToggle" type="button">Show details</button>
+      <div id="detailsWrap" class="hidden">
       <!-- ============ TARGET ============ -->
       <section class="card hidden" id="targetCard">
         <div class="card-head">
@@ -229,56 +332,6 @@
           <span id="targetDays">—</span>
           <span class="src">What the CD would have paid on that date (deposits only, no new money in or out): <b class="mono" id="targetBench" style="color:var(--ink)">—</b></span>
         </div>
-      </section>
-
-      <!-- ============ HISTORY & PRICES ============ -->
-
-      <section class="card" id="historyCard">
-        <div class="card-head"><h2>History &amp; prices</h2></div>
-        <p class="sub" style="margin-bottom:10px">A new complete history replaces the old one, never adds to it. Saved in this browser only.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" id="loadDriveBtn" type="button">Load from Drive</button>
-          <label class="btn" for="fileInput" style="display:inline-block">Upload records.csv</label>
-          <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
-        </div>
-        <div id="driveIdRow" style="margin-top:10px;display:flex;gap:8px">
-          <input id="driveId" type="text" placeholder="Paste the Drive link or file ID once, then press Load from Drive" style="flex:1" />
-        </div>
-        <div id="driveLinkedRow" class="hidden" style="margin-top:10px">Drive linked &#10003; <button class="btn small" id="changeDriveIdBtn" type="button" style="margin-left:8px">Change</button> <button class="btn small" id="clearDriveIdBtn" type="button" style="margin-left:4px">Remove</button></div>
-        <p class="src" id="driveStatus" style="margin:8px 0 0"></p>
-        <p class="src hidden" id="driveDownloadRow" style="margin:4px 0 0"><a id="driveDownloadLink" href="#" target="_blank" rel="noopener">Download records.csv from Drive</a> — then press Upload records.csv above.</p>
-        <p class="src" id="fileInfo" style="margin:4px 0 0"></p>
-        <div class="dropzone" id="dropzone" style="padding:8px;margin-top:10px">
-          <p id="dzText" style="margin:0">Or drop a newer complete history here to replace it.</p>
-        </div>
-        <div class="controls-row" style="margin-top:18px">
-          <div class="field">
-            <label for="cdRate">Guaranteed CD rate (annual)</label>
-            <div class="with-unit">
-              <input type="number" id="cdRate" step="0.01" min="0" max="30" value="4.32" style="width:96px" />
-              <span>% / yr</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="savRate">Savings rate (annual)</label>
-            <div class="with-unit">
-              <input type="number" id="savRate" step="0.01" min="0" max="30" value="3.5" style="width:96px" />
-              <span>% / yr</span>
-            </div>
-          </div>
-          <div class="field">
-            <label for="priceMode">Price source</label>
-            <select id="priceMode">
-              <option value="auto">Auto (web)</option>
-                            <option value="browser">Web only</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>&nbsp;</label>
-            <button class="btn" id="updatePricesBtn" type="button">Update prices</button>
-          </div>
-        </div>
-        <div class="price-status" id="priceStatus">Prices are fetched only when you press <b>Update prices</b> — never automatically.</div>
       </section>
 
       <!-- ============ HOLDINGS ============ -->
@@ -342,9 +395,9 @@
 
       <!-- ============ SETTINGS / HELP ============ -->
       <section class="card">
-        <div class="card-head"><h2>About this app</h2><span class="right"><button class="btn danger small" id="clearBtn" type="button">Erase saved data</button></span></div>
+        <div class="card-head"><h2>About this scorecard</h2></div>
         <details class="how">
-          <summary>How the guarantee math works</summary>
+          <summary>How the comparison math works</summary>
           <div>
             <ul>
               <li><b>CD comparison:</b> each deposit is counted at the CD rate from the day it went in, up to today. Money taken out is not subtracted from the comparison.</li>
@@ -367,7 +420,14 @@
         </details>
       </section>
 
-      <footer>CD Guarantee App · v1.4 · Data is saved in this browser only.</footer>
+      </div><!-- /detailsWrap -->
+      <div class="tinyfoot">
+        <label for="fileInput">Upload records.csv</label>
+        <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden" />
+        <span> · </span><a id="driveDownloadLink" href="#" target="_blank" rel="noopener" class="hidden">Download records.csv from Drive</a>
+        <br /><span>Prices and history are saved in this browser only.</span>
+      </div>
+      <footer>Market Scorecard · v2.3 · Data is saved in this browser only.</footer>
     </div>
 
     <script>
@@ -375,7 +435,7 @@
       'use strict';
 
       /* ================= storage ================= */
-      var K_TXN = 'cdg_txns_v1', K_SET = 'cdg_settings_v1', K_PRC = 'cdg_prices_v1', K_META = 'cdg_meta_v1';
+      var K_TXN = 'cdg_txns_v1', K_SET = 'cdg_settings_v1', K_PRC = 'cdg_prices_v1', K_META = 'cdg_meta_v1', K_SNAP = 'cdg_snapshot_v1', K_DET = 'cdg_details_open_v1', K_CHG = 'cdg_change_mode_v1';
       function loadJSON(k, fallback) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
       function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
@@ -387,20 +447,29 @@
         txns: loadJSON(K_TXN, []),                 // parsed transaction rows
         meta: loadJSON(K_META, null),              // {fileName, uploadedAt, rowCount}
         settings: loadJSON(K_SET, { cdRate: 4.32, savingsRate: 3.5, priceMode: 'auto' }),
-        prices: loadJSON(K_PRC, {})                // SYM -> {price, prevClose, isMarketOpen, regularMarketTime, fetchedAt, source, error, manual}
+        prices: loadJSON(K_PRC, {}),                // SYM -> {price, prevClose, isMarketOpen, regularMarketTime, fetchedAt, source, error, manual}
+        snapshot: loadJSON(K_SNAP, null),           // {first:{gap,pace,dateISO,priceFetch}, last:{...}, prev:{...}|null} — prev is the previous price pull only
+        changeMode: (function () { var m = loadJSON(K_CHG, 'baseline'); return (m === 'last' || m === 'baseline') ? m : 'baseline'; })(),
+        lastPriceSource: null,  // 'server' or 'web', set only after an actual price fetch — never from hostname alone (2.3)
+        detailsOpen: loadJSON(K_DET, false)
       };
       if (typeof state.settings.cdRate !== 'number') state.settings.cdRate = 4.32;
       if (typeof state.settings.savingsRate !== 'number') state.settings.savingsRate = 3.5;
-      if (!state.settings.priceMode) state.settings.priceMode = 'auto';
+      // 2.3: Price source selection removed — Auto always. Any saved 'browser' choice from 2.2 is normalised to auto.
+      state.settings.priceMode = 'auto';
 
       /* ================= helpers ================= */
       function $(id) { return document.getElementById(id); }
+      // No cents in the display (v2.3): dollar totals are whole dollars, rounded.
+      // Math underneath still uses cents. Per-share prices keep cents (fmtPrice),
+      // because a share price is not a dollar total.
       function fmtMoney(n, signed) {
         if (n == null || !isFinite(n)) return '—';
-        var s = Math.abs(n).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        var s = '$' + Math.round(Math.abs(n)).toLocaleString('en-US');
         if (signed) return (n < 0 ? '−' : '+') + s;
         return (n < 0 ? '−' : '') + s;
       }
+      function fmtPrice(n) { if (n == null || !isFinite(n)) return '—'; return '$' + Number(n).toFixed(2); }
       function fmtNum(n, dp) {
         if (n == null || !isFinite(n)) return '—';
         return n.toLocaleString('en-US', { minimumFractionDigits: dp, maximumFractionDigits: dp });
@@ -645,7 +714,8 @@
                 isMarketOpen: !!(reg && nowSec >= reg.start && nowSec < reg.end),
                 regularMarketTime: meta.regularMarketTime || null,
                 fetchedAt: Date.now(),
-                source: 'Yahoo via ' + p.name,
+                source: 'Yahoo\u2122 via ' + p.name,
+                currency: meta.currency || null,
                 error: null
               };
             });
@@ -653,14 +723,16 @@
         });
         return chain;
       }
-      function fetchViaBrowser(symbols) {
+      function fetchViaBrowser(symbols, onProgress, onSymbol) {
         var result = {};
         var seq = Promise.resolve();
-        symbols.forEach(function (sym) {
+        symbols.forEach(function (sym, idx) {
           seq = seq.then(function () {
-            return fetchOneViaBrowser(sym).then(function (rec) { result[sym] = rec; })
+            if (onProgress) onProgress(sym, idx + 1, symbols.length);
+            return fetchOneViaBrowser(sym).then(function (rec) { result[sym] = rec; if (onSymbol) onSymbol(sym, rec); })
               .catch(function (e) {
-                result[sym] = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: Date.now(), source: 'Yahoo via proxy', error: e.message || 'all proxies failed' };
+                var rec = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: Date.now(), source: 'Yahoo via proxy', error: e.message || 'all proxies failed' };
+                result[sym] = rec; if (onSymbol) onSymbol(sym, rec);
               });
           }).then(function () { return sleep(400); });
         });
@@ -675,17 +747,30 @@
         return 'browser';
       }
       function updateModeTag() {
-        var mode = detectMode();
+        // 2.3: the pill must not claim 'server' from hostname alone. A local
+        // address (127.0.0.1:13165 file viewer, a home server, any localhost)
+        // all share the same hostname, and only a real /api/history answer
+        // proves a server. So: file -> 'file'; after a fetch, the pill shows
+        // the actual source used; before any fetch, a local origin is just
+        // 'local' (grey, unconfirmed), never green 'server'.
         var proto = location.protocol;
-        var label = proto === 'file:' ? 'opened as a file' : (mode === 'server' ? 'server mode' : 'web mode');
-        $('modeTag').textContent = 'v1.4 · ' + label;
+        var tag = $('modeTag');
+        if (proto === 'file:') { tag.textContent = 'file'; tag.classList.remove('server'); return; }
+        if (state.lastPriceSource === 'server') { tag.textContent = 'server'; tag.classList.add('server'); return; }
+        if (state.lastPriceSource === 'web') { tag.textContent = 'web'; tag.classList.remove('server'); return; }
+        var h = location.hostname || '';
+        var isLocal = h === 'localhost' || h === '127.0.0.1' || /^192\.168\./.test(h) || /^10\./.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h);
+        tag.textContent = isLocal ? 'local' : 'web';
+        tag.classList.remove('server');
       }
 
       /* ================= rendering ================= */
       function render() {
         updateModeTag();
         updateDriveUI();
-        $('todayLine').textContent = 'Status as of ' + fmtDate(todayDate());
+        var latestFetch = 0;
+        Object.keys(state.prices).forEach(function (k) { var pp = state.prices[k]; if (pp && pp.price != null && pp.fetchedAt) latestFetch = Math.max(latestFetch, pp.fetchedAt); });
+        $('lastFetchLine').textContent = latestFetch ? ' · Prices up to ' + fmtDateTime(latestFetch) : '';
         $('cdRate').value = state.settings.cdRate;
         $('savRate').value = state.settings.savingsRate;
         var hasTxns = state.txns.length > 0;
@@ -698,22 +783,19 @@
         if (state.meta) {
           var lastTxn = state.txns.length ? fmtDate(parseDateStr(state.txns[state.txns.length - 1].date)) : '—';
           $('fileInfo').textContent = 'Loaded: ' + state.meta.fileName + ' · ' + state.meta.rowCount + ' transactions · history up to ' + lastTxn + ' · saved in this browser';
-          if ($('dzText')) $('dzText').textContent = 'Or drop a newer complete history here to replace it.';
         } else {
           $('fileInfo').textContent = '';
         }
 
         if (!hasTxns) {
-          $('verdictCard').className = 'card verdict';
-          $('statGrid').classList.add('hidden');
-          $('verdictEq').classList.add('hidden');
+          renderPresentation(null);
+          if ($('topFetchStatus')) $('topFetchStatus').textContent = '';
+          $('updatePricesBtn').disabled = true;
           $('targetCard').classList.add('hidden');
           $('holdingsCard').classList.add('hidden');
           $('benchCard').classList.add('hidden');
           $('txnCard').classList.add('hidden');
-          $('verdictLabel').textContent = 'Guarantee status';
-          $('verdictBig').textContent = 'No transactions loaded yet';
-          $('verdictSub').textContent = "Upload the account's complete transaction history (records.csv) below. This compares what the account has actually produced against what the same deposits would have earned at the CD rate.";
+          // 2.3: no verdict card — the preprimed presentation box above already shows dashes / no-data state.
           return;
         }
 
@@ -733,46 +815,12 @@
         var benchToday = cdValue(model.depositFlows, rate, asOf);
         var shortfall = pricesComplete ? benchToday - totalActual : null;
 
-        // ---- verdict ----
-        var card = $('verdictCard');
-        if (!pricesComplete) {
-          card.className = 'card verdict';
-          $('verdictLabel').textContent = 'Guarantee status — prices needed';
-          $('verdictBig').textContent = 'Add prices to see the verdict';
-          $('verdictSub').textContent = 'No current price for ' + missingPrices.join(', ') + ' yet. Press “Update prices” above, or type a price in the Holdings table.';
-        } else if (shortfall > 0.005) {
-          card.className = 'card verdict behind';
-          $('verdictLabel').innerHTML = 'Behind the CD — amount needed · <span class="today-flash">TODAY</span>';
-          $('verdictBig').textContent = fmtMoney(shortfall);
-          $('verdictSub').textContent = 'Amount needed now to match what the CD would have paid.';
-        } else {
-          card.className = 'card verdict ahead';
-          $('verdictLabel').innerHTML = 'Ahead of the CD — nothing owed · <span class="today-flash">TODAY</span>';
-          $('verdictBig').textContent = fmtMoney(-shortfall) + ' ahead';
-          $('verdictSub').textContent = 'The account has produced more than the CD would have on the same deposits. Nothing is needed if settled today.';
-        }
-        $('statGrid').classList.remove('hidden');
-        $('stAccount').textContent = pricesComplete ? fmtMoney(accountValue) : '—';
-        $('stAccountN').textContent = 'holdings ' + (pricesComplete ? fmtMoney(holdingsMV) : '—') + ' + cash ' + fmtMoney(model.cash);
-        $('stWithdrawn').textContent = fmtMoney(savingsToday);
-        $('stWithdrawnN').textContent = fmtMoney(model.withdrawals) + ' taken · grown at ' + fmtPct(savRate) + '/yr in savings';
-        $('stActual').textContent = pricesComplete ? fmtMoney(totalActual) : '—';
-        $('stBench').textContent = fmtMoney(benchToday);
-        $('stBenchN').textContent = 'deposits only, at ' + fmtPct(rate) + '/yr';
-        $('stNet').textContent = fmtMoney(model.deposits - model.withdrawals);
-        $('stNetN').textContent = fmtMoney(model.deposits) + ' in · ' + fmtMoney(model.withdrawals) + ' out · dividends ' + fmtMoney(model.dividends);
-        // XIRR treats the account + savings as one pot: external flows are the deposits,
-        // terminal value is total actual. Withdrawals are internal transfers.
+        // 2.3: verdict card removed — its numbers are the 2x2 presentation box above.
+        // XIRR is still computed here because Yearly rate (Actual) in the box uses it.
         var xr = pricesComplete ? xirr(model.depositFlows, totalActual, asOf) : null;
         if ($('stXirr')) $('stXirr').textContent = xr == null ? '—' : fmtPct(xr);
         if ($('xirrDetail')) $('xirrDetail').textContent = xr == null ? 'not enough history to work out' : (fmtPct(xr) + ' a year, vs CD ' + fmtPct(rate) + ' a year');
         if ($('stXirrN')) $('stXirrN').textContent = xr == null ? 'not enough history to solve' : ('vs CD ' + fmtPct(rate) + ' — ' + (xr >= rate ? 'running ahead of CD pace' : 'running behind CD pace'));
-        var eq = $('verdictEq');
-        eq.classList.remove('hidden');
-        eq.innerHTML = pricesComplete
-          ? 'Check: <b>' + fmtMoney(accountValue) + '</b> in the account + <b>' + fmtMoney(savingsToday) + '</b> in savings (money taken out, grown at ' + fmtPct(savRate) + '/yr) = <b>' + fmtMoney(totalActual) + '</b> total actual, against a CD comparison of <b>' + fmtMoney(benchToday) + '</b> (deposits only).'
-          : 'The What the CD would have paid today is <b>' + fmtMoney(benchToday) + '</b>. The actual side needs current prices for every holding.';
-
         // ---- target ----
         var target = new Date(model.firstDate.getFullYear(), model.firstDate.getMonth() + 6, model.firstDate.getDate());
         $('targetCard').classList.remove('hidden');
@@ -799,13 +847,16 @@
           var srcBits = [];
           if (p.manual) srcBits.push('<span class="pill manual">manual</span>');
           else if (p.price != null) srcBits.push('<span class="pill ' + (p.isMarketOpen ? 'open' : 'closed') + '">' + (p.isMarketOpen ? 'market open' : 'last close') + '</span>');
-          if (p.error && !p.manual) srcBits.push('<span class="stale">update failed: ' + esc(p.error) + '</span>');
+          if (p.error && !p.manual) {
+            if (p.price != null) srcBits.push('<span class="pill">old price kept</span> <span class="src">from ' + fmtDateTime(p.fetchedAt) + (p.currency ? ' · ' + esc(p.currency) : '') + '</span>');
+            else srcBits.push('<span class="stale">update failed: ' + esc(p.error) + '</span>');
+          }
           var tr = document.createElement('tr');
           tr.innerHTML =
             '<td><b>' + esc(sym) + '</b><div class="src">' + srcBits.join(' ') + (p.fetchedAt && !p.manual ? ' · quote ' + (p.regularMarketTime ? fmtDateTime(p.regularMarketTime * 1000) : fmtDateTime(p.fetchedAt)) : '') + '</div></td>' +
             '<td class="num">' + fmtNum(h.shares, 5) + '</td>' +
             '<td class="num"><input class="price-input" data-sym="' + esc(sym) + '" type="number" step="0.01" min="0" placeholder="—" value="' + (p.price != null ? p.price : '') + '" aria-label="Price for ' + esc(sym) + '" /></td>' +
-            '<td class="num">' + (p.prevClose != null ? fmtMoney(p.prevClose) : '—') + '</td>' +
+            '<td class="num">' + (p.prevClose != null ? fmtPrice(p.prevClose) : '—') + '</td>' +
             '<td class="num">' + dayHtml + '</td>' +
             '<td class="num">' + (mv != null ? fmtMoney(mv) : '—') + '</td>' +
             '<td class="num">' + fmtMoney(h.cost) + '</td>' +
@@ -871,7 +922,133 @@
           tb.appendChild(tr);
         });
 
+        renderPresentation(model, accountValue, totalActual, benchToday, pricesComplete, asOf);
+        if ($('updatePricesBtn')) $('updatePricesBtn').disabled = updating ? true : !hasTxns;
         renderPriceStatus();
+        if (!updating) renderTopSignal();
+      }
+
+      function renderPresentation(model, accountValue, totalActual, benchToday, pricesComplete, asOf) {
+        var rate = state.settings.cdRate, savRate = state.settings.savingsRate;
+        if (!model) {
+          $('pMoneyIn').textContent = '—'; $('pValueToday').textContent = '—'; $('pGap').textContent = '—'; $('pGapMoneyIn').textContent = '—';
+          $('pGap').className = 'v mono'; $('pGapMoneyIn').className = 'v mono';
+          $('pGapN').textContent = 'projected to today: —'; $('pGapMoneyInN').textContent = 'money in —';
+          $('pPaceActual').textContent = '—'; $('pPaceCD').textContent = '—';
+          $('pGapChange').textContent = '—'; $('pPaceChange').textContent = '—';
+          $('pChangeN').textContent = 'No baseline yet — the first price pull in this browser sets it.';
+          return;
+        }
+        var net = model.deposits - model.withdrawals;
+        var savingsToday = cdValue(model.withdrawalFlows, savRate, asOf);
+        $('pMoneyIn').textContent = fmtMoney(net);
+        $('pMoneyInN').textContent = fmtMoney(model.deposits) + ' in · ' + fmtMoney(model.withdrawals) + ' out';
+        $('pValueToday').textContent = pricesComplete ? fmtMoney(totalActual) : '—';
+        $('pValueTodayN').textContent = pricesComplete ? ('account ' + fmtMoney(accountValue) + ' + savings ' + fmtMoney(savingsToday)) : 'total: account + savings';
+        $('pGapN').textContent = 'projected to today: ' + fmtMoney(benchToday) + ' · − means below the CD projection, + means above it';
+        $('pGapMoneyInN').textContent = 'money in ' + fmtMoney(net);
+        $('pPaceCD').textContent = fmtPct(rate) + ' a year';
+        if (!pricesComplete) {
+          $('pGap').textContent = '—'; $('pGap').className = 'v mono';
+          $('pGapMoneyIn').textContent = '—'; $('pGapMoneyIn').className = 'v mono';
+          $('pPaceActual').textContent = '—';
+          $('pGapChange').textContent = '—'; $('pPaceChange').textContent = '—';
+          $('pChangeN').textContent = 'No baseline yet — the first price pull in this browser sets it.';
+          return;
+        }
+        var gap = totalActual - benchToday;
+        var pace = xirr(model.depositFlows, totalActual, asOf);
+        $('pGap').textContent = fmtMoney(gap, true);
+        $('pGap').className = 'v mono ' + (gap > 0.5 ? 'pos' : gap < -0.5 ? 'neg' : '');
+        var gapMI = totalActual - net;
+        $('pGapMoneyIn').textContent = fmtMoney(gapMI, true);
+        $('pGapMoneyIn').className = 'v mono ' + (gapMI > 0.5 ? 'pos' : gapMI < -0.5 ? 'neg' : '');
+        $('pPaceActual').textContent = pace == null ? '—' : fmtPct(pace, 1) + ' a year';
+        // Latest price fetch time across priced symbols. This, not Date.now(),
+        // is what marks a new price pull: reloads, rate changes and toggle
+        // switches do not move it, so they do not create a false 'previous'.
+        var latestPriceFetch = 0;
+        Object.keys(state.prices).forEach(function (k) { var pp = state.prices[k]; if (pp && pp.price != null && pp.fetchedAt) latestPriceFetch = Math.max(latestPriceFetch, pp.fetchedAt); });
+        if (!state.snapshot || !state.snapshot.first) {
+          state.snapshot = { first: { gap: gap, pace: pace, dateISO: toLocalISODate(asOf), priceFetch: latestPriceFetch }, last: { gap: gap, pace: pace, dateISO: toLocalISODate(asOf), priceFetch: latestPriceFetch }, prev: null };
+          saveJSON(K_SNAP, state.snapshot);
+          $('pGapChange').textContent = '—'; $('pPaceChange').textContent = '—';
+          $('pChangeN').textContent = 'Baseline set ' + fmtDate(asOf) + ' — change will show on the next price update.';
+          return;
+        }
+        // Migration from pre-2.2 snapshots (which had no prev and used a
+        // render-time fetchedAt): initialise prev to null and normalise
+        // last.priceFetch to the latest price fetch, without inventing a
+        // previous pull. The next real price pull will set prev correctly.
+        if (state.snapshot.prev === undefined) {
+          state.snapshot.prev = null;
+          state.snapshot.last = { gap: gap, pace: pace, dateISO: toLocalISODate(asOf), priceFetch: latestPriceFetch };
+          saveJSON(K_SNAP, state.snapshot);
+        } else if (latestPriceFetch > (state.snapshot.last.priceFetch || 0)) {
+          // A new price pull (Update prices with at least one new price, or
+          // a manual price entry): the old last becomes the previous pull.
+          state.snapshot.prev = state.snapshot.last;
+          state.snapshot.last = { gap: gap, pace: pace, dateISO: toLocalISODate(asOf), priceFetch: latestPriceFetch };
+          saveJSON(K_SNAP, state.snapshot);
+        }
+        // Toggle: change vs first (baseline, default) or vs prev (last update).
+        // Switching the toggle does not touch snapshots (priceFetch above is
+        // unchanged), so it cannot create a false previous pull.
+        if (state.changeMode === 'last') {
+          var prev = state.snapshot.prev;
+          if (!prev) {
+            $('pGapChange').textContent = '—'; $('pPaceChange').textContent = '—';
+            $('pChangeN').textContent = 'No previous update yet — change will show after the next price update.';
+          } else {
+            $('pGapChange').textContent = fmtMoney(gap - prev.gap, true);
+            $('pPaceChange').textContent = (pace == null || prev.pace == null) ? '—' : fmtPct(pace - prev.pace, 1);
+            $('pChangeN').textContent = 'Since last update, ' + fmtDate(parseDateStr(prev.dateISO)) + ' — one timeframe for the whole block.';
+          }
+        } else {
+          var first = state.snapshot.first;
+          $('pGapChange').textContent = fmtMoney(gap - first.gap, true);
+          $('pPaceChange').textContent = (pace == null || first.pace == null) ? '—' : fmtPct(pace - first.pace, 1);
+          $('pChangeN').textContent = 'Since first prices, ' + fmtDate(parseDateStr(first.dateISO)) + ' — one timeframe for the whole block.';
+        }
+      }
+
+      function renderTopSignal() {
+        // Asterisk / message rules (v2.2):
+        // - Missing price(s): NO asterisk, NO footnote. Message below the
+        //   action buttons instead (topFetchStatus), space used only then.
+        // - All tickers priced, fetched within 1 hour of each other: NO
+        //   asterisk. Two runs within the same hour count as the same
+        //   effective time/run, for this display and related behaviour.
+        // - All tickers priced, fetched more than 1 hour apart (one lagged):
+        //   asterisk in the second line only (a button that jumps to Holdings).
+        //   No footnote in the box, no message below the buttons — space
+        //   reclaimed in both places. TopFetchStatus is cleared here.
+        // Currency mix alone does NOT trigger the asterisk.
+        var el = $('topFetchStatus');
+        var ast = $('mixedAsterisk');
+        function clearMixed() { if (ast) ast.classList.add('hidden'); }
+        if (!state.txns.length) { if (el) el.textContent = ''; clearMixed(); return; }
+        var model = buildModel();
+        var syms = model.symbols;
+        if (!syms.length) { if (el) el.textContent = ''; clearMixed(); return; }
+        var missing = [], times = [];
+        syms.forEach(function (x) {
+          var pp = state.prices[x];
+          if (!pp || pp.price == null) { missing.push(x); return; }
+          if (pp.fetchedAt) times.push(pp.fetchedAt);
+        });
+        if (missing.length) {
+          clearMixed();
+          if (el) el.innerHTML = '<span class="err">' + missing.length + ' price' + (missing.length === 1 ? '' : 's') + ' missing — see Holdings.</span>';
+          return;
+        }
+        if (el) el.textContent = '';
+        var lagged = false;
+        if (times.length) {
+          var mn = Math.min.apply(null, times), mx = Math.max.apply(null, times);
+          lagged = (mx - mn) > 3600000;
+        }
+        if (ast) ast.classList.toggle('hidden', !lagged);
       }
 
       function renderPriceStatus() {
@@ -886,10 +1063,17 @@
         });
         if (!anyFetched) { el.innerHTML = 'No prices fetched yet in this browser. Press <b>Update prices</b> or type prices into the Holdings table.'; return; }
         var open = syms.some(function (s) { var p = state.prices[s]; return p && p.isMarketOpen; });
-        parts.push('Prices last updated <b>' + fmtDateTime(latest) + '</b> (your local time)');
+        // No single timestamp here: not all tickers are at the same time.
+        // Each ticker's own price date and currency are shown in Holdings.
+        parts.push('Prices fetched — see Holdings for each ticker\'s own price date');
         parts.push('source: ' + Object.keys(srcs).join(', '));
         parts.push(open ? 'market was open — intraday quotes' : 'market closed — last close prices');
-        if (anyError) parts.push('<span class="err">some symbols failed and kept their previous price (marked in Holdings)</span>');
+        if (anyError) {
+          var stale = syms.filter(function (x) { var pp = state.prices[x]; return pp && pp.error && !pp.manual && pp.price != null; });
+          var noPrice = syms.filter(function (x) { var pp = state.prices[x]; return pp && pp.error && !pp.manual && pp.price == null; });
+          if (stale.length) parts.push('<span class="err">old prices kept for: ' + stale.join(', ') + ' — see Holdings for each old price\'s date and currency</span>');
+          if (noPrice.length) parts.push('<span class="err">no price yet for: ' + noPrice.join(', ') + '</span>');
+        }
         el.innerHTML = parts.join(' · ') + '.';
       }
 
@@ -900,46 +1084,88 @@
         var model = buildModel();
         var syms = model.symbols;
         if (!syms.length) { $('priceStatus').innerHTML = '<span class="err">Upload a transaction history first — there are no holdings to price.</span>'; return; }
+        if ($('driveStatus')) $('driveStatus').textContent = '';
         updating = true;
         var btn = $('updatePricesBtn');
         btn.disabled = true; btn.textContent = 'Updating…';
         var mode = detectMode();
-        $('priceStatus').textContent = 'Fetching ' + syms.join(', ') + ' via ' + (mode === 'server' ? 'this server’s /api/history endpoint' : 'Yahoo through a web proxy') + '…';
-        var job = mode === 'server' ? fetchViaServer(syms) : fetchViaBrowser(syms);
-        // In auto mode, a total server failure falls back to the web provider.
+        // Fetch order (v2.2, new requirement): missing prices first, then oldest
+        // prices first (by last fetched time, oldest first). Failed/old symbols
+        // naturally come first this way, because their last fetched time is old.
+        // Manual prices are ordered by their manual entry time, like any price.
+        var orderedSyms = syms.slice().sort(function (a, b) {
+          var pa = state.prices[a], pb = state.prices[b];
+          var aMissing = !pa || pa.price == null, bMissing = !pb || pb.price == null;
+          if (aMissing && !bMissing) return -1;
+          if (!aMissing && bMissing) return 1;
+          var ta = pa && pa.fetchedAt ? pa.fetchedAt : 0, tb = pb && pb.fetchedAt ? pb.fetchedAt : 0;
+          return ta - tb;
+        });
+        function progress(sym, idx, total) {
+          var remaining = orderedSyms.slice(idx);
+          var txt = 'Fetching ' + sym + ' from Yahoo\u2122 (' + idx + ' of ' + total + ')' + (remaining.length ? ' — still to go: ' + remaining.join(', ') : ' — last one');
+          $('priceStatus').textContent = txt;
+          if ($('topFetchStatus')) $('topFetchStatus').textContent = txt;
+        }
+        function saveOneSymbol(sym, rec) {
+          // Save each price as soon as it succeeds, so a fetch paused or
+          // killed by switching apps does not lose prices already fetched.
+          var prev = state.prices[sym];
+          if (rec && rec.price != null) {
+            state.prices[sym] = { price: rec.price, prevClose: rec.prevClose, isMarketOpen: rec.isMarketOpen, regularMarketTime: rec.regularMarketTime, fetchedAt: rec.fetchedAt || Date.now(), source: rec.source, currency: rec.currency != null ? rec.currency : (prev ? prev.currency : null), error: null, manual: false };
+            saveJSON(K_PRC, state.prices);
+          } else if (prev && prev.price != null && !prev.manual) {
+            state.prices[sym] = Object.assign({}, prev, { error: rec ? (rec.error || 'fetch failed') : 'fetch failed', manual: false });
+            saveJSON(K_PRC, state.prices);
+          }
+        }
+        var fetchStartTxt = 'Fetching missing or oldest prices first, from Yahoo\u2122 — keep this page open until fetching finishes, switching apps may pause it.';
+        $('priceStatus').textContent = fetchStartTxt;
+        if ($('topFetchStatus')) $('topFetchStatus').textContent = fetchStartTxt;
+        var fellBackToWeb = false;
+        var job = mode === 'server' ? fetchViaServer(orderedSyms) : fetchViaBrowser(orderedSyms, progress, saveOneSymbol);
         job = job.then(function (res) {
-          var allFailed = syms.every(function (s) { return !res[s] || res[s].price == null; });
+          var allFailed = orderedSyms.every(function (s) { return !res[s] || res[s].price == null; });
           if (allFailed && state.settings.priceMode === 'auto' && mode === 'server') {
+            fellBackToWeb = true;
             $('priceStatus').textContent = 'Server endpoint did not answer — falling back to the web provider…';
-            return fetchViaBrowser(syms);
+            if ($('topFetchStatus')) $('topFetchStatus').textContent = 'Server endpoint did not answer — falling back to the web provider…';
+            return fetchViaBrowser(orderedSyms, progress, saveOneSymbol);
           }
           return res;
         });
         job.then(function (res) {
           var now = Date.now(), failed = [];
-          syms.forEach(function (s) {
+          orderedSyms.forEach(function (s) {
             var rec = res[s];
+            var prev = state.prices[s];
             if (rec && rec.price != null) {
-              state.prices[s] = { price: rec.price, prevClose: rec.prevClose, isMarketOpen: rec.isMarketOpen, regularMarketTime: rec.regularMarketTime, fetchedAt: now, source: rec.source, error: null, manual: false };
+              state.prices[s] = { price: rec.price, prevClose: rec.prevClose, isMarketOpen: rec.isMarketOpen, regularMarketTime: rec.regularMarketTime, fetchedAt: now, source: rec.source, currency: rec.currency != null ? rec.currency : (prev ? prev.currency : null), error: null, manual: false };
+            } else if (prev && prev.manual) {
+              // A typed manual price is never removed by a failed fetch.
             } else {
               failed.push(s);
-              var prev = state.prices[s];
               if (prev && prev.price != null) {
+                // Old price kept until a new price succeeds — date/currency shown in Holdings and price status.
                 state.prices[s] = Object.assign({}, prev, { error: rec ? (rec.error || 'fetch failed') : 'fetch failed', manual: false });
               } else {
-                state.prices[s] = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: now, source: rec ? rec.source : '—', error: rec ? (rec.error || 'fetch failed') : 'fetch failed', manual: false };
+                state.prices[s] = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: now, source: rec ? rec.source : '—', currency: prev ? prev.currency : null, error: rec ? (rec.error || 'fetch failed') : 'fetch failed', manual: false };
               }
             }
           });
           saveJSON(K_PRC, state.prices);
+          // 2.3: record the actual source used, so the mode pill reflects a real fetch, not a hostname guess.
+          state.lastPriceSource = (mode === 'server' && !fellBackToWeb) ? 'server' : 'web';
           updating = false; btn.disabled = false; btn.textContent = 'Update prices';
           render();
           if (failed.length) {
-            $('priceStatus').innerHTML += ' <span class="err">Could not update: ' + failed.join(', ') + '.</span>';
+            var oldList = failed.filter(function (x) { return state.prices[x] && state.prices[x].price != null; }).join(', ');
+            $('priceStatus').innerHTML += ' <span class="err">Could not update: ' + failed.join(', ') + (oldList ? '. Old prices kept: ' + oldList + ' — see Holdings for each old price\'s date and currency.' : '. No previous price to keep.') + '</span>';
           }
         }).catch(function (e) {
           updating = false; btn.disabled = false; btn.textContent = 'Update prices';
           $('priceStatus').innerHTML = '<span class="err">Price update failed: ' + esc(e.message) + '</span> Saved prices, if any, are unchanged.';
+          if ($('topFetchStatus')) $('topFetchStatus').innerHTML = '<span class="err">Price update failed — previous prices kept. See Holdings for dates.</span>';
         });
       }
 
@@ -954,16 +1180,16 @@
         if (m2) return decodeURIComponent(m2[1]);
         return v;
       }
+      var editingDrive = false;
       function driveIdVal() { var v = $('driveId') ? $('driveId').value.trim() : ''; return extractDriveId(v || (state.settings.driveId || '') || DRIVE_FILE_ID); }
       function updateDriveUI() {
         var id = driveIdVal();
-        var linked = !!id;
-        var row = $('driveIdRow'), link = $('driveLinkedRow'), dlRow = $('driveDownloadRow'), dl = $('driveDownloadLink');
-        if (row) row.classList.toggle('hidden', linked);
+        var linked = !!id && !editingDrive;
+        var input = $('driveId'), link = $('driveLinkedRow'), dl = $('driveDownloadLink');
+        if (input) input.classList.toggle('hidden', linked);
         if (link) link.classList.toggle('hidden', !linked);
-        if (row && !linked && $('driveId')) $('driveId').value = state.settings.driveId || DRIVE_FILE_ID || '';
-        if (dlRow) dlRow.classList.toggle('hidden', !linked);
-        if (dl && linked) dl.href = 'https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view';
+        if (input && !linked && !editingDrive) input.value = state.settings.driveId || DRIVE_FILE_ID || '';
+        if (dl) { dl.classList.toggle('hidden', !id); if (id) dl.href = 'https://drive.google.com/file/d/' + encodeURIComponent(id) + '/view'; }
       }
       function looksLikeCSV(text) { return !!text && /date/i.test(text.slice(0, 500)) && /amount/i.test(text.slice(0, 500)); }
       function fetchDriveText(id) {
@@ -981,6 +1207,7 @@
       function loadFromDrive() {
         var id = driveIdVal();
         if (!id) { $('driveStatus').innerHTML = '<span class="err">Paste the Drive link or file ID first.</span>'; return; }
+        editingDrive = false;
         state.settings.driveId = id; saveJSON(K_SET, state.settings);
         if ($('driveId')) $('driveId').value = id;
         updateDriveUI();
@@ -993,7 +1220,7 @@
           })
           .catch(function (e) {
             updateDriveUI();
-            $('driveStatus').innerHTML = '<span class="err">Could not load directly (' + esc(e.message) + '). Use the Download link above, then Upload records.csv.</span>';
+            $('driveStatus').innerHTML = '<span class="err">Drive load failed (' + esc(e.message) + ') — ' + (state.txns.length ? 'previous values kept' : 'no values loaded yet') + '. Use the small Download link at the bottom, then Upload records.csv.</span>';
           });
       }
 
@@ -1005,6 +1232,7 @@
           try {
             ingestCSV(String(reader.result || ''), file.name);
             render();
+            if ($('driveStatus')) $('driveStatus').textContent = '';
             $('priceStatus').innerHTML = 'Transaction history replaced — <b>' + state.txns.length + ' rows</b> saved in this browser. Press <b>Update prices</b> for current prices.';
           } catch (e) {
             $('priceStatus').innerHTML = '<span class="err">Could not read that file: ' + esc(e.message) + '</span> The previously saved history was not changed.';
@@ -1014,20 +1242,16 @@
         reader.readAsText(file);
       }
       $('fileInput').addEventListener('change', function () { handleFile(this.files && this.files[0]); this.value = ''; });
-      var dz = $('dropzone');
-      ['dragenter', 'dragover'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add('drag'); }); });
-      ['dragleave', 'drop'].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove('drag'); }); });
-      dz.addEventListener('drop', function (e) { var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; handleFile(f); });
 
       if ($('loadDriveBtn')) $('loadDriveBtn').addEventListener('click', loadFromDrive);
       if ($('changeDriveIdBtn')) $('changeDriveIdBtn').addEventListener('click', function () {
+        editingDrive = true;
         if ($('driveId')) $('driveId').value = extractDriveId(state.settings.driveId || DRIVE_FILE_ID || '');
-        var row = $('driveIdRow'), link = $('driveLinkedRow');
-        if (row) row.classList.remove('hidden');
-        if (link) link.classList.add('hidden');
+        updateDriveUI();
         if ($('driveId')) $('driveId').focus();
       });
       if ($('clearDriveIdBtn')) $('clearDriveIdBtn').addEventListener('click', function () {
+        editingDrive = false;
         delete state.settings.driveId; saveJSON(K_SET, state.settings);
         if ($('driveId')) $('driveId').value = '';
         updateDriveUI();
@@ -1047,12 +1271,7 @@
         saveJSON(K_SET, state.settings);
         render();
       });
-      $('priceMode').value = state.settings.priceMode;
-      $('priceMode').addEventListener('change', function () {
-        state.settings.priceMode = this.value;
-        saveJSON(K_SET, state.settings);
-        updateModeTag();
-      });
+      // 2.3: no Price source dropdown — Auto always (see state normalisation above).
       $('updatePricesBtn').addEventListener('click', updatePrices);
       var clearArmed = false, clearTimer = null;
       $('clearBtn').addEventListener('click', function () {
@@ -1064,14 +1283,44 @@
           return;
         }
         clearTimeout(clearTimer); clearArmed = false; btn.textContent = 'Erase saved data';
-        [K_TXN, K_SET, K_PRC, K_META].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
-        state.txns = []; state.meta = null; state.prices = {}; state.settings = { cdRate: 4.32, savingsRate: 3.5, priceMode: 'auto' };
-        $('priceMode').value = 'auto';
-        if ($('driveId')) $('driveId').value = '';
+        [K_TXN, K_PRC, K_META, K_SNAP].forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+        state.txns = []; state.meta = null; state.prices = {}; state.snapshot = null; state.lastPriceSource = null;  // 2.3: erase also clears the proven price source, pill returns to local/web
         render();
-        $('priceStatus').textContent = 'Saved data erased. Upload a transaction history to start again.';
+        $('priceStatus').textContent = 'Saved data erased. Drive link and rates kept. Load a transaction history to start again.';
       });
 
+      function applyDetails() {
+        var wrap = $('detailsWrap'), btn = $('detailsToggle');
+        if (wrap) wrap.classList.toggle('hidden', !state.detailsOpen);
+        if (btn) btn.textContent = state.detailsOpen ? 'Hide details' : 'Show details';
+      }
+      if ($('detailsToggle')) $('detailsToggle').addEventListener('click', function () {
+        state.detailsOpen = !state.detailsOpen; saveJSON(K_DET, state.detailsOpen); applyDetails();
+      });
+      if ($('mixedAsterisk')) $('mixedAsterisk').addEventListener('click', function () {
+        if (!state.detailsOpen) { state.detailsOpen = true; saveJSON(K_DET, true); applyDetails(); }
+        var card = $('holdingsCard') || $('detailsWrap');
+        if (card) setTimeout(function () { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 0);
+      });
+      function applyChangeMode() {
+        var b = $('changeModeBaselineBtn'), l = $('changeModeLastBtn');
+        if (b) b.classList.toggle('active', state.changeMode !== 'last');
+        if (l) l.classList.toggle('active', state.changeMode === 'last');
+      }
+      if ($('changeModeBaselineBtn')) $('changeModeBaselineBtn').addEventListener('click', function () {
+        state.changeMode = 'baseline'; saveJSON(K_CHG, 'baseline'); applyChangeMode(); render();
+      });
+      if ($('changeModeLastBtn')) $('changeModeLastBtn').addEventListener('click', function () {
+        state.changeMode = 'last'; saveJSON(K_CHG, 'last'); applyChangeMode(); render();
+      });
+      if ($('settingsIconBtn')) $('settingsIconBtn').addEventListener('click', function () {
+        var panel = $('settingsPanel');
+        var open = !panel.classList.toggle('hidden');
+        this.classList.toggle('open', open);
+        this.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      applyDetails();
+      applyChangeMode();
       render();
     })();
     </script>
