@@ -209,7 +209,7 @@
       <header class="top">
         <div class="head-row">
           <h1>Market Scorecard: Investments vs CD</h1>
-          <span class="ver">v2.7</span>
+          <span class="ver">v2.8</span>
           <span class="mode-tag" id="modeTag">web</span>
           <span class="spacer"></span>
           <button class="icon-btn" id="settingsIconBtn" type="button" title="Settings" aria-label="Settings" aria-expanded="false">⚙</button>
@@ -232,6 +232,18 @@
             <div class="with-unit"><input type="number" id="savRate" step="0.01" min="0" max="30" value="3.5" style="width:96px" /><span>% / yr</span></div>
           </div>
         </div>
+        <div class="settings-subhead">Price fetch</div>
+        <p class="sub" style="margin:10px 0 12px">Update prices fetches missing prices and prices older than 20 minutes. Prices fetched in the last 20 minutes are skipped and named in the status — press Refresh all to fetch them anyway. These settings are saved in this browser only.</p>
+        <div class="controls-row">
+          <div class="field">
+            <label for="fetchConcurrency">Fetch at a time</label>
+            <select id="fetchConcurrency" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);color:var(--ink)"><option value="1">1 (safest)</option><option value="2">2</option><option value="3">3</option></select>
+          </div>
+          <div class="field">
+            <label for="proxyTimeoutSec">Proxy timeout</label>
+            <select id="proxyTimeoutSec" style="font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--input-bg);color:var(--ink)"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select>
+          </div>
+        </div>
         <hr class="settings-divider" />
         <div class="settings-subhead">Saved data</div>
         <div class="controls-row">
@@ -239,12 +251,13 @@
           <div class="field"><button class="btn small" id="clearPricesBtn" type="button">Delete prices only</button></div>
           <div class="field"><button class="btn small" id="resetBaselineBtn" type="button">Reset baseline</button></div>
         </div>
-        <p class="src" style="margin-top:10px">Erase everything clears transactions, prices and the change baseline, and returns the box to dashes. It keeps the Drive link and the rates as set. It asks for a second click to confirm. Refreshing transactions does not need this — just Load from Drive again.<br />Delete prices only clears prices, keeps transactions and baseline. The box will be incomplete until a complete price update succeeds — old prices are usually better than no prices.<br />Reset baseline does not set a new baseline from old prices. It arms a reset: How it changed stays dashes until the next complete price update, and that update becomes the new baseline.</p>
+        <p class="src" style="margin-top:10px">Erase everything clears transactions, prices and the change baseline, and returns the box to dashes. It keeps the Drive link, the rates and the price-fetch settings as set. It asks for a second click to confirm. Refreshing transactions does not need this — just Load from Drive again.<br />Delete prices only clears prices, keeps transactions and baseline. The box will be incomplete until a complete price update succeeds — old prices are usually better than no prices.<br />Reset baseline does not set a new baseline from old prices. It arms a reset: How it changed stays dashes until the next complete price update, and that update becomes the new baseline.</p>
       </div>
       
       <div class="toprow" id="topRow">
         <button class="btn" id="loadDriveBtn" type="button">Load from Drive</button>
         <button class="btn" id="updatePricesBtn" type="button">Update prices</button>
+        <button class="btn small" id="refreshAllPricesBtn" type="button">Refresh all</button>
         <input id="driveId" type="text" class="drive-input" placeholder="Paste the Drive link or file ID once, then press Load from Drive" />
         <span id="driveLinkedRow" class="linked hidden">Drive ID Saved <button class="btn small" id="changeDriveIdBtn" type="button" style="margin-left:8px">Change</button> <button class="btn small" id="clearDriveIdBtn" type="button" style="margin-left:4px">Remove</button></span>
       </div>
@@ -405,7 +418,7 @@
         <span> · </span><a id="driveDownloadLink" href="#" target="_blank" rel="noopener" class="hidden">Download records.csv from Drive</a>
         <br /><span>Prices and history are saved in this browser only.</span>
       </div>
-      <footer>Market Scorecard · v2.7 · Data is saved in this browser only.</footer>
+      <footer>Market Scorecard · v2.8 · Data is saved in this browser only.</footer>
     </div>
 
     <script>
@@ -413,7 +426,7 @@
       'use strict';
 
       
-      var K_TXN = 'cdg_txns_v1', K_SET = 'cdg_settings_v1', K_PRC = 'cdg_prices_v1', K_META = 'cdg_meta_v1', K_SNAP = 'cdg_snapshot_v1', K_DET = 'cdg_details_open_v1', K_CHG = 'cdg_change_mode_v1', K_BPEND = 'cdg_baseline_pending_v1';
+      var K_TXN = 'cdg_txns_v1', K_SET = 'cdg_settings_v1', K_PRC = 'cdg_prices_v1', K_META = 'cdg_meta_v1', K_SNAP = 'cdg_snapshot_v1', K_DET = 'cdg_details_open_v1', K_CHG = 'cdg_change_mode_v1', K_BPEND = 'cdg_baseline_pending_v1', K_PROXY = 'cdg_proxy_v1';
       function loadJSON(k, fallback) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : fallback; } catch (e) { return fallback; } }
       function saveJSON(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 
@@ -431,7 +444,7 @@
       var state = {
         txns: loadJSON(K_TXN, []),                 
         meta: loadJSON(K_META, null),              
-        settings: loadJSON(K_SET, { cdRate: 4.32, savingsRate: 3.5, priceMode: 'auto' }),
+        settings: loadJSON(K_SET, { cdRate: 4.32, savingsRate: 3.5, priceMode: 'auto', fetchConcurrency: 1, proxyTimeoutSec: 30 }),
         prices: loadJSON(K_PRC, {}),                
         snapshot: loadJSON(K_SNAP, null),           
         changeMode: (function () { var m = loadJSON(K_CHG, 'baseline'); return (m === 'last' || m === 'baseline') ? m : 'baseline'; })(),
@@ -442,6 +455,9 @@
       };
       if (typeof state.settings.cdRate !== 'number') state.settings.cdRate = 4.32;
       if (typeof state.settings.savingsRate !== 'number') state.settings.savingsRate = 3.5;
+      
+      if ([1, 2, 3].indexOf(state.settings.fetchConcurrency) < 0) state.settings.fetchConcurrency = 1;
+      if ([15, 30, 60].indexOf(state.settings.proxyTimeoutSec) < 0) state.settings.proxyTimeoutSec = 30;
       
       state.settings.priceMode = 'auto';
 
@@ -681,18 +697,59 @@
         { name: 'allorigins', wrap: function (u) { return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u); }, wrapped: false },
         { name: 'codetabs', wrap: function (u) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); }, wrapped: false }
       ];
+      
+      
+      
+      
+      function proxyOrder() {
+        var stored = loadJSON(K_PROXY, null);
+        var names = (stored && stored.order) || [];
+        var out = [];
+        names.forEach(function (n) { var found = PROXIES.filter(function (x) { return x.name === n; })[0]; if (found && out.indexOf(found) < 0) out.push(found); });
+        PROXIES.forEach(function (x) { if (out.indexOf(x) < 0) out.push(x); });
+        return out;
+      }
+      function noteProxySuccess(name) {
+        try {
+          var stored = loadJSON(K_PROXY, null) || {};
+          var order = [name];
+          var prev = stored.order || [];
+          prev.forEach(function (n) { if (n !== name && order.indexOf(n) < 0) order.push(n); });
+          PROXIES.forEach(function (x) { if (order.indexOf(x.name) < 0) order.push(x.name); });
+          saveJSON(K_PROXY, { order: order, lastSuccess: name, updatedAt: Date.now() });
+        } catch (e) {}
+      }
+      function proxyTimeoutMs() {
+        var v = state.settings.proxyTimeoutSec;
+        if ([15, 30, 60].indexOf(v) < 0) v = 30;
+        return v * 1000;
+      }
+      function fetchConcurrency() {
+        var v = state.settings.fetchConcurrency;
+        if ([1, 2, 3].indexOf(v) < 0) v = 1;
+        return v;
+      }
+      function fetchWithTimeout(url, ms) {
+        if (typeof AbortController === 'undefined') return fetch(url);
+        var ctl = new AbortController();
+        var t = setTimeout(function () { try { ctl.abort(); } catch (e) {} }, ms);
+        return fetch(url, { signal: ctl.signal }).then(function (res) { clearTimeout(t); return res; }, function (err) { clearTimeout(t); throw err; });
+      }
       function fetchOneViaBrowser(sym) {
         var target = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) +
                      '?interval=1d&range=1d&_=' + Math.floor(Date.now() / 60000);
+        
+        
         var chain = Promise.reject(new Error('start'));
-        PROXIES.forEach(function (p) {
+        proxyOrder().forEach(function (p) {
           chain = chain.catch(function () {
-            return fetch(p.wrap(target)).then(function (res) {
+            return fetchWithTimeout(p.wrap(target), proxyTimeoutMs()).then(function (res) {
               if (!res.ok) throw new Error('HTTP ' + res.status);
               return res.json();
             }).then(function (data) {
               var meta = data && data.chart && data.chart.result && data.chart.result[0] && data.chart.result[0].meta;
               if (!meta || meta.regularMarketPrice == null) throw new Error('no price data');
+              noteProxySuccess(p.name);
               var nowSec = Math.floor(Date.now() / 1000);
               var reg = meta.currentTradingPeriod && meta.currentTradingPeriod.regular;
               return {
@@ -711,19 +768,32 @@
         return chain;
       }
       function fetchViaBrowser(symbols, onProgress, onSymbol) {
+        
+        
+        
+        
         var result = {};
-        var seq = Promise.resolve();
-        symbols.forEach(function (sym, idx) {
-          seq = seq.then(function () {
+        var concurrency = fetchConcurrency();
+        var nextIdx = 0;
+        function worker() {
+          function step() {
+            if (nextIdx >= symbols.length) return Promise.resolve();
+            var idx = nextIdx++;
+            var sym = symbols[idx];
             if (onProgress) onProgress(sym, idx + 1, symbols.length);
             return fetchOneViaBrowser(sym).then(function (rec) { result[sym] = rec; if (onSymbol) onSymbol(sym, rec); })
               .catch(function (e) {
                 var rec = { price: null, prevClose: null, isMarketOpen: false, regularMarketTime: null, fetchedAt: Date.now(), source: 'Yahoo via proxy', error: e.message || 'all proxies failed' };
                 result[sym] = rec; if (onSymbol) onSymbol(sym, rec);
-              });
-          }).then(function () { return sleep(400); });
-        });
-        return seq.then(function () { return result; });
+              })
+              .then(function () { return (nextIdx < symbols.length) ? sleep(400) : Promise.resolve(); })
+              .then(step);
+          }
+          return step();
+        }
+        var workers = [];
+        for (var i = 0; i < concurrency; i++) workers.push(worker());
+        return Promise.all(workers).then(function () { return result; });
       }
       function detectMode() {
         var forced = state.settings.priceMode;
@@ -761,6 +831,8 @@
         $('lastFetchLine').textContent = latestFetch ? ' · Prices up to ' + fmtDateTime(latestFetch) : '';
         $('cdRate').value = state.settings.cdRate;
         $('savRate').value = state.settings.savingsRate;
+        if ($('fetchConcurrency')) $('fetchConcurrency').value = String(state.settings.fetchConcurrency);
+        if ($('proxyTimeoutSec')) $('proxyTimeoutSec').value = String(state.settings.proxyTimeoutSec);
         var hasTxns = state.txns.length > 0;
         var model = hasTxns ? buildModel() : null;
         var asOf = todayDate();
@@ -779,6 +851,7 @@
           renderPresentation(null);
           if ($('topFetchStatus')) $('topFetchStatus').textContent = '';
           $('updatePricesBtn').disabled = true;
+          if ($('refreshAllPricesBtn')) $('refreshAllPricesBtn').disabled = true;
           $('targetCard').classList.add('hidden');
           $('holdingsCard').classList.add('hidden');
           $('benchCard').classList.add('hidden');
@@ -912,6 +985,7 @@
 
         renderPresentation(model, accountValue, totalActual, benchToday, pricesComplete, asOf);
         if ($('updatePricesBtn')) $('updatePricesBtn').disabled = updating ? true : !hasTxns;
+        if ($('refreshAllPricesBtn')) $('refreshAllPricesBtn').disabled = updating ? true : !hasTxns;
         renderPriceStatus();
         if (!updating) renderTopSignal();
       }
@@ -1084,20 +1158,17 @@
 
       
       var updating = false;
-      function updatePrices() {
+      function updatePrices(forceAll) {
         if (updating) return;
         var model = buildModel();
         var syms = model.symbols;
         if (!syms.length) { $('priceStatus').innerHTML = '<span class="err">Upload a transaction history first — there are no holdings to price.</span>'; return; }
         if ($('driveStatus')) $('driveStatus').textContent = '';
-        updating = true;
-        var btn = $('updatePricesBtn');
-        btn.disabled = true; btn.textContent = 'Updating…';
-        var mode = detectMode();
         
         
         
-        
+        var FRESH_MS = 20 * 60 * 1000;
+        var fetchNow = Date.now();
         var orderedSyms = syms.slice().sort(function (a, b) {
           var pa = state.prices[a], pb = state.prices[b];
           var aMissing = !pa || pa.price == null, bMissing = !pb || pb.price == null;
@@ -1106,6 +1177,34 @@
           var ta = pa && pa.fetchedAt ? pa.fetchedAt : 0, tb = pb && pb.fetchedAt ? pb.fetchedAt : 0;
           return ta - tb;
         });
+        var fetchSyms, skippedSyms;
+        if (forceAll) {
+          fetchSyms = orderedSyms.slice(); skippedSyms = [];
+        } else {
+          fetchSyms = orderedSyms.filter(function (x) {
+            var pp = state.prices[x];
+            if (!pp || pp.price == null) return true;
+            if (!pp.fetchedAt) return true;
+            return (fetchNow - pp.fetchedAt) >= FRESH_MS;
+          });
+          skippedSyms = orderedSyms.filter(function (x) { return fetchSyms.indexOf(x) < 0; });
+        }
+        if (!fetchSyms.length) {
+          var msg = 'All prices already fresh (fetched in the last 20 minutes) — press Refresh all to fetch them anyway.';
+          $('priceStatus').textContent = msg;
+          if ($('topFetchStatus')) $('topFetchStatus').textContent = msg;
+          return;
+        }
+        updating = true;
+        var btn = $('updatePricesBtn');
+        var refreshBtn = $('refreshAllPricesBtn');
+        btn.disabled = true; btn.textContent = 'Updating…';
+        if (refreshBtn) refreshBtn.disabled = true;
+        var mode = detectMode();
+        
+        
+        
+        
         
         
         
@@ -1123,7 +1222,7 @@
           if ($('topFetchStatus')) $('topFetchStatus').textContent = txt;
         }
         function progress(sym, idx, total) {
-          var remaining = orderedSyms.slice(idx);
+          var remaining = fetchSyms.slice(idx);
           var txt = 'Fetching ' + sym + ' from Yahoo\u2122 (' + idx + ' of ' + total + ')' + (remaining.length ? ' — still to go: ' + remaining.join(', ') : ' — last one') + fetchListsTxt();
           setFetchStatus(txt);
         }
@@ -1151,24 +1250,24 @@
           
           setFetchStatus('Fetched ' + sym + fetchListsTxt());
         }
-        var fetchStartTxt = 'Fetching missing or oldest prices first, from Yahoo\u2122 — keep this page open until fetching finishes, switching apps may pause it.';
+        var fetchStartTxt = 'Fetching ' + fetchSyms.join(', ') + ' from Yahoo\u2122 — missing and prices older than 20 minutes first, keep this page open until fetching finishes, switching apps may pause it.' + (skippedSyms.length ? ' Skipped (fetched in the last 20 minutes): ' + skippedSyms.join(', ') + ' — press Refresh all to fetch them anyway.' : '');
         $('priceStatus').textContent = fetchStartTxt;
         if ($('topFetchStatus')) $('topFetchStatus').textContent = fetchStartTxt;
         var fellBackToWeb = false;  
-        var job = mode === 'server' ? fetchViaServer(orderedSyms) : fetchViaBrowser(orderedSyms, progress, saveOneSymbol);
+        var job = mode === 'server' ? fetchViaServer(fetchSyms) : fetchViaBrowser(fetchSyms, progress, saveOneSymbol);
         job = job.then(function (res) {
-          var allFailed = orderedSyms.every(function (s) { return !res[s] || res[s].price == null; });
+          var allFailed = fetchSyms.every(function (s) { return !res[s] || res[s].price == null; });
           if (allFailed && state.settings.priceMode === 'auto' && mode === 'server') {
             fellBackToWeb = true;
             $('priceStatus').textContent = 'Server endpoint did not answer — falling back to the web provider…';
             if ($('topFetchStatus')) $('topFetchStatus').textContent = 'Server endpoint did not answer — falling back to the web provider…';
-            return fetchViaBrowser(orderedSyms, progress, saveOneSymbol);
+            return fetchViaBrowser(fetchSyms, progress, saveOneSymbol);
           }
           return res;
         });
         job.then(function (res) {
           var now = Date.now(), failed = [];
-          orderedSyms.forEach(function (s) {
+          fetchSyms.forEach(function (s) {
             var rec = res[s];
             var prev = state.prices[s];
             if (rec && rec.price != null) {
@@ -1189,6 +1288,7 @@
           
           state.lastPriceSource = (mode === 'server' && !fellBackToWeb) ? 'server' : 'web';
           updating = false; btn.disabled = false; btn.textContent = 'Update prices';
+          if (refreshBtn) refreshBtn.disabled = false;
           render();
           if (failed.length) {
             var oldList = failed.filter(function (x) { return state.prices[x] && state.prices[x].price != null; }).join(', ');
@@ -1196,6 +1296,7 @@
           }
         }).catch(function (e) {
           updating = false; btn.disabled = false; btn.textContent = 'Update prices';
+          if (refreshBtn) refreshBtn.disabled = false;
           $('priceStatus').innerHTML = '<span class="err">Price update failed: ' + esc(e.message) + '</span> Saved prices, if any, are unchanged.';
           if ($('topFetchStatus')) $('topFetchStatus').innerHTML = '<span class="err">Price update failed — previous prices kept. See Holdings for dates.</span>';
         });
@@ -1350,7 +1451,21 @@
         render();
       });
       
-      $('updatePricesBtn').addEventListener('click', updatePrices);
+      $('updatePricesBtn').addEventListener('click', function () { updatePrices(false); });
+      if ($('refreshAllPricesBtn')) $('refreshAllPricesBtn').addEventListener('click', function () { updatePrices(true); });
+      
+      if ($('fetchConcurrency')) $('fetchConcurrency').addEventListener('change', function () {
+        var v = parseInt(this.value, 10);
+        if ([1, 2, 3].indexOf(v) < 0) v = 1;
+        state.settings.fetchConcurrency = v; saveJSON(K_SET, state.settings);
+        this.value = String(v);
+      });
+      if ($('proxyTimeoutSec')) $('proxyTimeoutSec').addEventListener('change', function () {
+        var v = parseInt(this.value, 10);
+        if ([15, 30, 60].indexOf(v) < 0) v = 30;
+        state.settings.proxyTimeoutSec = v; saveJSON(K_SET, state.settings);
+        this.value = String(v);
+      });
       var clearArmed = false, clearTimer = null;
       $('clearBtn').addEventListener('click', function () {
         var btn = this;
