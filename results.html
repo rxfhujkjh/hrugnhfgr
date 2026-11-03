@@ -210,7 +210,7 @@
 <h1>Market Scorecard: Investments vs CD</h1>
 <span class="ver">v2</span>
 </div>
-<div class="subtitle">Tracked over time &middot; <span id="updatedLine">Results up to &mdash;</span></div>
+<div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
 <section class="card present" id="presentBox">
 <div class="present-grid">
@@ -254,8 +254,8 @@
 </div>
 </div>
 </section>
-<p class="msg" id="msg" hidden style="color:var(--ink-2);font-size:14px;">Results file not available &mdash; showing no values. Check back after the next server push.</p>
-<footer>Market Scorecard &middot; v2 &middot; Results file: results.json</footer>
+<p class="msg" id="msg" hidden style="color:var(--ink-2);font-size:14px;">Results file not available — showing no values. Check back after the next server push.</p>
+<footer>Market Scorecard · v2 · Results file: results.json</footer>
 </div>
 <script>
 (function () {
@@ -265,17 +265,17 @@
   var data = null;
   function $(id) { return document.getElementById(id); }
   function fmtMoney(n, signed) {
-    if (n == null || !isFinite(n)) return '&mdash;';
+    if (n == null || !isFinite(n)) return '—';
     var s = '$' + Math.round(Math.abs(n)).toLocaleString('en-US');
-    if (signed) return (n < 0 ? '&minus;' : '+') + s;
-    return (n < 0 ? '&minus;' : '') + s;
+    if (signed) return (n < 0 ? '−' : '+') + s;
+    return (n < 0 ? '−' : '') + s;
   }
   function fmtPct(n, dp) {
-    if (n == null || !isFinite(n)) return '&mdash;';
-    return (n < 0 ? '&minus;' : '') + Math.abs(n).toFixed(dp == null ? 2 : dp) + '%';
+    if (n == null || !isFinite(n)) return '—';
+    return (n < 0 ? '−' : '') + Math.abs(n).toFixed(dp == null ? 2 : dp) + '%';
   }
   function fmtDateOnly(s) {
-    if (!s) return '&mdash;';
+    if (!s) return '—';
     var p = String(s).slice(0, 10).split('-');
     if (p.length !== 3) return String(s);
     var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
@@ -289,22 +289,22 @@
     lastBtn.classList.toggle('active', mode === 'last');
     if (mode === 'last') {
       if (data.gapChangeLast == null || data.paceChangeLast == null) {
-        $('pGapChange').textContent = '&mdash;'; $('pPaceChange').textContent = '&mdash;';
+        $('pGapChange').textContent = '—'; $('pPaceChange').textContent = '—';
         setCls($('pGapChange')); setCls($('pPaceChange'));
-        $('pChangeN').textContent = 'No previous update yet &mdash; change will show after the next price update.';
+        $('pChangeN').textContent = 'No previous update yet — change will show after the next price update.';
       } else {
         $('pGapChange').innerHTML = fmtMoney(data.gapChangeLast, true);
         $('pPaceChange').textContent = fmtPct(data.paceChangeLast, 1);
         setCls($('pGapChange'), data.gapChangeLast > 0.5 ? 'pos' : data.gapChangeLast < -0.5 ? 'neg' : null);
         setCls($('pPaceChange'), data.paceChangeLast < 0 ? 'neg' : data.paceChangeLast > 0 ? 'pos' : null);
-        $('pChangeN').textContent = 'Since last update, ' + fmtDateOnly(data.lastUpdateDate) + ' &mdash; one timeframe for the whole block.';
+        $('pChangeN').textContent = 'Since last update, ' + fmtDateOnly(data.lastUpdateDate) + ' — one timeframe for the whole block.';
       }
     } else {
       $('pGapChange').innerHTML = fmtMoney(data.gapChange, true);
       $('pPaceChange').textContent = fmtPct(data.paceChange, 1);
       setCls($('pGapChange'), data.gapChange > 0.5 ? 'pos' : data.gapChange < -0.5 ? 'neg' : null);
       setCls($('pPaceChange'), data.paceChange < 0 ? 'neg' : data.paceChange > 0 ? 'pos' : null);
-      $('pChangeN').textContent = 'Since first prices, ' + fmtDateOnly(data.baselineDate) + ' &mdash; one timeframe for the whole block.';
+      $('pChangeN').textContent = 'Since first prices, ' + fmtDateOnly(data.baselineDate) + ' — one timeframe for the whole block.';
     }
   }
   function setMode(m) {
@@ -325,12 +325,12 @@
     }
     if (typeof d.moneyIn === 'number') $('pMoneyIn').textContent = fmtMoney(d.moneyIn);
     if (typeof d.valueToday === 'number') $('pValueToday').textContent = fmtMoney(d.valueToday);
-    if (typeof d.deposits === 'number' && typeof d.withdrawals === 'number') $('pMoneyInN').textContent = fmtMoney(d.deposits) + ' in &middot; ' + fmtMoney(d.withdrawals) + ' out';
+    if (typeof d.deposits === 'number' && typeof d.withdrawals === 'number') $('pMoneyInN').textContent = fmtMoney(d.deposits) + ' in · ' + fmtMoney(d.withdrawals) + ' out';
     if (typeof d.accountValue === 'number' && typeof d.savingsValue === 'number') $('pValueTodayN').textContent = 'account ' + fmtMoney(d.accountValue) + ' + savings ' + fmtMoney(d.savingsValue);
     if (typeof d.vsMoneyIn === 'number') { $('pGapMoneyIn').innerHTML = fmtMoney(d.vsMoneyIn, true); setCls($('pGapMoneyIn'), d.vsMoneyIn > 0.5 ? 'pos' : d.vsMoneyIn < -0.5 ? 'neg' : null); }
     if (typeof d.moneyIn === 'number') $('pGapMoneyInN').textContent = 'money in ' + fmtMoney(d.moneyIn);
     if (typeof d.vsCD === 'number') { $('pGap').innerHTML = fmtMoney(d.vsCD, true); setCls($('pGap'), d.vsCD > 0.5 ? 'pos' : d.vsCD < -0.5 ? 'neg' : null); }
-    if (typeof d.cdProjectedToday === 'number') $('pGapN').textContent = 'projected to today: ' + fmtMoney(d.cdProjectedToday) + ' &middot; &minus; means below the CD projection, + means above it';
+    if (typeof d.cdProjectedToday === 'number') $('pGapN').textContent = 'projected to today: ' + fmtMoney(d.cdProjectedToday) + ' · − means below the CD projection, + means above it';
     if (typeof d.actualPace === 'number') { $('pPaceActual').textContent = fmtPct(d.actualPace, 1) + ' a year'; setCls($('pPaceActual'), d.actualPace < 0 ? 'neg' : 'pos'); }
     if (typeof d.cdPace === 'number') $('pPaceCD').textContent = fmtPct(d.cdPace, 2) + ' a year';
     renderChange();
