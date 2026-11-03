@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-02T19:01:19-06:00",
+  "updated": "2026-11-02T19:42:13-06:00",
   "moneyIn": 64032,
   "valueToday": 61161,
   "vsMoneyIn": -2871,
@@ -9,6 +9,13 @@
   "cdPace": 4.32,
   "gapChange": 0,
   "paceChange": 0,
+  "gapChangeLast": 0,
+  "paceChangeLast": 0,
+  "lastUpdateDate": "2026-11-02",
   "baselineDate": "2026-11-02",
-  "targetDate": "2027-02-10"
+  "targetDate": "2027-02-10",
+  "deposits": 64099,
+  "withdrawals": 67,
+  "accountValue": 61094,
+  "savingsValue": 67
 }
