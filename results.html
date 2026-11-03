@@ -1,102 +1,343 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>Market Scorecard: Investments vs CD</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" href="data:," />
+<title>Market Scorecard: Investments vs CD — Tracked over time</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
 <style>
-:root{--bg:#f4f6f4;--surface:#ffffff;--text:#1c241e;--muted:#5a6a5e;--line:#d8e0d8;--good:#1a7a3a;--bad:#b3261e}
-@media (prefers-color-scheme: dark){:root{--bg:#101613;--surface:#18201b;--text:#e8efe9;--muted:#9db0a2;--line:#2c3a30;--good:#6fbf8a;--bad:#ff8a80}}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
-main{max-width:720px;margin:0 auto;padding:16px}
-h1{font-size:1.4rem;margin:0 0 4px}
-.sub{color:var(--muted);font-size:.95rem;margin-bottom:16px}
-.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.85rem;color:var(--muted);margin-left:8px}
-.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media (max-width:520px){.grid{grid-template-columns:1fr}}
-.group h2{font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
-.row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
-.label{color:var(--muted)}
-.value{font-variant-numeric:tabular-nums;text-align:right}
-.big{font-size:1.15rem}
-.note{font-size:.85rem;color:var(--muted)}
-.neg{color:var(--bad)}
-.pos{color:var(--good)}
-.msg{font-size:.9rem;color:var(--muted);margin-top:12px}
-footer{font-size:.85rem;color:var(--muted);margin-top:16px}
-</style>
+      :root {
+        --bg: #f4f6f4;
+        --surface: #ffffff;
+        --surface-2: #edf1ed;
+        --ink: #16211a;
+        --ink-2: #43534a;
+        --ink-3: #718076;
+        --line: #d8ded8;
+        --accent: #14532d;
+        --accent-ink: #ffffff;
+        --good: #166e4f;
+        --good-bg: #e2f1e8;
+        --bad: #a83226;
+        --bad-bg: #f9e7e4;
+        --warn: #8a5a12;
+        --warn-bg: #f7ecd4;
+        --chip: #e7ece7;
+        --input-bg: #ffffff;
+        --shadow: 0 1px 2px rgba(18, 32, 22, .06), 0 8px 24px rgba(18, 32, 22, .06);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #101613;
+          --surface: #18201b;
+          --surface-2: #1f2922;
+          --ink: #e8efe9;
+          --ink-2: #b3c0b6;
+          --ink-3: #84958a;
+          --line: #2e3a32;
+          --accent: #7fc79b;
+          --accent-ink: #0e2416;
+          --good: #6fcea4;
+          --good-bg: #173627;
+          --bad: #f0937f;
+          --bad-bg: #3d201b;
+          --warn: #e5bc6a;
+          --warn-bg: #38300f;
+          --chip: #263129;
+          --input-bg: #121815;
+          --shadow: 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.3);
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Libre Franklin", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 15px;
+        line-height: 1.45;
+      }
+      .mono { font-family: "IBM Plex Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+      .wrap { max-width: 1060px; margin: 0 auto; padding: 20px 16px 56px; }
+
+      
+      header.top {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+        padding: 6px 0 16px;
+      }
+      header.top h1 { font-size: 22px; font-weight: 800; letter-spacing: -.01em; margin: 0; }
+      .ver {
+        font-family: "IBM Plex Mono", monospace; font-size: 12px; font-weight: 600;
+        background: var(--accent); color: var(--accent-ink);
+        padding: 3px 9px; border-radius: 999px; letter-spacing: .04em;
+      }
+      .mode-tag {
+        font-family: "IBM Plex Mono", monospace; font-size: 12px;
+        background: var(--chip); color: var(--ink-2);
+        padding: 3px 9px; border-radius: 999px;
+      }
+      header.top .spacer { flex: 1; }
+      .today { color: var(--ink-2); font-size: 13px; }
+
+      
+      .card {
+        background: var(--surface); border: 1px solid var(--line);
+        border-radius: 10px; box-shadow: var(--shadow);
+        padding: 18px; margin-bottom: 16px;
+      }
+      .card h2 { font-size: 15px; font-weight: 700; margin: 0 0 4px; letter-spacing: .01em; }
+      .card .sub { color: var(--ink-2); font-size: 13px; margin: 0 0 12px; }
+      .card-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 14px; }
+      .card-head .right { margin-left: auto; }
+
+      
+
+      
+      .update-banner { border: 1px solid var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 10px 14px; margin: 10px 0 16px; font-size: 14px; }
+      .update-banner b { color: var(--ink); }
+
+      
+      .btn {
+        appearance: none; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+        font: inherit; font-weight: 600; font-size: 14px;
+        padding: 9px 16px; border-radius: 8px; cursor: pointer;
+      }
+      .btn:hover { filter: brightness(1.08); }
+      .btn:disabled { opacity: .55; cursor: wait; }
+      .btn.ghost { background: transparent; color: var(--accent); }
+      .btn.small { padding: 6px 11px; font-size: 13px; }
+      .btn.danger { border-color: var(--bad); color: var(--bad); background: transparent; }
+      .controls-row { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; }
+      .field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-2); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+      .field input[type="number"], .field input[type="text"], .field select {
+        font: inherit; font-size: 15px; padding: 8px 10px;
+        border: 1px solid var(--line); border-radius: 8px;
+        background: var(--input-bg); color: var(--ink);
+      }
+      .field .with-unit { display: flex; align-items: center; gap: 6px; }
+      .price-status { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+      .price-status .err { color: var(--bad); }
+      .stale { color: var(--warn); font-weight: 600; }
+
+      
+      .tbl-wrap { overflow-x: auto; margin: 0 -18px; padding: 0 18px; }
+      table { border-collapse: collapse; width: 100%; font-size: 14px; }
+      th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); font-weight: 600; padding: 8px 10px 6px 0; border-bottom: 2px solid var(--line); white-space: nowrap; }
+      td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+      td.num, th.num { text-align: right; padding-right: 0; padding-left: 10px; }
+      td.num { font-family: "IBM Plex Mono", monospace; font-size: 13.5px; }
+      tr:last-child td { border-bottom: none; }
+      tfoot td { border-top: 2px solid var(--line); border-bottom: none; font-weight: 700; }
+      .pos { color: var(--good); } .neg { color: var(--bad); }
+      .price-input { width: 104px; font-family: "IBM Plex Mono", monospace; font-size: 13.5px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--input-bg); color: var(--ink); text-align: right; }
+      .src { font-size: 11.5px; color: var(--ink-3); }
+      .pill { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--chip); color: var(--ink-2); white-space: nowrap; }
+      .pill.open { background: var(--good-bg); color: var(--good); }
+      .pill.closed { background: var(--chip); }
+      .pill.manual { background: var(--warn-bg); color: var(--warn); }
+
+      .txn-list { max-height: 340px; overflow-y: auto; margin: 0 -18px; padding: 0 18px; }
+      .empty { text-align: center; color: var(--ink-2); padding: 26px 10px; }
+      .empty .big-ic { font-size: 30px; display: block; margin-bottom: 8px; }
+
+      details.how { margin-top: 4px; }
+      details.how summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--accent); }
+      details.how div { color: var(--ink-2); font-size: 13.5px; margin-top: 8px; max-width: 72ch; }
+      details.how li { margin-bottom: 5px; }
+
+      .targetbar { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: baseline; }
+      .targetbar .t-big { font-size: 19px; font-weight: 700; }
+      footer { color: var(--ink-3); font-size: 12.5px; text-align: center; margin-top: 26px; }
+      .today-flash { font-weight: 800; animation: todayflash 1.1s ease-in-out infinite alternate; }
+      @keyframes todayflash { from { color: var(--warn); } to { color: var(--accent); } }
+      @media (prefers-reduced-motion: reduce) { .today-flash { animation: none; color: var(--warn); } }
+      .hidden { display: none !important; }
+      .toprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0 4px; }
+      .toprow .drive-input { flex: 1 1 260px; font: inherit; font-size: 15px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--input-bg); color: var(--ink); }
+      .linked { font-size: 14px; font-weight: 600; }
+      .tinysignal { font-size: 13px; color: var(--ink-2); margin: 4px 0 0; }
+      .tinysignal:empty { display: none; margin: 0; }
+      .head-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+      .subtitle { font-size: 15px; font-style: italic; color: var(--ink-2); margin-top: 4px; }
+      .mode-tag.server { background: var(--accent); color: var(--accent-ink); }
+      .icon-btn { width: 32px; height: 32px; border-radius: 999px; border: 1px solid var(--line); background: var(--chip); color: var(--ink-2); font-size: 18px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; }
+      .icon-btn.open { background: var(--accent); color: var(--accent-ink); }
+      .asterisk-btn { background: none; border: none; padding: 0 4px; margin: 0; cursor: pointer; font: inherit; font-weight: 700; color: var(--warn); }
+      .tinysignal .err { color: var(--bad); }
+      .present { padding: 20px; }
+      .present .area { padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .present .area:last-child { border-bottom: none; padding-bottom: 0; }
+      .present .area:first-child { padding-top: 0; }
+      .present .k { font-size: 12px; color: var(--ink-2); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+      .present .v { font-size: 28px; font-weight: 800; letter-spacing: -.01em; line-height: 1.15; margin-top: 2px; }
+      .present .v.pos { color: var(--good); } .present .v.neg { color: var(--bad); }
+      .present .n { font-size: 12.5px; color: var(--ink-3); margin-top: 1px; }
+      .present .pair { display: flex; flex-wrap: wrap; gap: 8px 28px; }
+      .present .pair .v { font-size: 22px; }
+      .present-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .present-card { border: 1px solid var(--line); border-radius: 10px; padding: 14px; background: var(--surface-2); }
+      .present-card .group { font-size: 11.5px; font-weight: 700; letter-spacing: .06em; color: var(--ink-2); margin-bottom: 10px; text-transform: uppercase; }
+      .present-card .v { font-size: 22px; }
+      .present-card .lab { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
+      .present-card .lab:first-of-type { margin-top: 0; }
+      .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
+      .toggle-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+      .toggle-btn.active { background: var(--accent); color: var(--accent-ink); }
+      .settings-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 16px; margin: 10px 0 16px; }
+      .settings-subhead { font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); margin: 14px 0 6px; }
+      .settings-subhead:first-of-type { margin-top: 10px; }
+      .settings-divider { border: none; border-top: 1px solid var(--line); margin: 16px 0 2px; }
+      .settings-panel summary { cursor: pointer; font-weight: 700; font-size: 14px; }
+      .tinyfoot { color: var(--ink-3); font-size: 12.5px; text-align: center; margin-top: 18px; line-height: 1.8; }
+      .tinyfoot a, .tinyfoot label { color: var(--ink-3); text-decoration: underline; cursor: pointer; }
+      .details-toggle { margin: 4px 0 12px; }
+      @media (max-width: 560px) {
+        .card { padding: 14px; }
+        .tbl-wrap, .txn-list { margin: 0 -14px; padding: 0 14px; }
+        .price-input { width: 88px; }
+      }
+    </style>
 </head>
 <body>
-<main>
-<h1>Market Scorecard: Investments vs CD<span class="pill">v1</span></h1>
-<p class="sub">Tracked over time &middot; Results up to <span id="updated">—</span></p>
-<div class="box">
-<div class="grid">
-<div class="group">
-<h2>Account</h2>
-<div class="row"><span class="label">Money in</span><span class="value big" id="moneyIn">—</span></div>
-<div class="row"><span class="label">Value today</span><span class="value big" id="valueToday">—</span></div>
+<div class="wrap">
+<header class="top">
+<div class="head-row">
+<h1>Market Scorecard: Investments vs CD</h1>
+<span class="ver">v2</span>
 </div>
-<div class="group">
-<h2>Diffs</h2>
-<div class="row"><span class="label">vs money in</span><span class="value" id="vsMoneyIn">—</span></div>
-<div class="row"><span class="label">vs CD projection</span><span class="value" id="vsCD">—</span></div>
-<div class="row"><span class="label">CD projected to today</span><span class="value" id="cdToday">—</span></div>
+<div class="subtitle">Tracked over time &middot; <span id="updatedLine">Results up to &mdash;</span></div>
+</header>
+<section class="card present" id="presentBox">
+<div class="present-grid">
+<div class="present-card">
+<div class="group">Account</div>
+<div class="lab">Money in</div>
+<div class="v mono" id="pMoneyIn">&mdash;</div>
+<div class="n" id="pMoneyInN">deposits minus money taken out</div>
+<div class="lab">Value today</div>
+<div class="v mono" id="pValueToday">&mdash;</div>
+<div class="n" id="pValueTodayN">total: account + savings</div>
 </div>
-<div class="group">
-<h2>Yearly rate</h2>
-<div class="row"><span class="label">Actual pace</span><span class="value" id="actualPace">—</span></div>
-<div class="row"><span class="label">CD pace</span><span class="value" id="cdPace">—</span></div>
-<div class="row"><span class="note">CD pace is a fixed rate.</span><span></span></div>
+<div class="present-card">
+<div class="group">Diffs</div>
+<div class="lab">vs money in</div>
+<div class="v mono" id="pGapMoneyIn">&mdash;</div>
+<div class="n" id="pGapMoneyInN">money in &mdash;</div>
+<div class="lab">vs CD projection</div>
+<div class="v mono" id="pGap">&mdash;</div>
+<div class="n" id="pGapN">projected to today: &mdash;</div>
 </div>
-<div class="group">
-<h2>How it changed</h2>
-<div class="row"><span class="label">Change in gap</span><span class="value" id="gapChange">—</span></div>
-<div class="row"><span class="label">Change in pace</span><span class="value" id="paceChange">—</span></div>
-<div class="row"><span class="note" id="baselineLabel">Since —</span><span></span></div>
+<div class="present-card">
+<div class="group">Yearly rate</div>
+<div class="lab">Actual</div>
+<div class="v mono" id="pPaceActual">&mdash;</div>
+<div class="lab">CD</div>
+<div class="v mono" id="pPaceCD">&mdash;</div>
+<div class="n">fixed rate</div>
+</div>
+<div class="present-card">
+<div class="group">How it changed</div>
+<div class="lab">Change in gap</div>
+<div class="v mono" id="pGapChange">&mdash;</div>
+<div class="lab">Change in pace</div>
+<div class="v mono" id="pPaceChange">&mdash;</div>
+<div class="change-toggle">
+<button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From baseline</button>
+<button class="toggle-btn" id="changeModeLastBtn" type="button">Last update</button>
+</div>
+<div class="n" id="pChangeN">No baseline yet.</div>
 </div>
 </div>
+</section>
+<p class="msg" id="msg" hidden style="color:var(--ink-2);font-size:14px;">Results file not available &mdash; showing no values. Check back after the next server push.</p>
+<footer>Market Scorecard &middot; v2 &middot; Results file: results.json</footer>
 </div>
-<p class="msg" id="msg" hidden>Results file not available — showing no values. Check back after the next server push.</p>
-<footer>Results file: results.json</footer>
-</main>
 <script>
-function dollars(v){return "$" + Math.round(v).toLocaleString("en-US");}
-function signedDollars(v){return (v < 0 ? "−$" : "+$") + Math.round(Math.abs(v)).toLocaleString("en-US");}
-function pct(v){return (v < 0 ? "−" : "") + Math.abs(v).toFixed(1) + "%";}
-function signedPct(v){return (v < 0 ? "−" : "+") + Math.abs(v).toFixed(1) + "%";}
-function set(id, text, cls){var el = document.getElementById(id); el.textContent = text; if(cls){el.classList.add(cls);} }
-function fmtDateOnly(s){
-  if(!s) return "—";
-  var p = String(s).slice(0, 10).split("-");
-  if(p.length !== 3) return String(s);
-  var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
-  return d.toLocaleDateString(undefined, {month: "short", day: "numeric", year: "numeric"});
-}
-fetch("results.json", {cache: "no-store"}).then(function(r){
-  if(!r.ok) throw new Error("not found");
-  return r.json();
-}).then(function(d){
-  if(d.updated){
-    var dt = new Date(d.updated);
-    set("updated", isNaN(dt) ? String(d.updated) : dt.toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"}));
+(function () {
+  'use strict';
+  var mode = 'baseline';
+  try { var m = localStorage.getItem('results_change_mode_v2'); if (m === 'last' || m === 'baseline') mode = m; } catch (e) {}
+  var data = null;
+  function $(id) { return document.getElementById(id); }
+  function fmtMoney(n, signed) {
+    if (n == null || !isFinite(n)) return '&mdash;';
+    var s = '$' + Math.round(Math.abs(n)).toLocaleString('en-US');
+    if (signed) return (n < 0 ? '&minus;' : '+') + s;
+    return (n < 0 ? '&minus;' : '') + s;
   }
-  if(typeof d.moneyIn === "number") set("moneyIn", dollars(d.moneyIn));
-  if(typeof d.valueToday === "number") set("valueToday", dollars(d.valueToday));
-  if(typeof d.vsMoneyIn === "number") set("vsMoneyIn", signedDollars(d.vsMoneyIn), d.vsMoneyIn < 0 ? "neg" : "pos");
-  if(typeof d.vsCD === "number") set("vsCD", signedDollars(d.vsCD), d.vsCD < 0 ? "neg" : "pos");
-  if(typeof d.cdProjectedToday === "number") set("cdToday", dollars(d.cdProjectedToday));
-  if(typeof d.actualPace === "number") set("actualPace", pct(d.actualPace), d.actualPace < 0 ? "neg" : "pos");
-  if(typeof d.cdPace === "number") set("cdPace", pct(d.cdPace));
-  if(typeof d.gapChange === "number") set("gapChange", signedDollars(d.gapChange), d.gapChange < 0 ? "neg" : "pos");
-  if(typeof d.paceChange === "number") set("paceChange", signedPct(d.paceChange), d.paceChange < 0 ? "neg" : "pos");
-  if(d.baselineDate) set("baselineLabel", "Since " + fmtDateOnly(d.baselineDate));
-}).catch(function(){
-  document.getElementById("msg").hidden = false;
-});
+  function fmtPct(n, dp) {
+    if (n == null || !isFinite(n)) return '&mdash;';
+    return (n < 0 ? '&minus;' : '') + Math.abs(n).toFixed(dp == null ? 2 : dp) + '%';
+  }
+  function fmtDateOnly(s) {
+    if (!s) return '&mdash;';
+    var p = String(s).slice(0, 10).split('-');
+    if (p.length !== 3) return String(s);
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+  }
+  function setCls(el, cls) { el.classList.remove('pos', 'neg'); if (cls) el.classList.add(cls); }
+  function renderChange() {
+    if (!data) return;
+    var baselineBtn = $('changeModeBaselineBtn'), lastBtn = $('changeModeLastBtn');
+    baselineBtn.classList.toggle('active', mode === 'baseline');
+    lastBtn.classList.toggle('active', mode === 'last');
+    if (mode === 'last') {
+      if (data.gapChangeLast == null || data.paceChangeLast == null) {
+        $('pGapChange').textContent = '&mdash;'; $('pPaceChange').textContent = '&mdash;';
+        setCls($('pGapChange')); setCls($('pPaceChange'));
+        $('pChangeN').textContent = 'No previous update yet &mdash; change will show after the next price update.';
+      } else {
+        $('pGapChange').innerHTML = fmtMoney(data.gapChangeLast, true);
+        $('pPaceChange').textContent = fmtPct(data.paceChangeLast, 1);
+        setCls($('pGapChange'), data.gapChangeLast > 0.5 ? 'pos' : data.gapChangeLast < -0.5 ? 'neg' : null);
+        setCls($('pPaceChange'), data.paceChangeLast < 0 ? 'neg' : data.paceChangeLast > 0 ? 'pos' : null);
+        $('pChangeN').textContent = 'Since last update, ' + fmtDateOnly(data.lastUpdateDate) + ' &mdash; one timeframe for the whole block.';
+      }
+    } else {
+      $('pGapChange').innerHTML = fmtMoney(data.gapChange, true);
+      $('pPaceChange').textContent = fmtPct(data.paceChange, 1);
+      setCls($('pGapChange'), data.gapChange > 0.5 ? 'pos' : data.gapChange < -0.5 ? 'neg' : null);
+      setCls($('pPaceChange'), data.paceChange < 0 ? 'neg' : data.paceChange > 0 ? 'pos' : null);
+      $('pChangeN').textContent = 'Since first prices, ' + fmtDateOnly(data.baselineDate) + ' &mdash; one timeframe for the whole block.';
+    }
+  }
+  function setMode(m) {
+    mode = m;
+    try { localStorage.setItem('results_change_mode_v2', m); } catch (e) {}
+    renderChange();
+  }
+  $('changeModeBaselineBtn').addEventListener('click', function () { setMode('baseline'); });
+  $('changeModeLastBtn').addEventListener('click', function () { setMode('last'); });
+  fetch('results.json', {cache: 'no-store'}).then(function (r) {
+    if (!r.ok) throw new Error('not found');
+    return r.json();
+  }).then(function (d) {
+    data = d;
+    if (d.updated) {
+      var dt = new Date(d.updated);
+      $('updatedLine').textContent = 'Results up to ' + (isNaN(dt) ? String(d.updated) : dt.toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}));
+    }
+    if (typeof d.moneyIn === 'number') $('pMoneyIn').textContent = fmtMoney(d.moneyIn);
+    if (typeof d.valueToday === 'number') $('pValueToday').textContent = fmtMoney(d.valueToday);
+    if (typeof d.deposits === 'number' && typeof d.withdrawals === 'number') $('pMoneyInN').textContent = fmtMoney(d.deposits) + ' in &middot; ' + fmtMoney(d.withdrawals) + ' out';
+    if (typeof d.accountValue === 'number' && typeof d.savingsValue === 'number') $('pValueTodayN').textContent = 'account ' + fmtMoney(d.accountValue) + ' + savings ' + fmtMoney(d.savingsValue);
+    if (typeof d.vsMoneyIn === 'number') { $('pGapMoneyIn').innerHTML = fmtMoney(d.vsMoneyIn, true); setCls($('pGapMoneyIn'), d.vsMoneyIn > 0.5 ? 'pos' : d.vsMoneyIn < -0.5 ? 'neg' : null); }
+    if (typeof d.moneyIn === 'number') $('pGapMoneyInN').textContent = 'money in ' + fmtMoney(d.moneyIn);
+    if (typeof d.vsCD === 'number') { $('pGap').innerHTML = fmtMoney(d.vsCD, true); setCls($('pGap'), d.vsCD > 0.5 ? 'pos' : d.vsCD < -0.5 ? 'neg' : null); }
+    if (typeof d.cdProjectedToday === 'number') $('pGapN').textContent = 'projected to today: ' + fmtMoney(d.cdProjectedToday) + ' &middot; &minus; means below the CD projection, + means above it';
+    if (typeof d.actualPace === 'number') { $('pPaceActual').textContent = fmtPct(d.actualPace, 1) + ' a year'; setCls($('pPaceActual'), d.actualPace < 0 ? 'neg' : 'pos'); }
+    if (typeof d.cdPace === 'number') $('pPaceCD').textContent = fmtPct(d.cdPace, 2) + ' a year';
+    renderChange();
+  }).catch(function () {
+    $('msg').hidden = false;
+  });
+})();
 </script>
 </body>
 </html>
