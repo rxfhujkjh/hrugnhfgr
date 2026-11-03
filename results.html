@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Market Scorecard: Investments vs CD</title>
+<style>
+:root{--bg:#f4f6f4;--surface:#ffffff;--text:#1c241e;--muted:#5a6a5e;--line:#d8e0d8;--good:#1a7a3a;--bad:#b3261e}
+@media (prefers-color-scheme: dark){:root{--bg:#101613;--surface:#18201b;--text:#e8efe9;--muted:#9db0a2;--line:#2c3a30;--good:#6fbf8a;--bad:#ff8a80}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif}
+main{max-width:720px;margin:0 auto;padding:16px}
+h1{font-size:1.4rem;margin:0 0 4px}
+.sub{color:var(--muted);font-size:.95rem;margin-bottom:16px}
+.pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.85rem;color:var(--muted);margin-left:8px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+.group h2{font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:4px 0}
+.label{color:var(--muted)}
+.value{font-variant-numeric:tabular-nums;text-align:right}
+.big{font-size:1.15rem}
+.note{font-size:.85rem;color:var(--muted)}
+.neg{color:var(--bad)}
+.pos{color:var(--good)}
+.msg{font-size:.9rem;color:var(--muted);margin-top:12px}
+footer{font-size:.85rem;color:var(--muted);margin-top:16px}
+</style>
+</head>
+<body>
+<main>
+<h1>Market Scorecard: Investments vs CD<span class="pill">v1</span></h1>
+<p class="sub">Tracked over time &middot; Results up to <span id="updated">—</span></p>
+<div class="box">
+<div class="grid">
+<div class="group">
+<h2>Account</h2>
+<div class="row"><span class="label">Money in</span><span class="value big" id="moneyIn">—</span></div>
+<div class="row"><span class="label">Value today</span><span class="value big" id="valueToday">—</span></div>
+</div>
+<div class="group">
+<h2>Diffs</h2>
+<div class="row"><span class="label">vs money in</span><span class="value" id="vsMoneyIn">—</span></div>
+<div class="row"><span class="label">vs CD projection</span><span class="value" id="vsCD">—</span></div>
+<div class="row"><span class="label">CD projected to today</span><span class="value" id="cdToday">—</span></div>
+</div>
+<div class="group">
+<h2>Yearly rate</h2>
+<div class="row"><span class="label">Actual pace</span><span class="value" id="actualPace">—</span></div>
+<div class="row"><span class="label">CD pace</span><span class="value" id="cdPace">—</span></div>
+<div class="row"><span class="note">CD pace is a fixed rate.</span><span></span></div>
+</div>
+<div class="group">
+<h2>How it changed</h2>
+<div class="row"><span class="label">Change in gap</span><span class="value" id="gapChange">—</span></div>
+<div class="row"><span class="label">Change in pace</span><span class="value" id="paceChange">—</span></div>
+<div class="row"><span class="note" id="baselineLabel">Since —</span><span></span></div>
+</div>
+</div>
+</div>
+<p class="msg" id="msg" hidden>Results file not available — showing no values. Check back after the next server push.</p>
+<footer>Results file: results.json</footer>
+</main>
+<script>
+function dollars(v){return "$" + Math.round(v).toLocaleString("en-US");}
+function signedDollars(v){return (v < 0 ? "−$" : "+$") + Math.round(Math.abs(v)).toLocaleString("en-US");}
+function pct(v){return (v < 0 ? "−" : "") + Math.abs(v).toFixed(1) + "%";}
+function signedPct(v){return (v < 0 ? "−" : "+") + Math.abs(v).toFixed(1) + "%";}
+function set(id, text, cls){var el = document.getElementById(id); el.textContent = text; if(cls){el.classList.add(cls);} }
+function fmtDateOnly(s){
+  if(!s) return "—";
+  var p = String(s).slice(0, 10).split("-");
+  if(p.length !== 3) return String(s);
+  var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+  return d.toLocaleDateString(undefined, {month: "short", day: "numeric", year: "numeric"});
+}
+fetch("results.json", {cache: "no-store"}).then(function(r){
+  if(!r.ok) throw new Error("not found");
+  return r.json();
+}).then(function(d){
+  if(d.updated){
+    var dt = new Date(d.updated);
+    set("updated", isNaN(dt) ? String(d.updated) : dt.toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"}));
+  }
+  if(typeof d.moneyIn === "number") set("moneyIn", dollars(d.moneyIn));
+  if(typeof d.valueToday === "number") set("valueToday", dollars(d.valueToday));
+  if(typeof d.vsMoneyIn === "number") set("vsMoneyIn", signedDollars(d.vsMoneyIn), d.vsMoneyIn < 0 ? "neg" : "pos");
+  if(typeof d.vsCD === "number") set("vsCD", signedDollars(d.vsCD), d.vsCD < 0 ? "neg" : "pos");
+  if(typeof d.cdProjectedToday === "number") set("cdToday", dollars(d.cdProjectedToday));
+  if(typeof d.actualPace === "number") set("actualPace", pct(d.actualPace), d.actualPace < 0 ? "neg" : "pos");
+  if(typeof d.cdPace === "number") set("cdPace", pct(d.cdPace));
+  if(typeof d.gapChange === "number") set("gapChange", signedDollars(d.gapChange), d.gapChange < 0 ? "neg" : "pos");
+  if(typeof d.paceChange === "number") set("paceChange", signedPct(d.paceChange), d.paceChange < 0 ? "neg" : "pos");
+  if(d.baselineDate) set("baselineLabel", "Since " + fmtDateOnly(d.baselineDate));
+}).catch(function(){
+  document.getElementById("msg").hidden = false;
+});
+</script>
+</body>
+</html>
