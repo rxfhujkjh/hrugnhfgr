@@ -186,6 +186,8 @@
       .present-card .lab { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
       .present-card .lab:first-of-type { margin-top: 0; }
       .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
+      .rate-group { background: #162e4d; border-left: 5px solid #6aa8ff; border-radius: 8px; padding: 8px 10px; margin: 6px -4px; }
+      .gap-group { background: #3d2c10; border-left: 5px solid #ffb84d; border-radius: 8px; padding: 8px 10px; margin: 6px -4px; }
       .toggle-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
       .toggle-btn.active { background: var(--accent); color: var(--accent-ink); }
       .settings-panel { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 12px 16px; margin: 10px 0 16px; }
@@ -208,7 +210,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v2</span>
+<span class="ver">v4</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -228,34 +230,36 @@
 <div class="lab">vs money in</div>
 <div class="v mono" id="pGapMoneyIn">&mdash;</div>
 <div class="n" id="pGapMoneyInN">money in &mdash;</div>
-<div class="lab">vs CD projection</div>
+<div class="gap-group"><div class="lab">vs CD projection</div>
 <div class="v mono" id="pGap">&mdash;</div>
-<div class="n" id="pGapN">projected to today: &mdash;</div>
+<div class="n" id="pGapN">projected to today: &mdash;</div></div>
 </div>
 <div class="present-card">
 <div class="group">Yearly rate</div>
-<div class="lab">Actual</div>
+<div class="rate-group"><div class="lab">Actual</div>
 <div class="v mono" id="pPaceActual">&mdash;</div>
+<div class="n" id="pPaceNote">&mdash;</div></div>
 <div class="lab">CD</div>
 <div class="v mono" id="pPaceCD">&mdash;</div>
 <div class="n">fixed rate</div>
 </div>
 <div class="present-card">
 <div class="group">How it changed</div>
-<div class="lab">Change in gap</div>
-<div class="v mono" id="pGapChange">&mdash;</div>
-<div class="lab">Change in pace</div>
+<div class="rate-group"><div class="lab">Change in rate</div>
 <div class="v mono" id="pPaceChange">&mdash;</div>
+<div class="n">higher = better</div></div>
+<div class="gap-group"><div class="lab">Change in gap</div>
+<div class="v mono" id="pGapChange">&mdash;</div>
+<div class="n">lower = worse</div></div>
 <div class="change-toggle">
 <button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From baseline</button>
-<button class="toggle-btn" id="changeModeLastBtn" type="button">Last update</button>
+<button class="toggle-btn" id="changeModeLastBtn" type="button">Last move</button>
 </div>
 <div class="n" id="pChangeN">No baseline yet.</div>
 </div>
 </div>
 </section>
 <p class="msg" id="msg" hidden style="color:var(--ink-2);font-size:14px;">Results file not available — showing no values. Check back after the next server push.</p>
-<footer>Market Scorecard · v2 · Results file: results.json</footer>
 </div>
 <script>
 (function () {
@@ -282,6 +286,17 @@
     return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
   }
   function setCls(el, cls) { el.classList.remove('pos', 'neg'); if (cls) el.classList.add(cls); }
+  function arrowFor(n) { if (n == null || !isFinite(n)) return ''; return n > 0 ? '↑ ' : n < 0 ? '↓ ' : ''; }
+  function durationAgo(fromStr, toStr) {
+    try {
+      var f = new Date(String(fromStr).slice(0, 10) + 'T00:00:00');
+      var to = toStr ? new Date(toStr) : new Date();
+      var days = Math.round((to - f) / 86400000);
+      if (days <= 0) return 'today';
+      if (days === 1) return '1 day ago';
+      return days + ' days ago';
+    } catch (e) { return ''; }
+  }
   function renderChange() {
     if (!data) return;
     var baselineBtn = $('changeModeBaselineBtn'), lastBtn = $('changeModeLastBtn');
@@ -293,18 +308,22 @@
         setCls($('pGapChange')); setCls($('pPaceChange'));
         $('pChangeN').textContent = 'No previous update yet — change will show after the next price update.';
       } else {
-        $('pGapChange').innerHTML = fmtMoney(data.gapChangeLast, true);
-        $('pPaceChange').textContent = fmtPct(data.paceChangeLast, 1);
+        $('pGapChange').innerHTML = arrowFor(data.gapChangeLast) + fmtMoney(data.gapChangeLast, true);
+        $('pPaceChange').textContent = arrowFor(data.paceChangeLast) + fmtPct(data.paceChangeLast, 1);
         setCls($('pGapChange'), data.gapChangeLast > 0.5 ? 'pos' : data.gapChangeLast < -0.5 ? 'neg' : null);
         setCls($('pPaceChange'), data.paceChangeLast < 0 ? 'neg' : data.paceChangeLast > 0 ? 'pos' : null);
-        $('pChangeN').textContent = 'Since last update, ' + fmtDateOnly(data.lastUpdateDate) + ' — one timeframe for the whole block.';
+        if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(data.gapChangeLast) + fmtMoney(data.gapChangeLast, true) + ' since last move';
+        $('pPaceNote').textContent = arrowFor(data.paceChangeLast) + fmtPct(data.paceChangeLast, 1) + ' pts since last move';
+        $('pChangeN').textContent = 'Since last move, ' + durationAgo(data.lastUpdateDate, data.updated) + ' (' + fmtDateOnly(data.lastUpdateDate) + ') — one timeframe for the whole block.';
       }
     } else {
-      $('pGapChange').innerHTML = fmtMoney(data.gapChange, true);
-      $('pPaceChange').textContent = fmtPct(data.paceChange, 1);
+      $('pGapChange').innerHTML = arrowFor(data.gapChange) + fmtMoney(data.gapChange, true);
+      $('pPaceChange').textContent = arrowFor(data.paceChange) + fmtPct(data.paceChange, 1);
       setCls($('pGapChange'), data.gapChange > 0.5 ? 'pos' : data.gapChange < -0.5 ? 'neg' : null);
       setCls($('pPaceChange'), data.paceChange < 0 ? 'neg' : data.paceChange > 0 ? 'pos' : null);
-      $('pChangeN').textContent = 'Since first prices, ' + fmtDateOnly(data.baselineDate) + ' — one timeframe for the whole block.';
+      if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(data.gapChange) + fmtMoney(data.gapChange, true) + ' since baseline';
+      $('pPaceNote').textContent = arrowFor(data.paceChange) + fmtPct(data.paceChange, 1) + ' pts since baseline';
+      $('pChangeN').textContent = 'Since first prices, ' + durationAgo(data.baselineDate, data.updated) + ' (' + fmtDateOnly(data.baselineDate) + ') — one timeframe for the whole block.';
     }
   }
   function setMode(m) {
@@ -330,7 +349,7 @@
     if (typeof d.vsMoneyIn === 'number') { $('pGapMoneyIn').innerHTML = fmtMoney(d.vsMoneyIn, true); setCls($('pGapMoneyIn'), d.vsMoneyIn > 0.5 ? 'pos' : d.vsMoneyIn < -0.5 ? 'neg' : null); }
     if (typeof d.moneyIn === 'number') $('pGapMoneyInN').textContent = 'money in ' + fmtMoney(d.moneyIn);
     if (typeof d.vsCD === 'number') { $('pGap').innerHTML = fmtMoney(d.vsCD, true); setCls($('pGap'), d.vsCD > 0.5 ? 'pos' : d.vsCD < -0.5 ? 'neg' : null); }
-    if (typeof d.cdProjectedToday === 'number') $('pGapN').textContent = 'projected to today: ' + fmtMoney(d.cdProjectedToday) + ' · − means below the CD projection, + means above it';
+    if (typeof d.cdProjectedToday === 'number') $('pGapN').textContent = 'projection ' + fmtMoney(d.cdProjectedToday);
     if (typeof d.actualPace === 'number') { $('pPaceActual').textContent = fmtPct(d.actualPace, 1) + ' a year'; setCls($('pPaceActual'), d.actualPace < 0 ? 'neg' : 'pos'); }
     if (typeof d.cdPace === 'number') $('pPaceCD').textContent = fmtPct(d.cdPace, 2) + ' a year';
     renderChange();
