@@ -210,7 +210,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v4</span>
+<span class="ver">v5</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -297,6 +297,37 @@
       return days + ' days ago';
     } catch (e) { return ''; }
   }
+  function fmtTime(s) {
+    if (!s) return '';
+    var d = new Date(s);
+    if (isNaN(d)) return '';
+    return d.toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit'});
+  }
+  function sameDay(a, b) { return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate(); }
+  function lastMoveNote() {
+    var lastTs = data.lastUpdate || data.lastUpdateTimestamp || null;
+    var upd = data.updated ? new Date(data.updated) : new Date();
+    if (!lastTs) {
+      return 'Since ' + fmtDateOnly(data.lastUpdateDate) + ' (' + durationAgo(data.lastUpdateDate, data.updated) + ')';
+    }
+    var last = new Date(lastTs);
+    if (isNaN(last)) {
+      return 'Since ' + fmtDateOnly(data.lastUpdateDate) + ' (' + durationAgo(data.lastUpdateDate, data.updated) + ')';
+    }
+    var diffMs = upd - last;
+    if (diffMs < 0) diffMs = 0;
+    var yest = new Date(upd); yest.setDate(upd.getDate() - 1);
+    var dayLabel = sameDay(last, upd) ? 'today' : sameDay(last, yest) ? 'yesterday' : null;
+    if (dayLabel && diffMs < 86400000) {
+      if (diffMs < 3600000) {
+        var mins = Math.max(1, Math.round(diffMs / 60000));
+        return 'Since ' + fmtTime(lastTs) + ' ' + dayLabel + ' (~' + mins + ' minutes)';
+      }
+      var hrs = Math.max(1, Math.round(diffMs / 3600000));
+      return 'Since ' + fmtTime(lastTs) + ' ' + dayLabel + ' (~' + hrs + (hrs === 1 ? ' hour)' : ' hours)');
+    }
+    return 'Since ' + fmtDateOnly(data.lastUpdateDate) + ' (' + durationAgo(data.lastUpdateDate, data.updated) + ')';
+  }
   function renderChange() {
     if (!data) return;
     var baselineBtn = $('changeModeBaselineBtn'), lastBtn = $('changeModeLastBtn');
@@ -314,7 +345,7 @@
         setCls($('pPaceChange'), data.paceChangeLast < 0 ? 'neg' : data.paceChangeLast > 0 ? 'pos' : null);
         if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(data.gapChangeLast) + fmtMoney(data.gapChangeLast, true) + ' since last move';
         $('pPaceNote').textContent = arrowFor(data.paceChangeLast) + fmtPct(data.paceChangeLast, 1) + ' pts since last move';
-        $('pChangeN').textContent = 'Since last move, ' + durationAgo(data.lastUpdateDate, data.updated) + ' (' + fmtDateOnly(data.lastUpdateDate) + ') — one timeframe for the whole block.';
+        $('pChangeN').textContent = lastMoveNote();
       }
     } else {
       $('pGapChange').innerHTML = arrowFor(data.gapChange) + fmtMoney(data.gapChange, true);
@@ -323,7 +354,7 @@
       setCls($('pPaceChange'), data.paceChange < 0 ? 'neg' : data.paceChange > 0 ? 'pos' : null);
       if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(data.gapChange) + fmtMoney(data.gapChange, true) + ' since baseline';
       $('pPaceNote').textContent = arrowFor(data.paceChange) + fmtPct(data.paceChange, 1) + ' pts since baseline';
-      $('pChangeN').textContent = 'Since first prices, ' + durationAgo(data.baselineDate, data.updated) + ' (' + fmtDateOnly(data.baselineDate) + ') — one timeframe for the whole block.';
+      $('pChangeN').textContent = 'Since ' + fmtDateOnly(data.baselineDate) + ' (' + durationAgo(data.baselineDate, data.updated) + ')';
     }
   }
   function setMode(m) {
