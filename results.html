@@ -186,6 +186,16 @@
       .present-card .lab { font-size: 13px; color: var(--ink-2); margin-top: 10px; }
       .present-card .lab:first-of-type { margin-top: 0; }
       .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
+      /* v7, design K: split toggle. Left = From M/D. Right = label + a
+         separate ↻ area that cycles Day Δ → Last move → Overnight.
+         Unselected side is white with grey text; selected side is filled. */
+      .toggle-btn.unselected { background: var(--surface); color: var(--ink-3); border-color: var(--line); }
+      .split-toggle { display: inline-flex; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
+      .split-toggle .toggle-btn { border: none; border-radius: 0; }
+      .split-toggle .toggle-btn.cycle { min-width: 36px; padding: 6px 12px; border-left: 1px solid rgba(255, 255, 255, .4); font-size: 15px; }
+      .split-toggle.unselected { border-color: var(--line); }
+      .split-toggle.unselected .toggle-btn { background: var(--surface); color: var(--ink-3); }
+      .split-toggle.unselected .toggle-btn.cycle { border-left-color: var(--line); }
       .rate-group { background: #162e4d; border-left: 5px solid #6aa8ff; border-radius: 8px; padding: 8px 10px; margin: 6px -4px; }
       .gap-group { background: #3d2c10; border-left: 5px solid #ffb84d; border-radius: 8px; padding: 8px 10px; margin: 6px -4px; }
       .toggle-btn { font: inherit; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
@@ -210,7 +220,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v5</span>
+<span class="ver">v7</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -247,13 +257,16 @@
 <div class="group">How it changed</div>
 <div class="rate-group"><div class="lab">Change in rate</div>
 <div class="v mono" id="pPaceChange">&mdash;</div>
-<div class="n">higher = better</div></div>
+<div class="n" id="pPaceChangeNote"></div></div>
 <div class="gap-group"><div class="lab">Change in gap</div>
 <div class="v mono" id="pGapChange">&mdash;</div>
-<div class="n">lower = worse</div></div>
+<div class="n" id="pGapChangeNote"></div></div>
 <div class="change-toggle">
-<button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From baseline</button>
-<button class="toggle-btn" id="changeModeLastBtn" type="button">Last move</button>
+<button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From &mdash;</button>
+<span class="split-toggle unselected" id="changeRightSplit">
+<button class="toggle-btn" id="changeRightLabelBtn" type="button" title="Show this view">Day &Delta;</button>
+<button class="toggle-btn cycle" id="changeRightCycleBtn" type="button" title="Tap to see the next view" aria-label="Next view">&#8635;</button>
+</span>
 </div>
 <div class="n" id="pChangeN">No baseline yet.</div>
 </div>
@@ -264,8 +277,20 @@
 <script>
 (function () {
   'use strict';
+  // v7: two controls, independently sticky. Left = From M/D (baseline).
+  // Right = one of day / last / overnight, cycled by the ↻ area.
+  // mode is what is shown now; rightMode is the right side's own last
+  // state, preserved when the user goes back to From M/D.
+  var RIGHT_MODES = ['day', 'last', 'overnight'];
+  var RIGHT_LABELS = { day: 'Day \u0394', last: 'Last move', overnight: 'Overnight' };
   var mode = 'baseline';
-  try { var m = localStorage.getItem('results_change_mode_v2'); if (m === 'last' || m === 'baseline') mode = m; } catch (e) {}
+  var rightMode = 'day';
+  try {
+    var rm = localStorage.getItem('results_change_right_v2');
+    if (RIGHT_MODES.indexOf(rm) >= 0) rightMode = rm;
+    var m = localStorage.getItem('results_change_mode_v2');
+    if (m === 'last' || m === 'baseline' || m === 'day' || m === 'overnight') mode = m;
+  } catch (e) {}
   var data = null;
   function $(id) { return document.getElementById(id); }
   function fmtMoney(n, signed) {
@@ -328,42 +353,109 @@
     }
     return 'Since ' + fmtDateOnly(data.lastUpdateDate) + ' (' + durationAgo(data.lastUpdateDate, data.updated) + ')';
   }
+  // v7: From M/D label. No year under a year; M/D/YY if the baseline is
+  // more than a year before the latest results.
+  function fmtFromLabel() {
+    if (!data || !data.baselineDate) return 'From \u2014';
+    var p = String(data.baselineDate).slice(0, 10).split('-');
+    if (p.length !== 3) return 'From \u2014';
+    var m = Number(p[1]), d = Number(p[2]), y = Number(p[0]);
+    var overYear = false;
+    if (data.updated) {
+      var u = new Date(String(data.updated).slice(0, 10) + 'T00:00:00');
+      var b = new Date(y, m - 1, d);
+      overYear = (u - b) > 365 * 86400000;
+    }
+    return overYear ? 'From ' + m + '/' + d + '/' + String(y).slice(2) : 'From ' + m + '/' + d;
+  }
+  // v7: the note under each change switches with the actual change:
+  // positive = good, negative = bad, no change = neutral. Same sign rule
+  // for gap and rate: up is good.
+  function changeNote(v, isGap) {
+    if (v == null || !isFinite(v)) return '';
+    var t = isGap ? 0.5 : 0.05;
+    if (v > t) return 'positive = good';
+    if (v < -t) return 'negative = bad';
+    return 'no change';
+  }
+  function showChange(gapV, paceV, sinceText, noteText) {
+    $('pGapChange').innerHTML = arrowFor(gapV) + fmtMoney(gapV, true);
+    $('pPaceChange').textContent = arrowFor(paceV) + fmtPct(paceV, 1);
+    setCls($('pGapChange'), gapV > 0.5 ? 'pos' : gapV < -0.5 ? 'neg' : null);
+    setCls($('pPaceChange'), paceV < 0 ? 'neg' : paceV > 0 ? 'pos' : null);
+    $('pGapChangeNote').textContent = changeNote(gapV, true);
+    $('pPaceChangeNote').textContent = changeNote(paceV, false);
+    if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(gapV) + fmtMoney(gapV, true) + ' ' + sinceText;
+    $('pPaceNote').textContent = arrowFor(paceV) + fmtPct(paceV, 1) + ' pts ' + sinceText;
+    $('pChangeN').textContent = noteText;
+  }
+  function showNA(noteText) {
+    $('pGapChange').textContent = 'N/A'; $('pPaceChange').textContent = 'N/A';
+    setCls($('pGapChange')); setCls($('pPaceChange'));
+    $('pGapChangeNote').textContent = ''; $('pPaceChangeNote').textContent = '';
+    $('pChangeN').textContent = noteText;
+  }
   function renderChange() {
     if (!data) return;
-    var baselineBtn = $('changeModeBaselineBtn'), lastBtn = $('changeModeLastBtn');
-    baselineBtn.classList.toggle('active', mode === 'baseline');
-    lastBtn.classList.toggle('active', mode === 'last');
-    if (mode === 'last') {
-      if (data.gapChangeLast == null || data.paceChangeLast == null) {
-        $('pGapChange').textContent = '—'; $('pPaceChange').textContent = '—';
-        setCls($('pGapChange')); setCls($('pPaceChange'));
-        $('pChangeN').textContent = 'No previous update yet — change will show after the next price update.';
+    var baselineBtn = $('changeModeBaselineBtn'), split = $('changeRightSplit'), labelBtn = $('changeRightLabelBtn');
+    baselineBtn.textContent = fmtFromLabel();
+    labelBtn.innerHTML = RIGHT_LABELS[rightMode];
+    var onRight = mode !== 'baseline';
+    baselineBtn.classList.toggle('active', !onRight);
+    baselineBtn.classList.toggle('unselected', onRight);
+    split.classList.toggle('unselected', !onRight);
+    labelBtn.classList.toggle('active', onRight);
+    if (mode === 'day') {
+      // v87: true prior-close day change. Fall back to the v6 last-move
+      // approximation only when the server has no day fields yet.
+      var g = data.gapChangeDay, pc = data.paceChangeDay;
+      if (g == null || pc == null) {
+        var updDay = data.updated ? String(data.updated).slice(0, 10) : null;
+        var hasPriorDay = data.lastUpdateDate && updDay && data.lastUpdateDate < updDay;
+        if (!hasPriorDay || data.gapChangeLast == null || data.paceChangeLast == null) {
+          showNA('No prior-day data yet \u2014 day change will show after the first push of a new day.');
+        } else {
+          showChange(data.gapChangeLast, data.paceChangeLast, 'since day change', lastMoveNote());
+        }
       } else {
-        $('pGapChange').innerHTML = arrowFor(data.gapChangeLast) + fmtMoney(data.gapChangeLast, true);
-        $('pPaceChange').textContent = arrowFor(data.paceChangeLast) + fmtPct(data.paceChangeLast, 1);
-        setCls($('pGapChange'), data.gapChangeLast > 0.5 ? 'pos' : data.gapChangeLast < -0.5 ? 'neg' : null);
-        setCls($('pPaceChange'), data.paceChangeLast < 0 ? 'neg' : data.paceChangeLast > 0 ? 'pos' : null);
-        if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(data.gapChangeLast) + fmtMoney(data.gapChangeLast, true) + ' since last move';
-        $('pPaceNote').textContent = arrowFor(data.paceChangeLast) + fmtPct(data.paceChangeLast, 1) + ' pts since last move';
-        $('pChangeN').textContent = lastMoveNote();
+        showChange(g, pc, 'since day change', 'Yesterday\u2019s close to now');
+      }
+    } else if (mode === 'overnight') {
+      if (data.gapChangeOvernight == null || data.paceChangeOvernight == null) {
+        showNA('No overnight data yet \u2014 overnight change will show after the first push of a new day.');
+      } else {
+        showChange(data.gapChangeOvernight, data.paceChangeOvernight, 'overnight', 'Yesterday\u2019s close to today\u2019s open');
+      }
+    } else if (mode === 'last') {
+      if (data.gapChangeLast == null || data.paceChangeLast == null) {
+        $('pGapChange').textContent = '\u2014'; $('pPaceChange').textContent = '\u2014';
+        setCls($('pGapChange')); setCls($('pPaceChange'));
+        $('pGapChangeNote').textContent = ''; $('pPaceChangeNote').textContent = '';
+        $('pChangeN').textContent = 'No previous update yet \u2014 change will show after the next price update.';
+      } else {
+        showChange(data.gapChangeLast, data.paceChangeLast, 'since last move', lastMoveNote());
       }
     } else {
-      $('pGapChange').innerHTML = arrowFor(data.gapChange) + fmtMoney(data.gapChange, true);
-      $('pPaceChange').textContent = arrowFor(data.paceChange) + fmtPct(data.paceChange, 1);
-      setCls($('pGapChange'), data.gapChange > 0.5 ? 'pos' : data.gapChange < -0.5 ? 'neg' : null);
-      setCls($('pPaceChange'), data.paceChange < 0 ? 'neg' : data.paceChange > 0 ? 'pos' : null);
-      if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(data.gapChange) + fmtMoney(data.gapChange, true) + ' since baseline';
-      $('pPaceNote').textContent = arrowFor(data.paceChange) + fmtPct(data.paceChange, 1) + ' pts since baseline';
-      $('pChangeN').textContent = 'Since ' + fmtDateOnly(data.baselineDate) + ' (' + durationAgo(data.baselineDate, data.updated) + ')';
+      // Baseline: note below is duration only, no date repeated.
+      showChange(data.gapChange, data.paceChange, 'since ' + fmtFromLabel().replace('From ', ''), durationAgo(data.baselineDate, data.updated));
     }
   }
   function setMode(m) {
     mode = m;
+    if (RIGHT_MODES.indexOf(m) >= 0) {
+      rightMode = m;
+      try { localStorage.setItem('results_change_right_v2', m); } catch (e) {}
+    }
     try { localStorage.setItem('results_change_mode_v2', m); } catch (e) {}
     renderChange();
   }
   $('changeModeBaselineBtn').addEventListener('click', function () { setMode('baseline'); });
-  $('changeModeLastBtn').addEventListener('click', function () { setMode('last'); });
+  // Label: switch to the right side's last state (no cycling). ↻: cycle.
+  $('changeRightLabelBtn').addEventListener('click', function () { if (mode === 'baseline') setMode(rightMode); });
+  $('changeRightCycleBtn').addEventListener('click', function () {
+    var i = RIGHT_MODES.indexOf(rightMode);
+    setMode(RIGHT_MODES[(i + 1) % RIGHT_MODES.length]);
+  });
   fetch('results.json', {cache: 'no-store'}).then(function (r) {
     if (!r.ok) throw new Error('not found');
     return r.json();
