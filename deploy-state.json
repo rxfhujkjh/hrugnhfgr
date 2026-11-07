@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T15:31:00-06:00",
+  "generatedAt": "2026-11-07T15:58:01-06:00",
   "serverVersion": "v92",
   "deployed": [
     {
@@ -55,15 +55,6 @@
       "sha256": "e5c60ae5d1494efd8b038de08954e96c23a353cca77e1500dfc75e1629abe0a7",
       "matchedBackup": "index.v31.html",
       "version": "v31"
-    },
-    {
-      "file": "player.html",
-      "name": "player",
-      "size": 16365,
-      "mtime": "2026-11-07T17:35:26.675Z",
-      "sha256": "c92ca1f8a095e3a25eca266adfce9ce54c19bb7597a785e1ee43b34a99348fdd",
-      "matchedBackup": "player.v2.html",
-      "version": "v2"
     },
     {
       "file": "player.v5.html",
