@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T13:16:01-06:00",
+  "generatedAt": "2026-11-07T15:31:00-06:00",
   "serverVersion": "v92",
   "deployed": [
     {
@@ -64,6 +64,15 @@
       "sha256": "c92ca1f8a095e3a25eca266adfce9ce54c19bb7597a785e1ee43b34a99348fdd",
       "matchedBackup": "player.v2.html",
       "version": "v2"
+    },
+    {
+      "file": "player.v5.html",
+      "name": "player.v5",
+      "size": 26356,
+      "mtime": "2026-11-07T21:20:40.871Z",
+      "sha256": "2682f038d15d5c400acaed0cab76aef00739e21f44971cb28673cfdff779ff54",
+      "matchedBackup": "player.v5.html",
+      "version": "v5"
     },
     {
       "file": "portfolio_xirr.html",
@@ -331,6 +340,11 @@
       "file": "player.v3.html",
       "size": 19487,
       "sha256": "d4bac014fc6979a3116144bebb23167bb68d75a4386c38975ef91ab4fc10516d"
+    },
+    {
+      "file": "player.v5.html",
+      "size": 26356,
+      "sha256": "2682f038d15d5c400acaed0cab76aef00739e21f44971cb28673cfdff779ff54"
     },
     {
       "file": "portfolio_xirr.12_57a.html",
