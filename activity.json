@@ -1,7 +1,7 @@
 {
   "2026-11-09": {
     "am": false,
-    "pm": false,
+    "pm": true,
     "exercise": false,
     "water": false,
     "feet": true,
@@ -11,9 +11,9 @@
     "games": {
       "make13": 0,
       "pairs": 0,
-      "words": 5
+      "words": 7
     },
-    "wordsPoints": 300
+    "wordsPoints": 400
   },
   "2026-11-10": {
     "am": false,
