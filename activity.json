@@ -3,7 +3,7 @@
     "am": false,
     "pm": false,
     "exercise": false,
-    "water": true,
+    "water": false,
     "feet": false,
     "visits": 0,
     "videoSeconds": 0,
