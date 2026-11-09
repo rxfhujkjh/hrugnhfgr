@@ -4,7 +4,7 @@
     "pm": false,
     "exercise": false,
     "water": false,
-    "feet": false,
+    "feet": true,
     "visits": 0,
     "videoSeconds": 0,
     "videos": {},
@@ -14,5 +14,21 @@
       "words": 5
     },
     "wordsPoints": 300
+  },
+  "2026-11-10": {
+    "am": false,
+    "pm": true,
+    "exercise": false,
+    "water": false,
+    "feet": false,
+    "visits": 0,
+    "videoSeconds": 0,
+    "videos": {},
+    "games": {
+      "make13": 0,
+      "pairs": 0,
+      "words": 0
+    },
+    "wordsPoints": 0
   }
 }
