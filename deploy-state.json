@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-08T10:00:48-06:00",
+  "generatedAt": "2026-11-09T00:08:22-06:00",
   "serverVersion": "v93",
   "deployed": [
     {
@@ -59,11 +59,11 @@
     {
       "file": "player.html",
       "name": "player",
-      "size": 26571,
-      "mtime": "2026-11-08T15:56:15.183Z",
-      "sha256": "8e95042ef865b6710c50a7f5a536022d0d83d44fc16e51dfd4e804e728929339",
-      "matchedBackup": "player.v6.html",
-      "version": "v6"
+      "size": 88449,
+      "mtime": "2026-11-09T01:45:13.258Z",
+      "sha256": "638cfc3e73326dde8095f1fd5c4be0a6a35441214dd5c3ee3b27dbfba9e5f5ed",
+      "matchedBackup": null,
+      "version": null
     },
     {
       "file": "portfolio_xirr.html",
@@ -213,6 +213,11 @@
       "sha256": "df43940fd2ee692115f9f21e0bb9fb579d0f302ea76c71b01a154d7fb8201e3a"
     },
     {
+      "file": "GitHub_index.html",
+      "size": 1162,
+      "sha256": "22cfbc4155d750b3ce58c5bc220f99ef75786faa5d1b56ed70af69e1eeb80cd2"
+    },
+    {
       "file": "hub.v1.html",
       "size": 11168,
       "sha256": "ea615f873eb7052230e9666703c12d71359497bc418f8841df2526365df94308"
@@ -328,6 +333,11 @@
       "sha256": "c59a23cb6841db8c58f256411503e4c7bf35ba7efaaa1b4c24ffb8bc2a6aa681"
     },
     {
+      "file": "player.v10.html",
+      "size": 83211,
+      "sha256": "6a43f4db82c86aeceed33e7fb3e9824eb8d39dd271a7296131fabf8a1afb09a7"
+    },
+    {
       "file": "player.v2.html",
       "size": 16365,
       "sha256": "c92ca1f8a095e3a25eca266adfce9ce54c19bb7597a785e1ee43b34a99348fdd"
@@ -346,6 +356,21 @@
       "file": "player.v6.html",
       "size": 26571,
       "sha256": "8e95042ef865b6710c50a7f5a536022d0d83d44fc16e51dfd4e804e728929339"
+    },
+    {
+      "file": "player.v7.html",
+      "size": 29101,
+      "sha256": "5bb66c66503036b4a84e099da52fb542e1caa80fbb28a57f72d2a0291df2203a"
+    },
+    {
+      "file": "player.v8.html",
+      "size": 45222,
+      "sha256": "f6f364245d9f673f4848f1c7eb13b9bf3a39eb1891c2931583b70684b040cac6"
+    },
+    {
+      "file": "player.v9.html",
+      "size": 49666,
+      "sha256": "8773160c4f37e0654c83a9d683d76e19a3fd3c6c69c25b9da186fcfd5f23be07"
     },
     {
       "file": "portfolio_xirr.12_57a.html",
