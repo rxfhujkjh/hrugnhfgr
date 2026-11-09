@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T08:40:50-06:00",
+  "generatedAt": "2026-11-09T15:53:01-06:00",
   "serverVersion": "v93",
   "deployed": [
     {
@@ -443,6 +443,16 @@
       "sha256": "1ae49a2c658a10b8ff6d1e9cee6be6b2ee4c8d1f977bb9e97897dfcc53338973"
     },
     {
+      "file": "rp-config-v94-additions.json",
+      "size": 156,
+      "sha256": "d6d404d6d3c2c91ded90bb4bf37eeebe6bf4c31a573f26439fb68a2bcb247991"
+    },
+    {
+      "file": "rpserver.js",
+      "size": 315020,
+      "sha256": "76c9c094d6388664153b2f853087a120e80776de643369d91c5845f12d1ff309"
+    },
+    {
       "file": "rpserver.v72.js",
       "size": 219550,
       "sha256": "50af14702c9b2cfdc00b151a857a2e7a8f0816a14ab7f8f96c16b953599ad051"
@@ -538,14 +548,29 @@
       "sha256": "f3a393a0610edff60c8ec91d9f3834ad379f553e6c982d670cf1c4a58c7af625"
     },
     {
+      "file": "rpserver.v94.js",
+      "size": 315020,
+      "sha256": "76c9c094d6388664153b2f853087a120e80776de643369d91c5845f12d1ff309"
+    },
+    {
       "file": "sidekicks.v1.html",
       "size": 26846,
       "sha256": "ce95248b9fc2cb3cee579212a5f5e560a287c4f7d2df67bfb790d80557db79b1"
     },
     {
+      "file": "smb-browser.html",
+      "size": 374487,
+      "sha256": "306948cbb1fb21b3ec7b0a142a18a12598d0c785894434705711fa73a6aac0e3"
+    },
+    {
       "file": "smb-browser.v69.html",
       "size": 358368,
       "sha256": "9a40099b7ecfbad48c503160711512491d345c80e5e65376b8faf94c0cb13304"
+    },
+    {
+      "file": "smb-browser.v70.html",
+      "size": 374487,
+      "sha256": "306948cbb1fb21b3ec7b0a142a18a12598d0c785894434705711fa73a6aac0e3"
     },
     {
       "file": "split-viewer.v14.html",
