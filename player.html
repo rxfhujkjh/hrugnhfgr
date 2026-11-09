@@ -115,6 +115,17 @@
   .meds-row .box { width: 32px; height: 32px; border: 2px solid #52a5e0; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
   .meds-row.done .box { background: #2e7d5b; border-color: #2e7d5b; }
   .meds-row.done .label { color: #2e7d5b; text-decoration: line-through; }
+  .meds-row select { margin-left: auto; background: #121212; border: 1px solid #52a5e0; color: #eee; border-radius: 8px; padding: 10px 12px; font-size: 20px; }
+  /* v15: Activity — bare labels and numbers, no explanatory text. */
+  .act-sec { font-size: 17px; font-weight: 700; color: #52a5e0; margin: 18px auto 6px; max-width: 560px; }
+  .act-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #1e1e1e; border: 1px solid #333; border-radius: 10px; padding: 12px 16px; margin: 0 auto 8px; max-width: 560px; font-size: 19px; }
+  .act-row .n { font-weight: 700; color: #eee; white-space: nowrap; }
+  .act-days { display: flex; gap: 8px; max-width: 560px; margin: 0 auto 8px; }
+  .act-day { flex: 1; background: #1e1e1e; border: 1px solid #333; border-radius: 10px; padding: 10px 4px; text-align: center; }
+  .act-day .d { font-size: 15px; color: #888; }
+  .act-day .v { font-size: 22px; font-weight: 700; }
+  .act-day.today { border-color: #52a5e0; }
+  .act-day.today .d { color: #52a5e0; }
   /* v10: settings page */
   .set-row { margin-bottom: 18px; }
   .set-row label { display: block; font-size: 17px; margin-bottom: 6px; color: #eee; }
@@ -171,7 +182,7 @@
   <div class="list-top">
     <div class="list-top-left">
       <button class="back-btn" id="back-btn" style="display:none" onclick="goBack()" aria-label="Back">&times;</button>
-      <h1>Player<span class="v-pill">v14</span></h1>
+      <h1>Player<span class="v-pill">v15</span></h1>
     </div>
     <div class="list-top-btns">
       <button class="scale-btn" id="scale-down" onclick="changeThumbScale(-0.25)" aria-label="Smaller thumbnails">&minus;</button>
@@ -279,6 +290,14 @@
   <div class="calc-grid" id="calc-grid"></div>
 </div>
 
+<div class="game-view" id="activity-view">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeActivity()" aria-label="Back">&times;</button>
+    <h1>Activity</h1>
+  </div>
+  <div id="activity-body"></div>
+</div>
+
 <div class="game-view" id="settings-view">
   <div class="game-head">
     <button class="back-btn" onclick="closeSettings()" aria-label="Back">&times;</button>
@@ -316,12 +335,12 @@
     <div class="hint" id="set-words-hint">Pick a text file of extra words. Sections: # PROMOTED for words to come up often, # WORDS for the rest. Words can be separated by spaces, commas, or new lines.</div>
   </div>
   <div class="set-row">
-    <label for="set-gh-repo">Medicine sharing: GitHub repo</label>
+    <label for="set-gh-repo">Activity sharing: GitHub repo</label>
     <input type="text" id="set-gh-repo" placeholder="e.g. rxfhujkjh/hrugnhfgr" autocomplete="off">
-    <div class="hint">The repo the medicine status is sent to, as owner/repo. Leave blank to keep it only on this tablet.</div>
+    <div class="hint">The repo the activity is sent to, as owner/repo. Leave blank to keep it only on this tablet.</div>
   </div>
   <div class="set-row">
-    <label for="set-gh-token">Medicine sharing: GitHub token</label>
+    <label for="set-gh-token">Activity sharing: GitHub token</label>
     <input type="text" id="set-gh-token" placeholder="GitHub access token" autocomplete="off">
     <div class="hint">A token with Contents write access to that repo. It stays on this tablet only and is never put in the Player file.</div>
   </div>
@@ -663,6 +682,7 @@ async function tryServerList() {
 async function openSubfolder(path) {
   var f = null;
   for (var i = 0; i < folders.length; i++) { if (folders[i].path === path) { f = folders[i]; break; } }
+  if (f) recordFolderClick(f.name);
   if (f && f.handle) {
     var res = await readHandle(f.handle);
     folderStack.push({ path: f.path, folders: res.folders, videos: res.videos, handle: f.handle, serverMode: false });
@@ -758,7 +778,7 @@ function renderList() {
   // Fixed tiles are always there at the top level, even with no folder
   // picked — the app does not depend on the folder.
   var topLevel = folderStack.length <= 1;
-  // Order: Calendar, Games, video folders, videos, Calculator last.
+  // Order: Calendar, Games, Activity, video folders, videos, Calculator last.
   if (topLevel) {
     var caltile = document.createElement('button');
     caltile.className = 'tile folder-tile';
@@ -772,6 +792,13 @@ function renderList() {
     gtile.querySelector('.name').textContent = 'Games';
     gtile.onclick = function () { openGames(); };
     tiles.appendChild(gtile);
+    // v15: Activity sits after Games.
+    var atile = document.createElement('button');
+    atile.className = 'tile folder-tile';
+    atile.innerHTML = '<div class="name"></div>';
+    atile.querySelector('.name').textContent = 'Activity';
+    atile.onclick = function () { openActivity(); };
+    tiles.appendChild(atile);
   }
   // No folder picked yet: a Choose folder tile sits where the videos go.
   if (topLevel && !dirHandle && !serverMode) {
@@ -897,9 +924,45 @@ function openIndex(i) { if (!videos.length) return; openPlayer((i + videos.lengt
 function prevVideo() { openIndex(currentIndex - 1); }
 function nextVideo() { openIndex(currentIndex + 1); }
 
+// v15: video watching — counts and time, per folder, per day.
+var watchAccum = 0, watchLast = null, watchFolder = null;
+function currentFolderLabel() {
+  var p = currentFolder || '';
+  var parts = p.split('/').filter(function (x) { return x !== ''; });
+  var last = parts.length ? parts[parts.length - 1] : '';
+  if (last) return cleanName(last);
+  var saved = savedFolder();
+  return saved ? cleanName(saved) : 'Videos';
+}
+function recordFolderClick(name) {
+  var key = todayKey();
+  var rec = dayRecord(key);
+  if (!rec.videos[name]) rec.videos[name] = { clicks: 0, watches: 0 };
+  rec.videos[name].clicks = (rec.videos[name].clicks || 0) + 1;
+  daySave(key, rec);
+}
+function recordWatch(folderName) {
+  var key = todayKey();
+  var rec = dayRecord(key);
+  if (!rec.videos[folderName]) rec.videos[folderName] = { clicks: 0, watches: 0 };
+  rec.videos[folderName].watches = (rec.videos[folderName].watches || 0) + 1;
+  daySave(key, rec);
+}
+function flushWatchTime() {
+  if (watchAccum <= 0) { watchAccum = 0; watchLast = null; return; }
+  var folder = watchFolder || currentFolderLabel();
+  var key = todayKey();
+  var rec = dayRecord(key);
+  rec.videoSeconds = (rec.videoSeconds || 0) + Math.round(watchAccum);
+  daySave(key, rec);
+  watchAccum = 0;
+  watchLast = null;
+}
 function openPlayer(i) {
+  flushWatchTime();
   currentIndex = i;
   current = videos[i];
+  recordWatch(currentFolderLabel());
   var player = document.getElementById('player');
   player.src = current.url;
   player.muted = false;
@@ -911,6 +974,8 @@ function openPlayer(i) {
   document.getElementById('vol-pop').classList.remove('open');
   document.getElementById('list-view').style.display = 'none';
   document.getElementById('player-view').classList.add('open');
+  watchLast = null;
+  watchFolder = null;
   document.getElementById('scrub').value = 0;
   document.getElementById('t-cur').textContent = '0:00';
   document.getElementById('t-total').textContent = '0:00';
@@ -919,6 +984,7 @@ function openPlayer(i) {
 }
 
 function closePlayer() {
+  flushWatchTime();
   var player = document.getElementById('player');
   player.pause();
   player.removeAttribute('src');
@@ -942,9 +1008,9 @@ function togglePlay() {
 
 var playerEl = document.getElementById('player');
 playerEl.addEventListener('click', togglePlay);
-playerEl.addEventListener('play', function () { setPlayBtn(true); });
-playerEl.addEventListener('pause', function () { setPlayBtn(false); });
-playerEl.addEventListener('ended', function () { setPlayBtn(false); });
+playerEl.addEventListener('play', function () { setPlayBtn(true); watchLast = playerEl.currentTime; watchFolder = currentFolderLabel(); });
+playerEl.addEventListener('pause', function () { setPlayBtn(false); flushWatchTime(); });
+playerEl.addEventListener('ended', function () { setPlayBtn(false); flushWatchTime(); });
 playerEl.addEventListener('loadedmetadata', function () {
   document.getElementById('t-total').textContent = fmtTime(playerEl.duration);
 });
@@ -953,6 +1019,13 @@ playerEl.addEventListener('timeupdate', function () {
     document.getElementById('scrub').value = (playerEl.currentTime / playerEl.duration) * 100;
   }
   document.getElementById('t-cur').textContent = fmtTime(playerEl.currentTime);
+  // v15: accumulate watched time while playing (small deltas only, so a
+  // scrub does not count as watching).
+  if (!playerEl.paused && watchLast != null) {
+    var d = playerEl.currentTime - watchLast;
+    if (d > 0 && d < 2) watchAccum += d;
+    watchLast = playerEl.currentTime;
+  }
 });
 document.getElementById('scrub').addEventListener('input', function (ev) {
   if (isFinite(playerEl.duration) && playerEl.duration > 0) {
@@ -989,45 +1062,145 @@ function closeGames() {
   document.getElementById('games-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
 }
+// --- Activity view (v15): the numbers, bare labels only. ---
+function fmtDur(sec) {
+  sec = Math.max(0, Math.round(sec || 0));
+  var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+  var mm = (m < 10 ? '0' : '') + m, ss = (s < 10 ? '0' : '') + s;
+  return h > 0 ? h + ':' + mm + ':' + ss : m + ':' + ss;
+}
+function openActivity() {
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('activity-view').classList.add('open');
+  renderActivity();
+}
+function closeActivity() {
+  document.getElementById('activity-view').classList.remove('open');
+  document.getElementById('list-view').style.display = '';
+}
+function renderActivity() {
+  var body = document.getElementById('activity-body');
+  var key = todayKey();
+  var rec = dayRecord(key);
+  var html = '';
+  // Videos: time today, then each folder's clicks and watches.
+  var folders = Object.keys(rec.videos || {});
+  html += '<div class="act-sec">Videos</div>';
+  html += '<div class="act-row"><span>Time</span><span class="n">' + fmtDur(rec.videoSeconds) + '</span></div>';
+  folders.forEach(function (name) {
+    var f = rec.videos[name] || {};
+    html += '<div class="act-row"><span>' + escapeHtml(name) + '</span><span class="n">' + (f.clicks || 0) + ' \u00b7 ' + (f.watches || 0) + '</span></div>';
+  });
+  // Games: each game, the total, and today's Hidden Words points.
+  var g = rec.games || {};
+  var total = (g.make13 || 0) + (g.pairs || 0) + (g.words || 0);
+  html += '<div class="act-sec">Games</div>';
+  html += '<div class="act-row"><span>Make 13</span><span class="n">' + (g.make13 || 0) + '</span></div>';
+  html += '<div class="act-row"><span>Pairs</span><span class="n">' + (g.pairs || 0) + '</span></div>';
+  html += '<div class="act-row"><span>Hidden Words</span><span class="n">' + (g.words || 0) + '</span></div>';
+  html += '<div class="act-row"><span>Total</span><span class="n">' + total + '</span></div>';
+  html += '<div class="act-row"><span>Words points</span><span class="n">' + (rec.wordsPoints || 0) + '</span></div>';
+  // Visits: one count per day, two days before today to two days after.
+  html += '<div class="act-sec">Visits</div>';
+  var now = new Date();
+  var days = [];
+  for (var off = -2; off <= 2; off++) {
+    var dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + off);
+    var k = calKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    var r = dayRecord(k);
+    var dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dt.getDay()];
+    days.push({ dow: dow, n: (r.visits || 0), today: off === 0 });
+  }
+  html += '<div class="act-days">';
+  days.forEach(function (d) {
+    html += '<div class="act-day' + (d.today ? ' today' : '') + '"><div class="d">' + d.dow + '</div><div class="v">' + d.n + '</div></div>';
+  });
+  html += '</div>';
+  body.innerHTML = html;
+}
 // --- Calendar (v12): month grid, today highlighted; tap a day for its
 // medicine morning / medicine evening. Lives in the list view, so the
 // weather + day/date strip stays on top.
-var MEDS_KEY = 'player_meds';
+// --- Activity (v15): one store for the day's tracking, kept generic.
+// A day's record has only short labels and numbers — no word for what
+// the morning/evening checks are. The morning/evening checks live under
+// "am" and "pm"; the file sent to GitHub is activity.json.
+var ACT_KEY = 'player_activity';
+var ACT_SYNC_DATE_KEY = 'player_activity_sync_date';
+var ACTIVITY_FILE = 'activity.json';
 var calYear = 0, calMonth = 0, calDay = null; // calMonth 0-11
 var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 function calKey(y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
-function medsAll() { try { return JSON.parse(localStorage.getItem(MEDS_KEY)) || {}; } catch (e) { return {}; } }
-function medsGet(key) { var all = medsAll(); return all[key] || { morning: false, evening: false }; }
-function medsSet(key, which, val) {
-  var all = medsAll();
-  var cur = all[key] || { morning: false, evening: false };
-  cur[which] = !!val;
-  all[key] = cur;
-  try { localStorage.setItem(MEDS_KEY, JSON.stringify(all)); } catch (e) {}
+function todayKey() { var n = new Date(); return calKey(n.getFullYear(), n.getMonth(), n.getDate()); }
+function activityAll() { try { return JSON.parse(localStorage.getItem(ACT_KEY)) || {}; } catch (e) { return {}; } }
+function activitySave(all) { try { localStorage.setItem(ACT_KEY, JSON.stringify(all)); } catch (e) {} }
+function dayRecord(key) {
+  var all = activityAll();
+  var d = all[key];
+  if (!d) d = {};
+  if (d.am == null) d.am = false;
+  if (d.pm == null) d.pm = false;
+  if (d.exercise == null) d.exercise = false;
+  if (d.water == null) d.water = false;
+  if (d.feet == null) d.feet = false;
+  if (d.visits == null) d.visits = 0;
+  if (d.videoSeconds == null) d.videoSeconds = 0;
+  if (!d.videos) d.videos = {};
+  if (!d.games) d.games = { make13: 0, pairs: 0, words: 0 };
+  if (d.wordsPoints == null) d.wordsPoints = 0;
+  return d;
 }
-// v13: send the medicine status to GitHub so family can see it.
-// The repo (owner/repo) and token come from Settings, stored on this
-// tablet only — never in the Player file. If they are not set, the status
-// just stays on this tablet. Failures are silent: the checkbox still works.
+function daySave(key, rec) { var all = activityAll(); all[key] = rec; activitySave(all); }
+// One-time move of the old medicine store (player_meds, morning/evening)
+// into the activity store as am/pm. Idempotent: only fills dates the
+// activity store does not already have.
+function migrateMeds() {
+  var old = null;
+  try { old = JSON.parse(localStorage.getItem('player_meds')) || null; } catch (e) { old = null; }
+  if (!old) return;
+  var all = activityAll();
+  var changed = false;
+  Object.keys(old).forEach(function (k) {
+    var o = old[k] || {};
+    var d = all[k];
+    if (!d) { d = {}; all[k] = d; }
+    if (d.am == null && o.morning != null) { d.am = !!o.morning; changed = true; }
+    if (d.pm == null && o.evening != null) { d.pm = !!o.evening; changed = true; }
+  });
+  if (changed) activitySave(all);
+}
+// v15: send the activity to GitHub so family can see it. Same Settings
+// repo/token as before (now under "Activity sharing"). Sent on the first
+// open of the day and whenever a day check changes. Failures are silent:
+// the check still works on this tablet.
 function b64utf8(s) { try { return btoa(unescape(encodeURIComponent(s))); } catch (e) { return btoa(s); } }
-async function syncMedsToGitHub() {
+async function syncActivityToGitHub() {
   var repo = getVal(SET_GH_REPO, '').trim();
   var token = getVal(SET_GH_TOKEN, '').trim();
   if (!repo || !token || typeof fetch !== 'function') return;
   var parts = repo.split('/');
   if (parts.length !== 2 || !parts[0] || !parts[1]) return;
-  var url = 'https://api.github.com/repos/' + parts[0] + '/' + parts[1] + '/contents/' + MEDS_FILE;
+  var url = 'https://api.github.com/repos/' + parts[0] + '/' + parts[1] + '/contents/' + ACTIVITY_FILE;
   var headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
   var sha = null;
   try {
     var cur = await fetch(url, { headers: headers });
     if (cur && cur.ok) { var data = await cur.json(); sha = data && data.sha ? data.sha : null; }
   } catch (e) { return; }
-  var body = { message: 'Medicine status update', content: b64utf8(JSON.stringify(medsAll(), null, 2)) };
+  var body = { message: 'Activity update', content: b64utf8(JSON.stringify(activityAll(), null, 2)) };
   if (sha) body.sha = sha;
   try {
     await fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body) });
   } catch (e) {}
+}
+// Sync once a day, on the first open of the day.
+function syncActivityDaily() {
+  var today = todayKey();
+  var last = null;
+  try { last = localStorage.getItem(ACT_SYNC_DATE_KEY); } catch (e) { last = null; }
+  if (last === today) return;
+  try { localStorage.setItem(ACT_SYNC_DATE_KEY, today); } catch (e) {}
+  syncActivityToGitHub();
 }
 function openCalendar() {
   var now = new Date();
@@ -1068,25 +1241,54 @@ function renderCalendar() {
   html += '</div>';
   document.getElementById('cal-month').innerHTML = html;
 }
+// v15: day checks. The two pill rows use a pill icon and a short form
+// ("Morning"/"Evening") — no word for what they are. The other rows are
+// plain check rows. Visits is a number (dropdown, 0-10).
+var DAY_CHECKS = [
+  { field: 'am', label: '\uD83D\uDC8A Morning' },
+  { field: 'pm', label: '\uD83D\uDC8A Evening' },
+  { field: 'exercise', label: 'Exercise' },
+  { field: 'water', label: 'Drink water' },
+  { field: 'feet', label: 'Sit with feet raised' }
+];
 function openCalDay(d) {
   calDay = d;
   var key = calKey(calYear, calMonth, d);
   var wd = new Date(calYear, calMonth, d);
   var dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][wd.getDay()];
-  var m = medsGet(key);
+  var rec = dayRecord(key);
   document.getElementById('cal-month').style.display = 'none';
   var dv = document.getElementById('cal-day');
   dv.style.display = '';
-  dv.innerHTML = '<h2>' + dayName + ', ' + MONTH_NAMES[calMonth] + ' ' + d + '</h2>'
-    + '<button class="meds-row' + (m.morning ? ' done' : '') + '" onclick="toggleMed(\'' + key + '\', \'morning\')"><span class="box">' + (m.morning ? '\u2713' : '') + '</span><span class="label">Medicine morning</span></button>'
-    + '<button class="meds-row' + (m.evening ? ' done' : '') + '" onclick="toggleMed(\'' + key + '\', \'evening\')"><span class="box">' + (m.evening ? '\u2713' : '') + '</span><span class="label">Medicine evening</span></button>'
-    + '<div class="game-btn-row"><button class="game-btn" onclick="closeCalDay()">Back to calendar</button></div>';
+  var html = '<h2>' + dayName + ', ' + MONTH_NAMES[calMonth] + ' ' + d + '</h2>';
+  DAY_CHECKS.forEach(function (c) {
+    var done = !!rec[c.field];
+    html += '<button class="meds-row' + (done ? ' done' : '') + '" onclick="toggleCheck(\'' + key + '\', \'' + c.field + '\')"><span class="box">' + (done ? '\u2713' : '') + '</span><span class="label">' + c.label + '</span></button>';
+  });
+  var opts = '';
+  for (var n = 0; n <= 10; n++) opts += '<option value="' + n + '"' + (rec.visits === n ? ' selected' : '') + '>' + n + '</option>';
+  html += '<div class="meds-row"><span class="label">Visits</span><select aria-label="Visits" onchange="setVisits(\'' + key + '\', this.value)">' + opts + '</select></div>';
+  html += '<div class="game-btn-row"><button class="game-btn" onclick="closeCalDay()">Back to calendar</button></div>';
+  dv.innerHTML = html;
 }
 function closeCalDay() { renderCalendar(); }
-function toggleMed(key, which) {
-  var cur = medsGet(key);
-  medsSet(key, which, !cur[which]);
-  syncMedsToGitHub();
+// A day check tap saves the change and sends the activity up, so the
+// family sees today's status during the day.
+function toggleCheck(key, field) {
+  var rec = dayRecord(key);
+  rec[field] = !rec[field];
+  daySave(key, rec);
+  syncActivityToGitHub();
+  openCalDay(calDay);
+}
+function setVisits(key, val) {
+  var n = parseInt(val, 10);
+  if (!isFinite(n)) n = 0;
+  n = Math.max(0, Math.min(10, n));
+  var rec = dayRecord(key);
+  rec.visits = n;
+  daySave(key, rec);
+  syncActivityToGitHub();
   openCalDay(calDay);
 }
 function openGame(which) {
@@ -1210,7 +1412,6 @@ var SET_CITY = 'player_city', SET_CITY_LAT = 'player_city_lat', SET_CITY_LON = '
 var SET_TARGET = 'player_target', SET_TIME = 'player_time';
 var SET_GH_REPO = 'player_gh_repo', SET_GH_TOKEN = 'player_gh_token';
 var SET_WORD_MIN = 'player_word_min', SET_WORD_MAX = 'player_word_max';
-var MEDS_FILE = 'meds-status.json';
 var DEF_TARGET = 300, DEF_TIME_MIN = 3, DEF_CITY = 'Chicago';
 var DEF_WORD_MIN = 4, DEF_WORD_MAX = 10;
 function setVal(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
@@ -1483,6 +1684,21 @@ function renderGrid(which) {
     statusEl.textContent = base + ' Cards left: ' + left + '.';
   }
 }
+// v15: game counts and today's Hidden Words points.
+function recordGame(which) {
+  var key = todayKey();
+  var rec = dayRecord(key);
+  if (!rec.games) rec.games = { make13: 0, pairs: 0, words: 0 };
+  rec.games[which] = (rec.games[which] || 0) + 1;
+  daySave(key, rec);
+}
+function recordWordsPoints(n) {
+  if (!n || n <= 0) return;
+  var key = todayKey();
+  var rec = dayRecord(key);
+  rec.wordsPoints = (rec.wordsPoints || 0) + n;
+  daySave(key, rec);
+}
 function newGridGame(which) {
   var g = gridGames[which];
   // Re-deal if the opening grid has no move, so a game never starts stuck.
@@ -1495,6 +1711,7 @@ function newGridGame(which) {
     if (gridHasMove(which)) break;
   }
   g.started = true;
+  recordGame(which);
   renderGrid(which);
 }
 function dealReplacements(which, slots) {
@@ -1768,6 +1985,7 @@ function wordsFinish() {
   hideTimeUp();
   var pts = wordGame.points;
   addTotalPoints(pts);
+  recordWordsPoints(pts);
   wordGame.banked = true;
   renderWordTop();
   showAwards('Good job!', pts);
@@ -1850,6 +2068,7 @@ function newWordPuzzle() {
   wordGame.selStart = null;
   wordGame.selEnd = null;
   wordGame.started = true;
+  recordGame('words');
   document.getElementById('words-awards').classList.remove('open');
   document.getElementById('words-new-row').style.display = 'none';
   document.getElementById('words-bonus').textContent = '';
@@ -1927,6 +2146,7 @@ function onWordCell(r, c) {
       wordGame.points += wordGame.bonus;
       var pts = wordGame.points;
       addTotalPoints(pts);
+      recordWordsPoints(pts);
       wordGame.banked = true;
       renderWords();
       showAwards('You did it!', pts);
@@ -1960,6 +2180,10 @@ function onWordCell(r, c) {
   applyThumbScale();
   wireSettingsAutosave();
   renderTopStrip();
+  // v15: bring the old medicine store into the activity store, and send
+  // the activity up once today (the first open of the day).
+  try { migrateMeds(); } catch (e) {}
+  try { syncActivityDaily(); } catch (e) {}
   // Open the database first: it holds the folder handle, the cached
   // thumbnails, and the saved extra words, so it is needed even when the
   // server list succeeds.
