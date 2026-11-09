@@ -1,0 +1,18 @@
+{
+  "2026-11-09": {
+    "am": false,
+    "pm": false,
+    "exercise": false,
+    "water": true,
+    "feet": false,
+    "visits": 0,
+    "videoSeconds": 0,
+    "videos": {},
+    "games": {
+      "make13": 0,
+      "pairs": 0,
+      "words": 5
+    },
+    "wordsPoints": 300
+  }
+}
