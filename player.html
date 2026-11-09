@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Player</title>
+<style>
+  * { box-sizing: border-box; }
+  body { font-family: sans-serif; background: #121212; color: #eee; margin: 0; padding: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .v-pill { background: #2e7d5b; color: #fff; border-radius: 10px; padding: 2px 8px; font-size: 11px; vertical-align: middle; margin-left: 6px; }
+  .sub { color: #888; font-size: 13px; margin-bottom: 16px; }
+  .list-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .list-top h1 { margin: 0; }
+  .list-top-btns { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .scale-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 50%; width: 48px; height: 48px; font-size: 30px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+  .folder-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
+  .folder-btn svg { width: 18px; height: 18px; }
+  .list-top-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .back-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 50%; width: 48px; height: 48px; font-size: 30px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; touch-action: manipulation; }
+  .tile.folder-tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
+  .tile.folder-tile .name { padding: 12px; font-size: 18px; text-align: center; }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile-w, 107px), 1fr)); gap: 12px; }
+  .tile { background: #1e1e1e; border: 1px solid #333; border-radius: 10px; overflow: hidden; cursor: pointer; padding: 0; text-align: left; touch-action: manipulation; }
+  .tile video { width: 100%; height: var(--tile-h, 67px); object-fit: cover; display: block; background: #000; }
+  .tile img.thumb { width: 100%; height: var(--tile-h, 67px); object-fit: cover; display: block; background: #000; }
+  .tile .name { padding: 10px; font-size: 15px; color: #eee; }
+  .choose { text-align: center; padding: 40px 16px; }
+  .choose button { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 16px 28px; font-size: 18px; cursor: pointer; }
+  .choose p { color: #888; font-size: 14px; margin-top: 14px; }
+  #player-view { display: none; position: fixed; inset: 0; background: #000; z-index: 20; flex-direction: column; }
+  #player-view.open { display: flex; }
+  #player-view video { flex: 1; width: 100%; min-height: 0; background: #000; }
+  .close-btn { position: absolute; top: 10px; left: 10px; background: rgba(30,30,30,.85); border: 1px solid #555; color: #eee; border-radius: 50%; width: 56px; height: 56px; font-size: 38px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 30; touch-action: manipulation; }
+  .size-btn { position: absolute; top: 10px; right: 10px; background: rgba(30,30,30,.85); border: 1px solid #555; color: #eee; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; z-index: 30; display: flex; align-items: center; justify-content: center; }
+  .size-btn svg { width: 26px; height: 26px; }
+  .controls { padding: 8px 12px 10px; background: #000; position: relative; }
+  #player-view.big .controls { display: none; }
+  .pos-row { display: flex; align-items: center; gap: 8px; }
+  .pos-row .scrub { flex: 1; height: 32px; accent-color: #52a5e0; min-width: 0; }
+  .pos-row .t { color: #aaa; font-size: 14px; white-space: nowrap; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+  .speed-group { flex: 1; display: flex; gap: 8px; justify-content: flex-start; min-width: 0; }
+  .play-group { display: flex; gap: 12px; align-items: center; }
+  .vol-group { flex: 1; display: flex; justify-content: flex-end; min-width: 0; }
+  .big-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 50%; width: 64px; height: 64px; font-size: 26px; cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+  .big-btn svg { width: 30px; height: 30px; }
+  .speed-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 16px; padding: 10px 14px; font-size: 16px; cursor: pointer; flex-shrink: 0; }
+  .speed-btn.active { border-color: #52a5e0; color: #52a5e0; }
+  .vol-pop { position: absolute; right: 12px; bottom: calc(100% + 8px); background: rgba(30,30,30,.95); border: 1px solid #555; border-radius: 12px; padding: 12px 10px; display: none; z-index: 30; }
+  .vol-pop.open { display: block; }
+  .vol-pop input[type=range] { writing-mode: vertical-lr; direction: rtl; width: 48px; height: 140px; accent-color: #52a5e0; }
+  .folder-picker { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 40; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .folder-card { background: #1e1e1e; border: 1px solid #555; border-radius: 12px; padding: 16px; width: 100%; max-width: 420px; max-height: 80vh; overflow: auto; }
+  .folder-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .folder-head span { font-size: 18px; font-weight: 700; }
+  .folder-close { background: none; border: none; color: #eee; font-size: 36px; cursor: pointer; line-height: 1; padding: 8px 12px; touch-action: manipulation; }
+  .folder-row { display: block; width: 100%; background: #121212; border: 1px solid #333; color: #eee; border-radius: 10px; padding: 14px; font-size: 18px; text-align: left; cursor: pointer; margin-bottom: 8px; }
+  .folder-row.current { border-color: #52a5e0; color: #52a5e0; }
+  .folder-empty { color: #888; font-size: 15px; padding: 10px 4px; }
+  .game-view { display: none; position: fixed; inset: 0; background: #121212; z-index: 20; flex-direction: column; padding: 16px; overflow: auto; }
+  .game-view.open { display: flex; }
+  .game-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .game-head h1 { margin: 0; flex: 1; }
+  .game-status { color: #888; font-size: 15px; margin-bottom: 14px; }
+  .game-btn { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 17px; cursor: pointer; margin-top: 16px; }
+  .game-btn-row { text-align: center; }
+  .game-done { color: #52a5e0; font-size: 21px; font-weight: 700; text-align: center; margin: 14px 0 0; }
+  .card-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 560px; margin: 0 auto; width: 100%; }
+  .card { background: #fdfdf8; color: #111; border: none; border-radius: 10px; aspect-ratio: 3/4; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; touch-action: manipulation; }
+  .card .r { font-size: 30px; font-weight: 700; line-height: 1.1; }
+  .card .s { font-size: 26px; line-height: 1.1; }
+  .card.red { color: #c00; }
+  .card.selected { outline: 4px solid #52a5e0; }
+  .card.gone { visibility: hidden; }
+  .word-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 4px; max-width: 560px; margin: 0 auto; width: 100%; }
+  .word-cell { background: #1e1e1e; color: #eee; border: 1px solid #333; border-radius: 6px; aspect-ratio: 1; cursor: pointer; font-size: 20px; font-weight: 700; display: flex; align-items: center; justify-content: center; padding: 0; touch-action: manipulation; }
+  .word-cell.selected { background: #52a5e0; border-color: #52a5e0; color: #fff; }
+  .word-cell.found { background: #2e7d5b; border-color: #2e7d5b; color: #fff; }
+  .word-list { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 16px auto 0; max-width: 560px; }
+  .word-list span { font-size: 18px; color: #eee; }
+  .word-list span.found { color: #2e7d5b; text-decoration: line-through; }
+  /* v10: thin top layer (weather left, day/date right), one line, no expand */
+  .top-strip { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; min-height: 28px; }
+  .top-strip .wx { font-size: 20px; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-strip .dd { text-align: right; white-space: nowrap; }
+  .top-strip .dd .dow { font-size: 22px; font-weight: 700; color: #eee; }
+  .top-strip .dd .date { font-size: 18px; color: #aaa; margin-left: 8px; }
+  /* v10: subtle square settings button */
+  .settings-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 8px; width: 32px; height: 32px; font-size: 18px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; touch-action: manipulation; }
+  /* v10: video folder tiles look different from the action tiles */
+  .tile.video-folder { background: #14202e; border: 2px solid #52a5e0; }
+  .tile.video-folder .name { font-weight: 700; }
+  .tile.video-folder .vtag { display: block; font-size: 11px; letter-spacing: 2px; color: #52a5e0; margin-bottom: 2px; }
+  /* v10: settings page */
+  .set-row { margin-bottom: 18px; }
+  .set-row label { display: block; font-size: 17px; margin-bottom: 6px; color: #eee; }
+  .set-row .hint { font-size: 14px; color: #888; margin-top: 4px; }
+  .set-row input[type=text], .set-row input[type=number] { width: 100%; max-width: 320px; background: #1e1e1e; border: 1px solid #555; color: #eee; border-radius: 10px; padding: 12px; font-size: 18px; }
+  .set-row input[type=file] { font-size: 16px; color: #eee; }
+  /* v10: calculator */
+  .calc-display { background: #000; color: #eee; border: 1px solid #333; border-radius: 10px; font-size: 36px; text-align: right; padding: 14px 16px; margin: 0 auto 14px; max-width: 420px; min-height: 70px; overflow: hidden; word-break: break-all; }
+  .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 420px; margin: 0 auto; width: 100%; }
+  .calc-btn { background: #1e1e1e; color: #eee; border: 1px solid #333; border-radius: 10px; font-size: 28px; font-weight: 700; padding: 18px 0; cursor: pointer; touch-action: manipulation; }
+  .calc-btn.op { background: #2e7d5b; border-color: #2e7d5b; color: #fff; }
+  .calc-btn.eq { background: #52a5e0; border-color: #52a5e0; color: #fff; }
+  /* v10: Hidden Words timer, points, awards, time-up choices */
+  .words-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 560px; margin: 0 auto 10px; width: 100%; }
+  .words-timer { font-size: 26px; font-weight: 700; color: #eee; }
+  .words-timer.low { color: #e0a52a; }
+  .words-points { font-size: 20px; color: #52a5e0; font-weight: 700; }
+  .words-bonus { color: #9b7ede; font-size: 17px; font-weight: 700; text-align: center; margin: 8px 0 0; min-height: 22px; }
+  .word-cell.bonus { background: #5b4a8a; border-color: #5b4a8a; color: #fff; }
+  .timeup { display: none; text-align: center; margin: 14px auto 0; max-width: 560px; }
+  .timeup.open { display: block; }
+  .timeup .t { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+  .timeup .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .awards { display: none; text-align: center; margin: 20px auto 0; max-width: 560px; }
+  .awards.open { display: block; }
+  .awards .big { font-size: 28px; font-weight: 700; color: #52a5e0; margin-bottom: 8px; }
+  .awards .pts { font-size: 22px; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div id="list-view">
+  <div class="top-strip">
+    <div class="wx" id="wx-line"></div>
+    <div class="dd"><span class="dow" id="dd-dow"></span><span class="date" id="dd-date"></span></div>
+  </div>
+  <div class="list-top">
+    <div class="list-top-left">
+      <button class="back-btn" id="back-btn" style="display:none" onclick="goBack()" aria-label="Back">&times;</button>
+      <h1>Player<span class="v-pill">v10</span></h1>
+    </div>
+    <div class="list-top-btns">
+      <button class="scale-btn" id="scale-down" onclick="changeThumbScale(-0.25)" aria-label="Smaller thumbnails">&minus;</button>
+      <button class="scale-btn" id="scale-up" onclick="changeThumbScale(0.25)" aria-label="Bigger thumbnails">+</button>
+      <button class="folder-btn" id="folder-btn" style="display:none" onclick="toggleFolderPicker()" aria-label="Change folder"><svg viewBox="0 0 24 24" fill="none" stroke="#eee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7 a2 2 0 0 1 2 -2 h4 l2 2 h8 a2 2 0 0 1 2 2 v9 a2 2 0 0 1 -2 2 H5 a2 2 0 0 1 -2 -2 Z"/></svg></button>
+      <button class="settings-btn" onclick="openSettings()" aria-label="Settings">&#9881;</button>
+    </div>
+  </div>
+  <div id="choose" class="choose" style="display:none">
+    <button onclick="chooseFolder()">Choose folder</button>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <div class="sub" id="count"></div>
+</div>
+
+<div class="game-view" id="games-view">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeGames()" aria-label="Back">&times;</button>
+    <h1>Games</h1>
+  </div>
+  <div class="tiles" id="game-tiles">
+    <button class="tile folder-tile" onclick="openGame('make13')"><div class="name">Make 13</div></button>
+    <button class="tile folder-tile" onclick="openGame('pairs')"><div class="name">Pairs</div></button>
+    <button class="tile folder-tile" onclick="openGame('words')"><div class="name">Hidden Words</div></button>
+  </div>
+</div>
+
+<div class="game-view" id="game-make13">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeGame()" aria-label="Back">&times;</button>
+    <h1>Make 13</h1>
+  </div>
+  <div class="game-status" id="m13-status">Tap two cards that add to 13. A King is 13.</div>
+  <div class="card-grid" id="m13-grid"></div>
+  <div class="game-btn-row"><button class="game-btn" onclick="newGridGame('make13')">New game</button></div>
+</div>
+
+<div class="game-view" id="game-pairs">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeGame()" aria-label="Back">&times;</button>
+    <h1>Pairs</h1>
+  </div>
+  <div class="game-status" id="pairs-status">Tap two cards with the same number.</div>
+  <div class="card-grid" id="pairs-grid"></div>
+  <div class="game-btn-row"><button class="game-btn" onclick="newGridGame('pairs')">New game</button></div>
+</div>
+
+<div class="game-view" id="game-words">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeGame()" aria-label="Back">&times;</button>
+    <h1>Hidden Words</h1>
+  </div>
+  <div class="words-top">
+    <div class="words-timer" id="words-timer"></div>
+    <div class="words-points" id="words-points"></div>
+  </div>
+  <div class="game-status" id="words-status">Tap the first letter, then the last letter of a word.</div>
+  <div class="word-grid" id="words-grid"></div>
+  <div class="word-list" id="words-list"></div>
+  <div class="words-bonus" id="words-bonus"></div>
+  <div class="timeup" id="words-timeup">
+    <div class="t">Time's up!</div>
+    <div class="row">
+      <button class="game-btn" onclick="wordsFinish()">Finish</button>
+      <button class="game-btn" onclick="wordsBuyTime(1)">+1 minute (10 pts)</button>
+      <button class="game-btn" onclick="wordsBuyTime(2)">+2 minutes (20 pts)</button>
+    </div>
+  </div>
+  <div class="awards" id="words-awards">
+    <div class="big" id="words-awards-title">You did it!</div>
+    <div class="pts" id="words-awards-pts"></div>
+    <div class="game-btn-row"><button class="game-btn" onclick="wordsNextPuzzle()">Next puzzle</button></div>
+  </div>
+  <div class="game-btn-row" id="words-new-row"><button class="game-btn" onclick="newWordPuzzle()">New puzzle</button></div>
+</div>
+
+<div class="game-view" id="calc-view">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeCalc()" aria-label="Back">&times;</button>
+    <h1>Calculator</h1>
+  </div>
+  <div class="calc-display" id="calc-display">0</div>
+  <div class="calc-grid" id="calc-grid"></div>
+</div>
+
+<div class="game-view" id="settings-view">
+  <div class="game-head">
+    <button class="back-btn" onclick="closeSettings()" aria-label="Back">&times;</button>
+    <h1>Settings</h1>
+  </div>
+  <div class="set-row">
+    <label for="set-city">Weather city</label>
+    <input type="text" id="set-city" placeholder="e.g. Chicago" autocomplete="off">
+    <div class="hint">The weather line shows this place. Tap Save after typing a city.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-target">Game completion target (points)</label>
+    <input type="number" id="set-target" inputmode="numeric">
+    <div class="hint">Total points across games. Default 300.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-time">Hidden Words starting time (minutes)</label>
+    <input type="number" id="set-time" inputmode="numeric">
+    <div class="hint">How long the countdown starts with. Default 3. Enter any number.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-words">Extra words file</label>
+    <input type="file" id="set-words" accept=".txt,text/plain">
+    <div class="hint" id="set-words-hint">Pick a text file of extra words. Sections: # PROMOTED for words to come up often, # WORDS for the rest. Words can be separated by spaces, commas, or new lines.</div>
+  </div>
+  <div class="game-btn-row"><button class="game-btn" onclick="saveSettings()">Save</button></div>
+  <div class="game-status" id="set-status" style="text-align:center; margin-top: 10px;"></div>
+</div>
+
+<div id="player-view">
+  <button class="close-btn" onclick="closePlayer()" aria-label="Back to list">&times;</button>
+  <button class="size-btn" id="size-btn" onclick="toggleSize()" aria-label="Bigger or smaller"></button>
+  <video id="player" playsinline></video>
+  <div class="controls">
+    <div class="pos-row">
+      <span class="t" id="t-cur">0:00</span>
+      <input type="range" id="scrub" class="scrub" min="0" max="100" value="0" step="0.1" aria-label="Video position">
+      <span class="t" id="t-total">0:00</span>
+    </div>
+    <div class="row">
+      <div class="speed-group">
+        <button class="speed-btn" data-speed="1" onclick="setSpeed(1)">100%</button>
+        <button class="speed-btn" data-speed="0.75" onclick="setSpeed(0.75)">75%</button>
+        <button class="speed-btn" data-speed="0.5" onclick="setSpeed(0.5)">50%</button>
+      </div>
+      <div class="play-group">
+        <button class="big-btn" id="prev-btn" onclick="prevVideo()" aria-label="Previous video"><svg viewBox="0 0 64 64"><rect x="14" y="14" width="6" height="36" fill="#eee"/><path d="M46 14 L22 32 L46 50 Z" fill="#eee"/></svg></button>
+        <button class="big-btn" id="play-btn" onclick="togglePlay()" aria-label="Play or pause">&#9654;</button>
+        <button class="big-btn" id="next-btn" onclick="nextVideo()" aria-label="Next video"><svg viewBox="0 0 64 64"><path d="M18 14 L42 32 L18 50 Z" fill="#eee"/><rect x="44" y="14" width="6" height="36" fill="#eee"/></svg></button>
+      </div>
+      <div class="vol-group">
+        <button class="big-btn" id="vol-btn" onclick="toggleVolPop()" aria-label="Volume">&#128266;</button>
+      </div>
+    </div>
+    <div class="vol-pop" id="vol-pop">
+      <input type="range" id="vol" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+    </div>
+  </div>
+</div>
+
+<input type="file" id="dir-input" style="display:none" webkitdirectory multiple>
+
+<div id="folder-picker" class="folder-picker" style="display:none">
+  <div class="folder-card">
+    <div class="folder-head"><span>Folders</span><button class="folder-close" onclick="toggleFolderPicker()" aria-label="Close">&times;</button></div>
+    <div id="folder-list"></div>
+  </div>
+</div>
+
+<script>
+var DB_NAME = 'ma-videos-db';
+var VIDEO_EXTS = ['.mp4', '.webm', '.mov', '.m4v', '.ogv'];
+var dirHandle = null;      // the picked folder (FileSystemDirectoryHandle)
+var DEFAULT_FOLDER = 'content'; // default server folder under the server root
+var FOLDER_KEY = 'player_folder';
+var THUMB_SCALE_KEY = 'player_thumb_scale';
+var currentFolder = '';    // server folder path currently loaded ('content', 'mom', 'content/Entertainment')
+var serverMode = false;    // true when videos come from the server list
+var storedHandle = null;   // the handle saved in this browser, if any
+var videos = [];           // { name, file, url }
+var folders = [];          // subdirectories of the current folder: { name, rawName, path }
+var folderStack = [];      // navigation stack of { path, folders, videos }
+var current = null;
+var currentIndex = 0;
+var SPEED_KEY = 'player_speed';
+var VOL_KEY = 'player_volume';
+var ICON_EXPAND = '<svg viewBox="0 0 64 64" fill="none" stroke="#eee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22 V10 H22"/><path d="M42 10 H54 V22"/><path d="M10 42 V54 H22"/><path d="M42 54 H54 V42"/></svg>';
+var ICON_SHRINK = '<svg viewBox="0 0 64 64" fill="none" stroke="#eee" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M22 30 V22 H30"/><path d="M34 22 H42 V30"/><path d="M22 34 V42 H30"/><path d="M34 42 H42 V34"/></svg>';
+var db = null;
+
+function isVideo(name) {
+  var n = name.toLowerCase();
+  return VIDEO_EXTS.some(function (ext) { return n.endsWith(ext); });
+}
+function cleanName(fileName) {
+  var base = fileName.replace(/\.[^.]+$/, '');
+  var cleaned = base.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return cleaned.charAt(0).toUpperCase() + cleaned.slice(1);
+}
+function fmtTime(sec) {
+  if (!isFinite(sec) || sec < 0) return '0:00';
+  var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function openDb() {
+  return new Promise(function (resolve, reject) {
+    var req = indexedDB.open(DB_NAME, 3);
+    req.onupgradeneeded = function () {
+      if (!req.result.objectStoreNames.contains('picker')) req.result.createObjectStore('picker', { keyPath: 'key' });
+      if (!req.result.objectStoreNames.contains('thumbs')) req.result.createObjectStore('thumbs', { keyPath: 'key' });
+      if (!req.result.objectStoreNames.contains('words')) req.result.createObjectStore('words', { keyPath: 'key' });
+    };
+    req.onsuccess = function () { resolve(req.result); };
+    req.onerror = function () { reject(req.error); };
+  });
+}
+function saveHandle(handle) {
+  try {
+    var tx = db.transaction('picker', 'readwrite');
+    tx.objectStore('picker').put({ key: 'dirHandle', handle: handle });
+  } catch (e) {}
+}
+function loadStoredHandle() {
+  return new Promise(function (resolve) {
+    try {
+      var tx = db.transaction('picker', 'readonly');
+      var req = tx.objectStore('picker').get('dirHandle');
+      req.onsuccess = function () { resolve(req.result ? req.result.handle : null); };
+      req.onerror = function () { resolve(null); };
+    } catch (e) { resolve(null); }
+  });
+}
+
+// --- Video thumbnails: captured in the browser, cached in IndexedDB ---
+// First visit captures each thumbnail (one by one, so it is slow); later
+// visits read the saved thumbnail and show it at once. No server change,
+// no saved JPEGs on the server. If a video cannot be decoded, the tile
+// keeps a plain play placeholder instead of a black box.
+var THUMB_W = 320, THUMB_H = 200;
+var THUMB_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200"><rect width="320" height="200" fill="#000"/><text x="160" y="118" font-size="64" fill="#666" text-anchor="middle">\u25b6</text></svg>');
+var thumbMem = {}; // in-memory cache for this session: key -> data URL
+var thumbQueue = [];
+var thumbWorking = false;
+function thumbKey(v) {
+  // Stable across loads. Blob URLs change on every load, so local files use
+  // name + size + time instead of their URL.
+  if (v.file) return 'local|' + (v.fileName || '') + '|' + (v.size != null ? v.size : '') + '|' + (v.mtime || '');
+  var base = v.url || v.fileName || '';
+  if (v.size != null) base += '|' + v.size;
+  if (v.mtime) base += '|' + v.mtime;
+  return base;
+}
+function getThumb(key) {
+  if (thumbMem[key]) return Promise.resolve(thumbMem[key]);
+  if (!db) return Promise.resolve(null);
+  return new Promise(function (resolve) {
+    try {
+      var tx = db.transaction('thumbs', 'readonly');
+      var req = tx.objectStore('thumbs').get(key);
+      req.onsuccess = function () {
+        var val = req.result ? req.result.data : null;
+        if (val) thumbMem[key] = val;
+        resolve(val);
+      };
+      req.onerror = function () { resolve(null); };
+    } catch (e) { resolve(null); }
+  });
+}
+function saveThumb(key, data) {
+  thumbMem[key] = data;
+  if (!db) return;
+  try {
+    var tx = db.transaction('thumbs', 'readwrite');
+    tx.objectStore('thumbs').put({ key: key, data: data });
+  } catch (e) {}
+}
+function captureThumb(videoUrl) {
+  return new Promise(function (resolve) {
+    var v = document.createElement('video');
+    v.muted = true;
+    v.preload = 'auto';
+    var done = false;
+    var timer = setTimeout(function () { finish(null); }, 10000);
+    function finish(data) {
+      if (done) return; done = true;
+      clearTimeout(timer);
+      v.removeAttribute('src');
+      try { v.load(); } catch (e) {}
+      resolve(data);
+    }
+    v.addEventListener('loadedmetadata', function () {
+      var t = 0.5;
+      if (isFinite(v.duration) && v.duration > 0) t = Math.min(0.5, v.duration / 2);
+      try { v.currentTime = t; } catch (e) { finish(null); }
+    });
+    v.addEventListener('seeked', function () {
+      try {
+        if (!v.videoWidth || !v.videoHeight) { finish(null); return; }
+        var canvas = document.createElement('canvas');
+        canvas.width = THUMB_W; canvas.height = THUMB_H;
+        var ctx = canvas.getContext('2d');
+        var scale = Math.max(THUMB_W / v.videoWidth, THUMB_H / v.videoHeight);
+        var dw = v.videoWidth * scale, dh = v.videoHeight * scale;
+        ctx.drawImage(v, (THUMB_W - dw) / 2, (THUMB_H - dh) / 2, dw, dh);
+        finish(canvas.toDataURL('image/jpeg', 0.8));
+      } catch (e) { finish(null); }
+    });
+    v.addEventListener('error', function () { finish(null); });
+    v.src = videoUrl;
+  });
+}
+function loadThumb(v, imgEl) {
+  var key = thumbKey(v);
+  getThumb(key).then(function (cached) {
+    if (cached) { if (imgEl.isConnected) imgEl.src = cached; return; }
+    thumbQueue.push({ key: key, url: v.url, img: imgEl });
+    pumpThumbQueue();
+  });
+}
+function pumpThumbQueue() {
+  if (thumbWorking) return;
+  var job = thumbQueue.shift();
+  if (!job) return;
+  thumbWorking = true;
+  captureThumb(job.url).then(function (data) {
+    thumbWorking = false;
+    if (data) {
+      saveThumb(job.key, data);
+      if (job.img.isConnected) job.img.src = data;
+    }
+    pumpThumbQueue();
+  });
+}
+
+async function listVideos() {
+  videos = [];
+  folders = [];
+  folderStack = [];
+  serverMode = false;
+  currentFolder = '';
+  var files = [];
+  try {
+    for await (var entry of dirHandle.values()) {
+      if (entry.kind === 'file' && isVideo(entry.name)) {
+        var f = await entry.getFile();
+        files.push(f);
+      }
+    }
+  } catch (e) { console.error('Folder read error:', e); }
+  files.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  videos = files.map(function (f) {
+    return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified };
+  });
+  renderList();
+}
+
+// --- Videos served by this server (no folder permission needed) ---
+// The server's file browser loads its list from /api/file/list?path=...,
+// which returns JSON: [{name, directory, length, modified}, ...].
+// The Player calls that same endpoint instead of parsing the listing page.
+
+function decodeURIComponentSafe(s) { try { return decodeURIComponent(s); } catch (e) { return s; } }
+
+function savedFolder() { try { var f = localStorage.getItem(FOLDER_KEY); return (f && typeof f === 'string') ? f : ''; } catch (e) { return ''; } }
+function saveFolder(f) { try { localStorage.setItem(FOLDER_KEY, f); } catch (e) {} }
+
+function urlBaseFor(path) { return (path === '.' || !path) ? '' : path.replace(/\/+$/, '') + '/'; }
+
+// Fetch one folder's contents from the server's list API.
+// Returns null on failure, or { folders, videos } on success (either may be
+// empty). folders are subdirectories: { name, rawName, path }.
+async function fetchFolder(path) {
+  var url;
+  try { url = new URL('/api/file/list?path=' + encodeURIComponent(path), location.href); } catch (e) { return null; }
+  var res;
+  try { res = await fetch(url.href, { cache: 'no-store' }); } catch (e) { return null; }
+  if (!res || !res.ok) return null;
+  var data;
+  try { data = await res.json(); } catch (e) { return null; }
+  if (!Array.isArray(data)) return null;
+  var urlBase = urlBaseFor(path);
+  var subfolders = [];
+  var vids = [];
+  data.forEach(function (entry) {
+    if (!entry || typeof entry.name !== 'string') return;
+    if (entry.name === '..' || entry.name === '.') return;
+    if (entry.directory) {
+      var subPath = (!path || path === '.') ? entry.name : path.replace(/\/+$/, '') + '/' + entry.name;
+      subfolders.push({ name: cleanName(entry.name), rawName: entry.name, path: subPath });
+      return;
+    }
+    if (!isVideo(entry.name)) return;
+    var vurl;
+    try { vurl = new URL(urlBase + encodeURIComponent(entry.name), location.href).href; } catch (e) { return; }
+    vids.push({ name: cleanName(entry.name), file: null, fileName: entry.name, url: vurl, size: entry.length, mtime: entry.modified });
+  });
+  subfolders.sort(function (a, b) { return a.rawName.localeCompare(b.rawName); });
+  vids.sort(function (a, b) { return a.fileName.localeCompare(b.fileName); });
+  return { folders: subfolders, videos: vids };
+}
+
+// Show one folder's contents (folder tiles + video tiles). reset=true starts
+// a new navigation stack (a top-level folder); otherwise push onto the stack.
+function setFolderView(entry, reset) {
+  folders = entry.folders;
+  videos = entry.videos;
+  currentFolder = entry.path;
+  serverMode = true;
+  dirHandle = null;
+  if (reset) folderStack = [entry];
+  else folderStack.push(entry);
+  renderList();
+}
+
+// Load a server folder by path. Returns true on success, false on failure.
+// A folder that exists but is empty still counts: lock onto it and show it.
+async function loadServerFolder(path, reset) {
+  var res = null;
+  try { res = await fetchFolder(path); } catch (e) { res = null; }
+  if (!res) return false;
+  setFolderView({ path: path, folders: res.folders, videos: res.videos }, reset);
+  return true;
+}
+
+async function tryServerList() {
+  if (typeof fetch !== 'function') return false;
+  var attempts = [];
+  var saved = savedFolder();
+  if (saved) attempts.push(saved);
+  if (attempts.indexOf(DEFAULT_FOLDER) < 0) attempts.push(DEFAULT_FOLDER);
+  // The server root is never tried: videos live in a folder, not the root.
+  for (var i = 0; i < attempts.length; i++) {
+    if (await loadServerFolder(attempts[i], true)) return true;
+  }
+  return false;
+}
+
+// Open a subdirectory (from a folder tile). Navigation is transient: the
+// saved folder stays the top-level folder, so a reload returns to the tiles.
+async function openSubfolder(path) {
+  await loadServerFolder(path, false);
+}
+
+// Back to the parent folder (X, top-left). Only shown inside a subdirectory.
+function goBack() {
+  if (folderStack.length <= 1) return;
+  folderStack.pop();
+  var top = folderStack[folderStack.length - 1];
+  folders = top.folders;
+  videos = top.videos;
+  currentFolder = top.path;
+  serverMode = true;
+  dirHandle = null;
+  renderList();
+}
+
+// --- Folder switching (little circle button; server folders) ---
+
+async function fetchRootFolders() {
+  if (typeof fetch !== 'function') return [];
+  var roots = ['/', '', '.'];
+  for (var i = 0; i < roots.length; i++) {
+    var url;
+    try { url = new URL('/api/file/list?path=' + encodeURIComponent(roots[i]), location.href); } catch (e) { continue; }
+    var res;
+    try { res = await fetch(url.href, { cache: 'no-store' }); } catch (e) { continue; }
+    if (!res || !res.ok) continue;
+    var data;
+    try { data = await res.json(); } catch (e) { continue; }
+    if (!Array.isArray(data)) continue;
+    var names = [];
+    data.forEach(function (entry) {
+      if (!entry || !entry.directory || typeof entry.name !== 'string') return;
+      if (entry.name === '..' || entry.name === '.') return;
+      names.push(entry.name);
+    });
+    names.sort(function (a, b) { return a.localeCompare(b); });
+    return names;
+  }
+  return [];
+}
+
+function renderFolderList(names) {
+  var list = document.getElementById('folder-list');
+  list.innerHTML = '';
+  if (!names.length) {
+    var p = document.createElement('div');
+    p.className = 'folder-empty';
+    p.textContent = 'No folders found.';
+    list.appendChild(p);
+    return;
+  }
+  names.forEach(function (name) {
+    var b = document.createElement('button');
+    b.className = 'folder-row' + ((name === currentFolder || currentFolder.indexOf(name + '/') === 0) ? ' current' : '');
+    b.textContent = name;
+    b.onclick = function () { switchFolder(name); };
+    list.appendChild(b);
+  });
+}
+
+async function toggleFolderPicker() {
+  var picker = document.getElementById('folder-picker');
+  if (picker.style.display !== 'none') { picker.style.display = 'none'; return; }
+  picker.style.display = 'flex';
+  var list = document.getElementById('folder-list');
+  list.innerHTML = '<div class="folder-empty">Loading…</div>';
+  var names = [];
+  try { names = await fetchRootFolders(); } catch (e) { names = []; }
+  renderFolderList(names);
+}
+
+async function switchFolder(path) {
+  if (!await loadServerFolder(path, true)) return; // fetch failed; keep the picker open
+  saveFolder(path);
+  document.getElementById('folder-picker').style.display = 'none';
+}
+
+function renderList() {
+  var tiles = document.getElementById('tiles');
+  tiles.innerHTML = '';
+  // The Games and Calculator tiles are fixed, not server folders: first tiles at the top level.
+  if ((serverMode || dirHandle) && folderStack.length <= 1) {
+    var gtile = document.createElement('button');
+    gtile.className = 'tile folder-tile';
+    gtile.innerHTML = '<div class="name"></div>';
+    gtile.querySelector('.name').textContent = 'Games';
+    gtile.onclick = function () { openGames(); };
+    tiles.appendChild(gtile);
+    var ctile = document.createElement('button');
+    ctile.className = 'tile folder-tile';
+    ctile.innerHTML = '<div class="name"></div>';
+    ctile.querySelector('.name').textContent = 'Calculator';
+    ctile.onclick = function () { openCalc(); };
+    tiles.appendChild(ctile);
+  }
+  folders.forEach(function (f) {
+    var tile = document.createElement('button');
+    tile.className = 'tile folder-tile video-folder';
+    tile.innerHTML = '<div class="name"></div>';
+    var nm = tile.querySelector('.name');
+    nm.innerHTML = '<span class="vtag">VIDEO</span>';
+    nm.appendChild(document.createTextNode(f.name));
+    tile.onclick = function () { openSubfolder(f.path); };
+    tiles.appendChild(tile);
+  });
+  videos.forEach(function (v, i) {
+    var tile = document.createElement('button');
+    tile.className = 'tile';
+    tile.innerHTML = '<img class="thumb" alt=""><div class="name"></div>';
+    var img = tile.querySelector('img');
+    img.src = THUMB_PLACEHOLDER;
+    loadThumb(v, img);
+    tile.querySelector('.name').textContent = v.name;
+    tile.onclick = function () { openPlayer(i); };
+    tiles.appendChild(tile);
+  });
+  var parts = [];
+  if (folders.length) parts.push(folders.length + (folders.length === 1 ? ' folder' : ' folders'));
+  if (videos.length) parts.push(videos.length + (videos.length === 1 ? ' video' : ' videos'));
+  document.getElementById('count').textContent = parts.length
+    ? parts.join(' \u00b7 ')
+    : (serverMode || dirHandle ? 'Nothing here.' : '');
+  document.getElementById('choose').style.display = (!folders.length && !videos.length && !dirHandle && !serverMode) ? 'block' : 'none';
+  document.getElementById('folder-btn').style.display = serverMode ? 'inline-flex' : 'none';
+  document.getElementById('back-btn').style.display = (folderStack.length > 1) ? 'inline-flex' : 'none';
+}
+
+async function chooseFolder() {
+  // If a folder was saved before but the browser wants a fresh OK, one tap re-grants it.
+  if (storedHandle) {
+    try {
+      var p = await storedHandle.requestPermission({ mode: 'read' });
+      if (p === 'granted') { dirHandle = storedHandle; await listVideos(); return; }
+    } catch (e) {}
+  }
+  if ('showDirectoryPicker' in window) {
+    try {
+      dirHandle = await window.showDirectoryPicker();
+      storedHandle = dirHandle;
+      saveHandle(dirHandle);
+      await listVideos();
+      return;
+    } catch (e) { return; } // user cancelled the picker
+  }
+  // Fallback: pick the folder's files directly (this session only).
+  document.getElementById('dir-input').click();
+}
+
+document.getElementById('dir-input').addEventListener('change', function (ev) {
+  var picked = Array.prototype.slice.call(ev.target.files || []);
+  var files = picked.filter(function (f) { return isVideo(f.name); });
+  files.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  videos = files.map(function (f) {
+    return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified };
+  });
+  dirHandle = { name: 'picked files' };
+  folders = [];
+  folderStack = [];
+  serverMode = false;
+  currentFolder = '';
+  renderList();
+});
+
+function savedSpeed() { try { var s = parseFloat(localStorage.getItem(SPEED_KEY)); return (s === 0.5 || s === 0.75 || s === 1) ? s : 1; } catch (e) { return 1; } }
+function savedVolume() { try { var v = parseFloat(localStorage.getItem(VOL_KEY)); return (isFinite(v) && v >= 0 && v <= 1) ? v : 1; } catch (e) { return 1; } }
+
+// Thumbnail size on the directory view: 0.5x to 2x, quarter steps, sticky.
+var THUMB_MIN = 0.5, THUMB_MAX = 2, THUMB_STEP = 0.25;
+function thumbScale() { try { var s = parseFloat(localStorage.getItem(THUMB_SCALE_KEY)); return (isFinite(s) && s >= THUMB_MIN && s <= THUMB_MAX) ? s : 1; } catch (e) { return 1; } }
+function applyThumbScale() {
+  var s = thumbScale();
+  var root = document.documentElement;
+  root.style.setProperty('--tile-w', Math.round(107 * s) + 'px');
+  root.style.setProperty('--tile-h', Math.round(67 * s) + 'px');
+}
+function changeThumbScale(delta) {
+  var s = thumbScale() + delta;
+  s = Math.max(THUMB_MIN, Math.min(THUMB_MAX, s));
+  s = Math.round(s * 4) / 4;
+  try { localStorage.setItem(THUMB_SCALE_KEY, String(s)); } catch (e) {}
+  applyThumbScale();
+}
+function markSpeedBtns(s) { var btns = document.querySelectorAll('.speed-btn'); for (var i = 0; i < btns.length; i++) { btns[i].classList.toggle('active', parseFloat(btns[i].getAttribute('data-speed')) === s); } }
+function setSpeed(s) { try { localStorage.setItem(SPEED_KEY, String(s)); } catch (e) {} var p = document.getElementById('player'); p.playbackRate = s; markSpeedBtns(s); }
+function setVolIcon() { var p = document.getElementById('player'); document.getElementById('vol-btn').innerHTML = (p.muted || p.volume === 0) ? '&#128263;' : '&#128266;'; }
+function setSizeIcon(big) { document.getElementById('size-btn').innerHTML = big ? ICON_SHRINK : ICON_EXPAND; }
+function setBig(big) {
+  var pv = document.getElementById('player-view');
+  pv.classList.toggle('big', big);
+  setSizeIcon(big);
+  if (big) {
+    if (typeof pv.requestFullscreen === 'function') { try { var p = pv.requestFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+  } else {
+    if (document.fullscreenElement && typeof document.exitFullscreen === 'function') { try { var q = document.exitFullscreen(); if (q && q.catch) q.catch(function () {}); } catch (e) {} }
+  }
+}
+function toggleSize() { var pv = document.getElementById('player-view'); setBig(!pv.classList.contains('big')); }
+function toggleVolPop() { document.getElementById('vol-pop').classList.toggle('open'); }
+function openIndex(i) { if (!videos.length) return; openPlayer((i + videos.length) % videos.length); }
+function prevVideo() { openIndex(currentIndex - 1); }
+function nextVideo() { openIndex(currentIndex + 1); }
+
+function openPlayer(i) {
+  currentIndex = i;
+  current = videos[i];
+  var player = document.getElementById('player');
+  player.src = current.url;
+  player.muted = false;
+  player.playbackRate = savedSpeed();
+  player.volume = savedVolume();
+  document.getElementById('vol').value = savedVolume();
+  setVolIcon();
+  markSpeedBtns(savedSpeed());
+  document.getElementById('vol-pop').classList.remove('open');
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('player-view').classList.add('open');
+  document.getElementById('scrub').value = 0;
+  document.getElementById('t-cur').textContent = '0:00';
+  document.getElementById('t-total').textContent = '0:00';
+  setPlayBtn(false);
+  player.play().then(function () { setPlayBtn(true); }).catch(function () {});
+}
+
+function closePlayer() {
+  var player = document.getElementById('player');
+  player.pause();
+  player.removeAttribute('src');
+  player.load();
+  var pv = document.getElementById('player-view');
+  if (pv.classList.contains('big')) { pv.classList.remove('big'); setSizeIcon(false); if (document.fullscreenElement && typeof document.exitFullscreen === 'function') { try { document.exitFullscreen(); } catch (e) {} } }
+  document.getElementById('vol-pop').classList.remove('open');
+  document.getElementById('player-view').classList.remove('open');
+  document.getElementById('list-view').style.display = '';
+  setPlayBtn(false);
+}
+
+function setPlayBtn(playing) {
+  document.getElementById('play-btn').innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
+}
+function togglePlay() {
+  var player = document.getElementById('player');
+  if (player.paused) { player.play().then(function () { setPlayBtn(true); }).catch(function () { setPlayBtn(false); }); }
+  else { player.pause(); setPlayBtn(false); }
+}
+
+var playerEl = document.getElementById('player');
+playerEl.addEventListener('click', togglePlay);
+playerEl.addEventListener('play', function () { setPlayBtn(true); });
+playerEl.addEventListener('pause', function () { setPlayBtn(false); });
+playerEl.addEventListener('ended', function () { setPlayBtn(false); });
+playerEl.addEventListener('loadedmetadata', function () {
+  document.getElementById('t-total').textContent = fmtTime(playerEl.duration);
+});
+playerEl.addEventListener('timeupdate', function () {
+  if (isFinite(playerEl.duration) && playerEl.duration > 0) {
+    document.getElementById('scrub').value = (playerEl.currentTime / playerEl.duration) * 100;
+  }
+  document.getElementById('t-cur').textContent = fmtTime(playerEl.currentTime);
+});
+document.getElementById('scrub').addEventListener('input', function (ev) {
+  if (isFinite(playerEl.duration) && playerEl.duration > 0) {
+    playerEl.currentTime = (parseFloat(ev.target.value) / 100) * playerEl.duration;
+  }
+});
+document.getElementById('vol').addEventListener('input', function (ev) {
+  playerEl.volume = parseFloat(ev.target.value);
+  try { localStorage.setItem(VOL_KEY, String(playerEl.volume)); } catch (e) {}
+  if (playerEl.volume > 0) playerEl.muted = false;
+  setVolIcon();
+});
+document.addEventListener('fullscreenchange', function () {
+  var pv = document.getElementById('player-view');
+  if (!document.fullscreenElement && pv.classList.contains('big')) { pv.classList.remove('big'); setSizeIcon(false); }
+});
+document.addEventListener('click', function (ev) {
+  var pop = document.getElementById('vol-pop');
+  if (!pop.classList.contains('open')) return;
+  var t = ev.target;
+  if (t.closest && (t.closest('#vol-pop') || t.closest('#vol-btn'))) return;
+  pop.classList.remove('open');
+});
+document.getElementById('folder-picker').addEventListener('click', function (ev) {
+  if (ev.target === this) this.style.display = 'none';
+});
+
+// --- Games ---
+function openGames() {
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('games-view').classList.add('open');
+}
+function closeGames() {
+  document.getElementById('games-view').classList.remove('open');
+  document.getElementById('list-view').style.display = '';
+}
+function openGame(which) {
+  document.getElementById('games-view').classList.remove('open');
+  if (which === 'make13') {
+    document.getElementById('game-make13').classList.add('open');
+    if (!gridGames.make13.started) newGridGame('make13');
+  } else if (which === 'pairs') {
+    document.getElementById('game-pairs').classList.add('open');
+    if (!gridGames.pairs.started) newGridGame('pairs');
+  } else if (which === 'words') {
+    document.getElementById('game-words').classList.add('open');
+    if (!wordGame.started) newWordPuzzle();
+    else if (!wordGame.over) resumeWordTimer();
+  }
+}
+function closeGame() {
+  stopWordTimer();
+  ['game-make13', 'game-pairs', 'game-words'].forEach(function (id) {
+    document.getElementById(id).classList.remove('open');
+  });
+  document.getElementById('games-view').classList.add('open');
+}
+function resumeWordTimer() {
+  if (wordGame.over || wordGame.timeUp || wordGame.timeLeft <= 0) return;
+  stopWordTimer();
+  wordGame.timerId = setInterval(tickWordTimer, 1000);
+}
+
+// --- Calculator (simple, big buttons) ---
+var calc = { cur: '0', prev: null, op: null, fresh: true };
+function calcRender() { document.getElementById('calc-display').textContent = calc.cur; }
+function calcDigit(d) {
+  if (calc.fresh) { calc.cur = d; calc.fresh = false; }
+  else if (calc.cur.replace('-', '').replace('.', '').length < 12) { calc.cur = (calc.cur === '0' ? d : calc.cur + d); }
+  calcRender();
+}
+function calcDot() {
+  if (calc.fresh) { calc.cur = '0.'; calc.fresh = false; }
+  else if (calc.cur.indexOf('.') < 0) calc.cur += '.';
+  calcRender();
+}
+function calcOp(op) {
+  calcApply();
+  calc.prev = parseFloat(calc.cur);
+  calc.op = op;
+  calc.fresh = true;
+}
+function calcApply() {
+  if (calc.op == null || calc.prev == null) return;
+  var b = parseFloat(calc.cur), a = calc.prev, r = a;
+  if (calc.op === '+') r = a + b;
+  else if (calc.op === '-') r = a - b;
+  else if (calc.op === '*') r = a * b;
+  else if (calc.op === '/') r = (b === 0) ? NaN : a / b;
+  calc.cur = isFinite(r) ? String(Math.round(r * 1e10) / 1e10) : '0';
+  calc.prev = null; calc.op = null; calc.fresh = true;
+}
+function calcClear() { calc.cur = '0'; calc.prev = null; calc.op = null; calc.fresh = true; calcRender(); }
+function calcEquals() { calcApply(); calcRender(); }
+function buildCalc() {
+  var grid = document.getElementById('calc-grid');
+  if (grid.childElementCount) return;
+  var keys = [
+    ['7', 'd'], ['8', 'd'], ['9', 'd'], ['/', 'op'],
+    ['4', 'd'], ['5', 'd'], ['6', 'd'], ['*', 'op'],
+    ['1', 'd'], ['2', 'd'], ['3', 'd'], ['-', 'op'],
+    ['0', 'd'], ['.', 'dot'], ['C', 'clear'], ['+', 'op']
+  ];
+  keys.forEach(function (k) {
+    var b = document.createElement('button');
+    b.className = 'calc-btn' + (k[1] === 'op' ? ' op' : '');
+    b.textContent = k[0] === '*' ? '×' : (k[0] === '/' ? '÷' : k[0]);
+    b.onclick = function () {
+      if (k[1] === 'd') calcDigit(k[0]);
+      else if (k[1] === 'dot') calcDot();
+      else if (k[1] === 'clear') calcClear();
+      else calcOp(k[0]);
+    };
+    grid.appendChild(b);
+  });
+  var eq = document.createElement('button');
+  eq.className = 'calc-btn eq';
+  eq.textContent = '=';
+  eq.style.gridColumn = '1 / -1';
+  eq.onclick = calcEquals;
+  grid.appendChild(eq);
+}
+function openCalc() {
+  buildCalc();
+  calcRender();
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('calc-view').classList.add('open');
+}
+function closeCalc() {
+  document.getElementById('calc-view').classList.remove('open');
+  document.getElementById('list-view').style.display = '';
+}
+
+// --- Settings (sticky in localStorage; words file in IndexedDB) ---
+var SET_CITY = 'player_city', SET_CITY_LAT = 'player_city_lat', SET_CITY_LON = 'player_city_lon';
+var SET_TARGET = 'player_target', SET_TIME = 'player_time';
+var DEF_TARGET = 300, DEF_TIME_MIN = 3, DEF_CITY = 'Chicago';
+function setVal(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
+function getVal(k, def) { try { var v = localStorage.getItem(k); return (v == null || v === '') ? def : v; } catch (e) { return def; } }
+function settingTarget() { var n = parseInt(getVal(SET_TARGET, DEF_TARGET), 10); return (isFinite(n) && n > 0) ? n : DEF_TARGET; }
+function settingTimeMin() { var n = parseFloat(getVal(SET_TIME, DEF_TIME_MIN)); return (isFinite(n) && n > 0) ? n : DEF_TIME_MIN; }
+function settingCity() { return getVal(SET_CITY, DEF_CITY); }
+function settingCityLat() { var n = parseFloat(getVal(SET_CITY_LAT, '')); return isFinite(n) ? n : null; }
+function settingCityLon() { var n = parseFloat(getVal(SET_CITY_LON, '')); return isFinite(n) ? n : null; }
+function openSettings() {
+  document.getElementById('set-city').value = settingCity();
+  document.getElementById('set-target').value = settingTarget();
+  document.getElementById('set-time').value = settingTimeMin();
+  document.getElementById('set-status').textContent = '';
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('settings-view').classList.add('open');
+}
+function closeSettings() {
+  document.getElementById('settings-view').classList.remove('open');
+  document.getElementById('list-view').style.display = '';
+}
+function saveSettings() {
+  var city = document.getElementById('set-city').value.trim();
+  var target = parseInt(document.getElementById('set-target').value, 10);
+  var mins = parseFloat(document.getElementById('set-time').value);
+  var oldCity = getVal(SET_CITY, '');
+  if (city) setVal(SET_CITY, city);
+  if (isFinite(target) && target > 0) setVal(SET_TARGET, target);
+  if (isFinite(mins) && mins > 0) setVal(SET_TIME, mins);
+  // A changed city needs fresh coordinates, not the old city's.
+  if (city && city.toLowerCase() !== oldCity.toLowerCase()) {
+    try { localStorage.removeItem(SET_CITY_LAT); localStorage.removeItem(SET_CITY_LON); } catch (e) {}
+  }
+  document.getElementById('set-status').textContent = 'Saved.';
+  geocodeCity(city || settingCity(), function () { renderTopStrip(); });
+}
+document.getElementById('set-words').addEventListener('change', function (ev) {
+  var f = ev.target.files && ev.target.files[0];
+  if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function () {
+    var parsed = parseWordsText(String(rd.result || ''));
+    saveSeedWords(parsed, function () {
+      seedWords = parsed;
+      var n = parsed.promoted.length + parsed.general.length;
+      document.getElementById('set-words-hint').textContent = 'Saved ' + n + ' extra words (' + parsed.promoted.length + ' promoted, ' + parsed.general.length + ' general).';
+    });
+  };
+  rd.readAsText(f);
+});
+
+// --- Top strip: day/date (always) and one-line weather (F only) ---
+var DOW = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+var MON = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+function renderDayDate() {
+  var now = new Date();
+  document.getElementById('dd-dow').textContent = DOW[now.getDay()];
+  document.getElementById('dd-date').textContent = MON[now.getMonth()] + ' ' + now.getDate();
+}
+function wxCodeLabel(code) {
+  var c = Number(code);
+  if (c === 0) return 'Clear';
+  if (c === 1) return 'Mostly clear';
+  if (c === 2) return 'Partly cloudy';
+  if (c === 3) return 'Overcast';
+  if (c === 45 || c === 48) return 'Fog';
+  if (c >= 51 && c <= 57) return 'Drizzle';
+  if (c >= 61 && c <= 67) return 'Rain';
+  if (c >= 71 && c <= 77) return 'Snow';
+  if (c >= 80 && c <= 82) return 'Showers';
+  if (c >= 85 && c <= 86) return 'Snow showers';
+  if (c >= 95) return 'Storm';
+  return '';
+}
+function geocodeCity(name, done) {
+  if (!name) { if (done) done(null); return; }
+  var lat = settingCityLat(), lon = settingCityLon();
+  // If the saved city name still matches, reuse its coordinates.
+  if (lat != null && lon != null && getVal(SET_CITY, '') === name) { if (done) done({ lat: lat, lon: lon }); return; }
+  if (typeof fetch !== 'function') { if (done) done(null); return; }
+  fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(name) + '&count=1&language=en&format=json')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      var res = d && d.results && d.results[0];
+      if (res && isFinite(res.latitude) && isFinite(res.longitude)) {
+        setVal(SET_CITY, res.name || name);
+        setVal(SET_CITY_LAT, res.latitude);
+        setVal(SET_CITY_LON, res.longitude);
+        if (done) done({ lat: res.latitude, lon: res.longitude });
+      } else if (done) done(null);
+    })
+    .catch(function () { if (done) done(null); });
+}
+function renderTopStrip() {
+  renderDayDate();
+  var wx = document.getElementById('wx-line');
+  var city = settingCity();
+  var lat = settingCityLat(), lon = settingCityLon();
+  function show(text) { wx.textContent = text; }
+  if (lat == null || lon == null) {
+    show(city + ' · …');
+    geocodeCity(city, function (co) {
+      if (!co) { show(city); return; }
+      loadWeather(co.lat, co.lon, city, show);
+    });
+    return;
+  }
+  loadWeather(lat, lon, city, show);
+}
+function loadWeather(lat, lon, city, show) {
+  if (typeof fetch !== 'function') { show(city); return; }
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=' + lat + '&longitude=' + lon + '&current=temperature_2m,weather_code&temperature_unit=fahrenheit')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      var cur = d && d.current;
+      if (!cur || !isFinite(cur.temperature_2m)) { show(city); return; }
+      var label = wxCodeLabel(cur.weather_code);
+      show(city + ' · ' + Math.round(cur.temperature_2m) + '°F' + (label ? ' · ' + label : ''));
+    })
+    .catch(function () { show(city); });
+}
+
+// --- Grid card games (Make 13 and Pairs): 4x4 grid, clear the whole pack ---
+var SUITS = ['\u2660', '\u2665', '\u2666', '\u2663'];
+var RED_SUIT = {};
+RED_SUIT['\u2665'] = true; RED_SUIT['\u2666'] = true;
+var RANKS = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+var GRID_SIZE = 16; // 4x4
+var gridGames = {
+  make13: { started: false, deck: [], grid: [], selected: -1, over: false },
+  pairs: { started: false, deck: [], grid: [], selected: -1, over: false }
+};
+function buildDeck() {
+  var d = [];
+  for (var s = 0; s < SUITS.length; s++) {
+    for (var r = 0; r < RANKS.length; r++) {
+      d.push({ rank: RANKS[r], value: r + 1, suit: SUITS[s], red: !!RED_SUIT[SUITS[s]] });
+    }
+  }
+  return d;
+}
+function shuffleArr(a) {
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+function gridMatch(which, a, b) {
+  if (which === 'make13') return a.value + b.value === 13;
+  return a.rank === b.rank;
+}
+function gridHasMove(which) {
+  var g = gridGames[which];
+  var cards = g.grid.filter(function (c) { return c; });
+  if (which === 'make13') {
+    if (cards.some(function (c) { return c.value === 13; })) return true;
+    for (var i = 0; i < cards.length; i++) {
+      for (var j = i + 1; j < cards.length; j++) {
+        if (cards[i].value + cards[j].value === 13) return true;
+      }
+    }
+    return false;
+  }
+  var seen = {};
+  for (var k = 0; k < cards.length; k++) {
+    if (seen[cards[k].rank]) return true;
+    seen[cards[k].rank] = true;
+  }
+  return false;
+}
+function gridCardsLeft(which) {
+  var g = gridGames[which];
+  return g.deck.length + g.grid.filter(function (c) { return c; }).length;
+}
+function renderGrid(which) {
+  var g = gridGames[which];
+  var gridEl = document.getElementById(which === 'make13' ? 'm13-grid' : 'pairs-grid');
+  gridEl.innerHTML = '';
+  for (var i = 0; i < GRID_SIZE; i++) {
+    (function (idx) {
+      var c = g.grid[idx];
+      var b = document.createElement('button');
+      b.className = 'card' + (c && c.red ? ' red' : '') + (g.selected === idx ? ' selected' : '') + (!c ? ' gone' : '');
+      if (c) {
+        b.innerHTML = '<div class="r"></div><div class="s"></div>';
+        b.querySelector('.r').textContent = c.rank;
+        b.querySelector('.s').textContent = c.suit;
+        // pointerdown so a press registers at once, even a hold.
+        b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); onGridCard(which, idx); });
+        b.addEventListener('click', function (ev) { ev.preventDefault(); });
+      }
+      gridEl.appendChild(b);
+    })(i);
+  }
+  var statusEl = document.getElementById(which === 'make13' ? 'm13-status' : 'pairs-status');
+  var left = gridCardsLeft(which);
+  var base = which === 'make13'
+    ? 'Tap two cards that add to 13. A King is 13.'
+    : 'Tap two cards with the same number.';
+  if (g.over) {
+    statusEl.textContent = (left === 0 ? 'You did it! All the cards are gone.' : 'No more moves.') + ' Cards left: ' + left + '.';
+  } else {
+    statusEl.textContent = base + ' Cards left: ' + left + '.';
+  }
+}
+function newGridGame(which) {
+  var g = gridGames[which];
+  // Re-deal if the opening grid has no move, so a game never starts stuck.
+  for (var attempt = 0; attempt < 50; attempt++) {
+    g.deck = shuffleArr(buildDeck());
+    g.grid = [];
+    for (var i = 0; i < GRID_SIZE; i++) g.grid.push(g.deck.pop() || null);
+    g.selected = -1;
+    g.over = false;
+    if (gridHasMove(which)) break;
+  }
+  g.started = true;
+  renderGrid(which);
+}
+function dealReplacements(which, slots) {
+  var g = gridGames[which];
+  slots.forEach(function (idx) { g.grid[idx] = g.deck.length ? g.deck.pop() : null; });
+}
+function onGridCard(which, idx) {
+  var g = gridGames[which];
+  if (g.over) return;
+  var c = g.grid[idx];
+  if (!c) return;
+  if (which === 'make13' && c.value === 13 && g.selected < 0) {
+    dealReplacements(which, [idx]);
+    g.selected = -1;
+    afterGridMove(which);
+    return;
+  }
+  if (g.selected === idx) { g.selected = -1; renderGrid(which); return; }
+  if (g.selected < 0) { g.selected = idx; renderGrid(which); return; }
+  var other = g.grid[g.selected];
+  if (other && gridMatch(which, other, c)) {
+    var slots = [g.selected, idx];
+    g.selected = -1;
+    dealReplacements(which, slots);
+    afterGridMove(which);
+  } else {
+    g.selected = -1;
+    renderGrid(which);
+  }
+}
+function afterGridMove(which) {
+  var g = gridGames[which];
+  if (gridCardsLeft(which) === 0 || !gridHasMove(which)) g.over = true;
+  renderGrid(which);
+}
+
+// --- Hidden Words: find hidden words in a letter grid; a new puzzle follows ---
+var WORD_LIST = ['GOSPEL', 'MUSIC', 'FAITH', 'HOPE', 'LOVE', 'PEACE', 'SING', 'SONG', 'PIANO', 'CHURCH', 'PRAYER', 'ANGEL', 'FAMILY', 'FRIEND', 'HAPPY', 'SMILE', 'FLOWER', 'GARDEN', 'SUNSHINE', 'RIVER', 'OCEAN', 'MOUNTAIN', 'SPRING', 'SUMMER', 'AUTUMN', 'WINTER', 'APPLE', 'BANANA', 'ORANGE', 'BREAD', 'COFFEE', 'BOOK', 'STORY', 'DREAM', 'STAR', 'MOON', 'RAIN', 'SNOW', 'BIRD', 'TREE', 'HOME', 'HOUSE', 'TABLE', 'CHAIR', 'WINDOW', 'ROAD', 'TRAIN', 'PLANE', 'SHIP', 'FISH', 'CAKE', 'HONEY', 'MILK', 'SOUP', 'SALAD', 'PASTA', 'PIZZA', 'CHEESE', 'BUTTER', 'CORN', 'BEAN', 'RICE', 'PLUM', 'PEAR', 'MELON', 'LEMON', 'GRAPE', 'PEACH', 'CHERRY', 'BERRY', 'MANGO', 'LAUGH', 'DANCE', 'HEART', 'LIGHT', 'GRACE', 'BLESS', 'PSALM', 'HYMN', 'CHOIR', 'ORGAN', 'VIOLIN', 'GUITAR', 'TRUMPET', 'DRUM', 'BELL', 'CANDLE', 'CROSS', 'CROWN', 'CLOUD', 'STORM', 'BREEZE', 'MEADOW', 'FOREST', 'VALLEY', 'DESERT', 'ISLAND', 'BEACH', 'WAVES', 'SUNSET', 'SUNRISE', 'MORNING', 'EVENING', 'THUNDER', 'RAINBOW', 'LEAF', 'BLOOM', 'PETAL', 'ROSE', 'TULIP', 'DAISY', 'LILY', 'VIOLET', 'ORCHID', 'JASMINE', 'LAVENDER', 'HERB', 'MINT', 'BASIL', 'SAGE', 'THYME', 'ROSEMARY', 'GINGER', 'CINNAMON', 'VANILLA', 'COCOA', 'SUGAR', 'SALT', 'PEPPER', 'ONION', 'GARLIC', 'POTATO', 'CARROT', 'TOMATO', 'LETTUCE', 'CABBAGE', 'CELERY', 'SPINACH', 'BROCCOLI', 'CUCUMBER', 'ZUCCHINI', 'EGGPLANT', 'AVOCADO', 'COCONUT', 'PINEAPPLE', 'STRAWBERRY', 'BLUEBERRY', 'RASPBERRY', 'BLACKBERRY', 'WATERMELON', 'CANTALOUPE', 'APRICOT', 'NECTARINE', 'KIWI', 'PAPAYA', 'GUAVA', 'LYCHEE', 'DATE', 'OLIVE', 'ALMOND', 'WALNUT', 'PECAN', 'CASHEW', 'PEANUT', 'HAZELNUT', 'CHESTNUT', 'PISTACHIO', 'SESAME', 'POPCORN', 'PRETZEL', 'MUFFIN', 'BAGEL', 'DONUT', 'COOKIE', 'BROWNIE', 'CUPCAKE', 'PANCAKE', 'WAFFLE', 'SYRUP', 'JELLY', 'MAPLE', 'CREAM', 'YOGURT', 'CEREAL', 'OATMEAL', 'GRANOLA', 'TOAST', 'SANDWICH', 'BURGER', 'HOTDOG', 'TACOS', 'BURRITO', 'LASAGNA', 'SPAGHETTI', 'MACARONI', 'RAVIOLI', 'RISOTTO', 'PAELLA', 'CURRY', 'STEW', 'ROAST', 'GRILL', 'BAKED', 'FRIED', 'SAUCE', 'GRAVY', 'DRESSING', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELISH', 'PICKLE', 'CAPER', 'ANCHOVY', 'SARDINE', 'SALMON', 'TUNA', 'TROUT', 'BASS', 'PERCH', 'CATFISH', 'SHRIMP', 'CRAB', 'LOBSTER', 'OYSTER', 'MUSSEL', 'CLAM', 'SCALLOP', 'SQUID', 'OCTOPUS', 'WHALE', 'DOLPHIN', 'SHARK', 'SEAL', 'OTTER', 'BEAVER', 'RACCOON', 'SQUIRREL', 'CHIPMUNK', 'RABBIT', 'HARE', 'DEER', 'MOOSE', 'BISON', 'BUFFALO', 'HORSE', 'PONY', 'DONKEY', 'MULE', 'GOAT', 'SHEEP', 'LAMB', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'PIGEON', 'SPARROW', 'ROBIN', 'BLUEJAY', 'CARDINAL', 'FINCH', 'WREN', 'EAGLE', 'HAWK', 'FALCON', 'RAVEN', 'CROW', 'DOVE', 'SWAN', 'HERON', 'STORK', 'CRANE', 'FLAMINGO', 'PELICAN', 'PENGUIN', 'OSTRICH', 'PEACOCK', 'PARROT', 'CANARY', 'COCKATOO', 'MACAW', 'TOUCAN', 'BUTTERFLY', 'MOTH', 'WASP', 'SPIDER', 'LADYBUG', 'FIREFLY', 'DRAGONFLY', 'CICADA', 'CRICKET', 'BEETLE', 'SNAIL', 'SLUG', 'WORM', 'FROG', 'TOAD', 'LIZARD', 'SNAKE', 'TURTLE', 'TORTOISE', 'CROCODILE', 'ALLIGATOR', 'CHAMELEON', 'GECKO', 'IGUANA', 'PYTHON', 'COBRA', 'VIPER', 'ANACONDA', 'JAGUAR', 'LEOPARD', 'CHEETAH', 'LION', 'TIGER', 'PANTHER', 'PUMA', 'COUGAR', 'LYNX', 'BOBCAT', 'OCELOT', 'WOLF', 'COYOTE', 'HYENA', 'JACKAL', 'MEERKAT', 'MONKEY', 'GORILLA', 'CHIMP', 'BABOON', 'LEMUR', 'KOALA', 'PANDA', 'KANGAROO', 'WALLABY', 'WOMBAT', 'PLATYPUS', 'HEDGEHOG', 'PORCUPINE', 'ARMADILLO', 'ANTEATER', 'SLOTH', 'BADGER', 'WEASEL', 'FERRET', 'MINK', 'SKUNK', 'OPOSSUM', 'MOLE', 'VOLE', 'SHREW', 'MOUSE', 'HAMSTER', 'GERBIL', 'GUINEA', 'CAPYBARA', 'MOTHER', 'FATHER', 'SISTER', 'BROTHER', 'GRANDMA', 'GRANDPA', 'GRANNY', 'AUNTIE', 'UNCLE', 'COUSIN', 'NEPHEW', 'NIECE', 'BABY', 'CHILD', 'TEEN', 'ADULT', 'ELDER', 'NEIGHBOR', 'TEACHER', 'DOCTOR', 'NURSE', 'COOK', 'BAKER', 'FARMER', 'DRIVER', 'PILOT', 'SAILOR', 'SOLDIER', 'ARTIST', 'SINGER', 'DANCER', 'ACTOR', 'WRITER', 'POET', 'PAINTER', 'MUSICIAN', 'COMPOSER', 'CONDUCTOR', 'PIANIST', 'DRUMMER', 'CELLIST', 'FLUTIST', 'HARP', 'BANJO', 'MANDOLIN', 'ACCORDION', 'HARMONICA', 'SAXOPHONE', 'CLARINET', 'OBOE', 'BASSOON', 'TUBA', 'HORN', 'CORNET', 'TROMBONE', 'MARIMBA', 'XYLOPHONE', 'TAMBOURINE', 'BAGPIPE', 'UKULELE', 'SITAR', 'LUTE', 'LYRE', 'ZITHER', 'MELODY', 'HARMONY', 'RHYTHM', 'TEMPO', 'BEAT', 'TUNE', 'ANTHEM', 'BALLAD', 'CAROL', 'VERSE', 'STANZA', 'REFRAIN', 'CHORUS', 'BRIDGE', 'INTRO', 'OUTRO', 'CODA', 'FINALE', 'OVERTURE', 'PRELUDE', 'NOCTURNE', 'SERENADE', 'CONCERTO', 'SYMPHONY', 'SONATA', 'SUITE', 'FUGUE', 'CANON', 'RONDO', 'MINUET', 'GAVOTTE', 'WALTZ', 'TANGO', 'FOXTROT', 'RUMBA', 'SAMBA', 'MAMBO', 'SALSA', 'SWING', 'JAZZ', 'BLUES', 'ROCK', 'FOLK', 'COUNTRY', 'SPIRITUAL', 'MOTET', 'MASS', 'REQUIEM', 'ORATORIO', 'OPERA', 'OPERETTA', 'MUSICAL', 'BALLET', 'REVUE', 'CABARET', 'PANTOMIME', 'COMEDY', 'TRAGEDY', 'DRAMA', 'SATIRE', 'PARODY', 'IRONY', 'HUMOR', 'JEST', 'PRANK', 'TRICK', 'JOKE', 'RIDDLE', 'PUZZLE', 'MAZE', 'GAME', 'PLAY', 'DOLL', 'KITE', 'BALL', 'MITT', 'GLOVE', 'HELMET', 'JERSEY', 'UNIFORM', 'CLEAT', 'SPIKE', 'RACKET', 'PADDLE', 'CLUB', 'IRON', 'WEDGE', 'PUTTER', 'CADDIE', 'BIRDIE', 'BOGEY', 'HOLE', 'GREEN', 'FAIRWAY', 'ROUGH', 'BUNKER', 'HAZARD', 'WATER', 'SAND', 'TRAP', 'FLAG', 'MARKER', 'DIVOT', 'STANCE', 'GRIP', 'STROKE', 'PUTT', 'CHIP', 'PITCH', 'DRIVE', 'LAYUP', 'DUNK', 'HOOP', 'COURT', 'FIELD', 'DIAMOND', 'MOUND', 'PLATE', 'BASE', 'BATTER', 'PITCHER', 'CATCHER', 'INFIELD', 'OUTFIELD', 'DUGOUT', 'BULLPEN', 'BLEACHER', 'STAND', 'CROWD', 'CHEER', 'WAVE', 'CLAP', 'STOMP', 'WHISTLE', 'SIREN', 'ALARM', 'CLOCK', 'WATCH', 'TIMER', 'CHIME', 'GONG', 'CYMBAL', 'TRIANGLE', 'MARACA', 'CLAVE', 'GUIRO', 'SHAKER', 'KALIMBA', 'MBIRA', 'CONGA', 'BONGO', 'DJEMBE', 'TABLA', 'FRAME', 'PERCUSSION', 'SECTION', 'ENSEMBLE', 'ORCHESTRA', 'BAND', 'QUARTET', 'QUINTET', 'TRIO', 'SOLO', 'DUET', 'OCTET', 'SEPTET', 'SEXTET', 'NONET', 'CHAMBER', 'CONCERT', 'RECITAL', 'SHOW', 'STAGE', 'CURTAIN', 'SPOTLIGHT', 'BACKSTAGE', 'REHEARSAL', 'AUDITION', 'CAST', 'CREW', 'DIRECTOR', 'PRODUCER', 'MANAGER', 'AGENT', 'PROMOTER', 'VENUE', 'ARENA', 'STADIUM', 'THEATER', 'HALL', 'PAVILION', 'GAZEBO', 'PERGOLA', 'ARBOR', 'TRELLIS', 'FENCE', 'GATE', 'WALL', 'ARCH', 'DOME', 'TOWER', 'SPIRE', 'STEEPLE', 'BELFRY', 'CUPOLA', 'ROTUNDA', 'ATRIUM', 'LOBBY', 'FOYER', 'CORRIDOR', 'HALLWAY', 'STAIR', 'ELEVATOR', 'RAMP', 'LANDING', 'BALCONY', 'TERRACE', 'PORCH', 'DECK', 'PATIO', 'YARD', 'LAWN', 'PATH', 'WALK', 'TRAIL', 'STREET', 'AVENUE', 'LANE', 'ALLEY', 'PLAZA', 'SQUARE', 'CIRCLE', 'CURB', 'GUTTER', 'DRAIN', 'SEWER', 'PIPE', 'VALVE', 'FAUCET', 'SHOWER', 'BASIN', 'SINK', 'MIRROR', 'TOWEL', 'SOAP', 'SHAMPOO', 'TOOTHPASTE', 'FLOSS', 'RAZOR', 'COMB', 'BRUSH', 'SCISSORS', 'NAIL', 'CLIPPER', 'FILE', 'TWEEZER', 'COTTON', 'BANDAGE', 'OINTMENT', 'PILL', 'TABLET', 'CAPSULE', 'DROPS', 'SPRAY', 'LOTION', 'POWDER', 'PERFUME', 'COLOGNE', 'LIPSTICK', 'MASCARA', 'EYELINER', 'BLUSH', 'PRIMER', 'SETTING', 'MIST', 'TONER', 'SERUM', 'ESSENCE', 'AMPOULE', 'MASK', 'PEEL', 'SCRUB', 'CLEANSER', 'WASH', 'RINSE', 'TREATMENT', 'THERAPY', 'MASSAGE', 'SAUNA', 'STEAM', 'BATH', 'SOAK', 'SWIM', 'DIVE', 'FLOAT', 'SPLASH', 'DRIP', 'DROP', 'POUR', 'SPILL', 'LEAK', 'FLOW', 'STREAM', 'BROOK', 'CREEK', 'POND', 'LAKE', 'POOL', 'COVE', 'INLET', 'OUTLET', 'HARBOR', 'PORT', 'DOCK', 'PIER', 'WHARF', 'QUAY', 'JETTY', 'LIGHTHOUSE', 'BEACON', 'BUOY', 'ANCHOR', 'CHAIN', 'ROPE', 'CABLE', 'KNOT', 'LOOP', 'HOOK', 'SPLICE', 'BINDING', 'WRAPPING', 'PACKING', 'CRATE', 'CARTON', 'CASE', 'CHEST', 'TRUNK', 'SUITCASE', 'POUCH', 'POCKET', 'WALLET', 'PURSE', 'HANDBAG', 'BACKPACK', 'SATCHEL', 'TOTE', 'DUFFEL', 'LUGGAGE', 'BAGGAGE', 'TICKET', 'BOARDING', 'PASSPORT', 'VISA', 'CUSTOMS', 'SECURITY', 'SCREENING', 'SCANNER', 'XRAY', 'METAL', 'DETECTOR', 'CONVEYOR', 'BELT', 'CAROUSEL', 'CLAIM', 'LOST', 'FOUND', 'OFFICE', 'DESK', 'COUNTER', 'DOOR', 'TERMINAL', 'CONCOURSE', 'HANGAR', 'RUNWAY', 'TAXIWAY', 'APRON', 'TARMAC', 'CONTROL', 'RADAR', 'NAVIGATION', 'COMPASS', 'CHART', 'ATLAS', 'GLOBE', 'SPHERE', 'ORBIT', 'AXIS', 'POLE', 'EQUATOR', 'MERIDIAN', 'PARALLEL', 'LATITUDE', 'LONGITUDE', 'TROPIC', 'ARCTIC', 'TEMPERATE', 'TROPICAL', 'POLAR', 'CLIMATE', 'WEATHER', 'SEASON', 'MONSOON', 'HURRICANE', 'TYPHOON', 'CYCLONE', 'TORNADO', 'TWISTER', 'FUNNEL', 'VORTEX', 'EDDY', 'CURRENT', 'TIDE', 'SURF', 'SWELL', 'RIPPLE', 'FOAM', 'HAZE', 'SMOG', 'DUST', 'SILT', 'CLAY', 'SOIL', 'LOAM', 'PEAT', 'HUMUS', 'COMPOST', 'MULCH', 'MANURE', 'SPROUT', 'SEEDLING', 'SAPLING', 'SHRUB', 'BUSH', 'HEDGE', 'VINE', 'MOSS', 'FERN', 'PALM', 'PINE', 'SPRUCE', 'CEDAR', 'BIRCH', 'ASPEN', 'WILLOW', 'POPLAR', 'BEECH', 'HICKORY', 'ACORN', 'CONE', 'NEEDLE', 'BARK', 'LIMB', 'TWIG', 'STICK', 'STUMP', 'RING', 'GRAIN', 'PLANK', 'BOARD', 'BEAM', 'JOIST', 'RAFTER', 'TRUSS', 'POST', 'PILLAR', 'COLUMN', 'CAPITAL', 'FOOTING', 'SLAB', 'BRICK', 'STONE', 'CONCRETE', 'MORTAR', 'CEMENT', 'PLASTER', 'DRYWALL', 'PANEL', 'TILE', 'SHINGLE', 'THATCH', 'SLATE', 'COPPER', 'BRASS', 'BRONZE', 'STEEL', 'ALUMINUM', 'LEAD', 'ZINC', 'NICKEL', 'CHROME', 'SILVER', 'GOLD', 'PLATINUM', 'RUBY', 'EMERALD', 'SAPPHIRE', 'TOPAZ', 'OPAL', 'PEARL', 'JADE', 'ONYX', 'QUARTZ', 'CRYSTAL', 'MARBLE', 'GRANITE', 'LIMESTONE', 'SANDSTONE', 'BASALT', 'OBSIDIAN', 'PUMICE', 'FLINT', 'CHERT', 'AGATE', 'JASPER', 'LAPIS', 'AMETHYST', 'CITRINE', 'GARNET', 'PERIDOT', 'SPINEL', 'ZIRCON', 'BERYL'];
+var WORD_COUNT = 7;
+var WORD_MIN_LEN = 4;
+var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, timerId: null, timeLeft: 0, timeUp: false, over: false };
+var seedWords = { promoted: [], general: [] };
+var promotedSinceKey = 'player_promoted_since';
+function promotedSince() { try { var n = parseInt(localStorage.getItem(promotedSinceKey), 10); return isFinite(n) && n >= 0 ? n : 0; } catch (e) { return 0; } }
+function setPromotedSince(n) { try { localStorage.setItem(promotedSinceKey, String(n)); } catch (e) {} }
+function allWordsSet() {
+  var s = {};
+  WORD_LIST.forEach(function (w) { s[w] = true; });
+  seedWords.promoted.forEach(function (w) { s[w] = true; });
+  seedWords.general.forEach(function (w) { s[w] = true; });
+  return s;
+}
+// Parse a words file: sections "# PROMOTED" and "# WORDS"; words separated by
+// spaces, commas, or new lines. Keeps 4-10 letter A-Z words, no duplicates,
+// nothing already in the built-in list.
+function parseWordsText(text) {
+  var out = { promoted: [], general: [] };
+  var section = 'general';
+  var seen = {};
+  WORD_LIST.forEach(function (w) { seen[w] = true; });
+  var lines = String(text || '').split(/\r?\n/);
+  lines.forEach(function (line) {
+    var t = line.trim();
+    if (!t) return;
+    if (t.charAt(0) === '#') {
+      var h = t.slice(1).trim().toUpperCase();
+      section = (h.indexOf('PROMOT') === 0) ? 'promoted' : 'general';
+      return;
+    }
+    t.split(/[\s,;]+/).forEach(function (raw) {
+      var w = raw.toUpperCase().replace(/[^A-Z]/g, '');
+      if (w.length < WORD_MIN_LEN || w.length > 10) return;
+      if (seen[w]) return;
+      seen[w] = true;
+      out[section].push(w);
+    });
+  });
+  return out;
+}
+function saveSeedWords(parsed, cb) {
+  if (!db) { if (cb) cb(); return; }
+  try {
+    var tx = db.transaction('words', 'readwrite');
+    tx.objectStore('words').put({ key: 'seed', promoted: parsed.promoted, general: parsed.general });
+    tx.oncomplete = function () { if (cb) cb(); };
+    tx.onerror = function () { if (cb) cb(); };
+  } catch (e) { if (cb) cb(); }
+}
+function loadStoredSeedWords() {
+  return new Promise(function (resolve) {
+    if (!db) { resolve(null); return; }
+    try {
+      var tx = db.transaction('words', 'readonly');
+      var req = tx.objectStore('words').get('seed');
+      req.onsuccess = function () { resolve(req.result || null); };
+      req.onerror = function () { resolve(null); };
+    } catch (e) { resolve(null); }
+  });
+}
+function mergeSeed(a, b) {
+  var seen = {};
+  var out = { promoted: [], general: [] };
+  [a, b].forEach(function (src) {
+    if (!src) return;
+    (src.promoted || []).forEach(function (w) { if (!seen['p' + w]) { seen['p' + w] = 1; out.promoted.push(w); } });
+    (src.general || []).forEach(function (w) { if (!seen['g' + w]) { seen['g' + w] = 1; out.general.push(w); } });
+  });
+  return out;
+}
+async function loadSeedWords() {
+  var fromServer = null;
+  try {
+    var res = await fetch('words.txt', { cache: 'no-store' });
+    if (res && res.ok) {
+      var txt = await res.text();
+      fromServer = parseWordsText(txt);
+    }
+  } catch (e) { fromServer = null; }
+  var fromDb = await loadStoredSeedWords();
+  seedWords = mergeSeed(fromServer, fromDb);
+}
+function randomLetter() { return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.charAt(Math.floor(Math.random() * 26)); }
+function stopWordTimer() {
+  if (wordGame.timerId) { clearInterval(wordGame.timerId); wordGame.timerId = null; }
+}
+function fmtClock(sec) {
+  sec = Math.max(0, Math.ceil(sec));
+  var m = Math.floor(sec / 60), s = sec % 60;
+  return m + ':' + (s < 10 ? '0' : '') + s;
+}
+function renderWordTop() {
+  var t = document.getElementById('words-timer');
+  t.textContent = fmtClock(wordGame.timeLeft);
+  t.classList.toggle('low', wordGame.timeLeft > 0 && wordGame.timeLeft <= 60);
+  document.getElementById('words-points').textContent = 'Points: ' + wordGame.points;
+}
+function playBeep() {
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    var ctx = new AC();
+    [0, 0.18].forEach(function (delay, i) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = i === 0 ? 880 : 660;
+      g.gain.value = 0.15;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + delay);
+      o.stop(ctx.currentTime + delay + 0.15);
+    });
+  } catch (e) {}
+}
+function tickWordTimer() {
+  if (wordGame.over) { stopWordTimer(); return; }
+  wordGame.timeLeft -= 1;
+  renderWordTop();
+  if (wordGame.timeLeft <= 0) {
+    stopWordTimer();
+    wordGame.timeUp = true;
+    playBeep();
+    showTimeUp();
+  }
+}
+function startWordTimer() {
+  stopWordTimer();
+  wordGame.timeLeft = Math.round(settingTimeMin() * 60);
+  wordGame.timeUp = false;
+  renderWordTop();
+  wordGame.timerId = setInterval(tickWordTimer, 1000);
+}
+function showTimeUp() {
+  var tu = document.getElementById('words-timeup');
+  tu.classList.add('open');
+  var btns = tu.querySelectorAll('button');
+  if (btns[1]) btns[1].disabled = wordGame.bonus < 10;
+  if (btns[2]) btns[2].disabled = wordGame.bonus < 20;
+  document.getElementById('words-status').textContent = 'Time\'s up! Finish, or buy a little more time.';
+}
+function hideTimeUp() { document.getElementById('words-timeup').classList.remove('open'); }
+function wordsBuyTime(mins) {
+  var cost = mins * 10;
+  if (wordGame.bonus < cost) return;
+  wordGame.bonus -= cost;
+  wordGame.timeLeft = mins * 60;
+  wordGame.timeUp = false;
+  hideTimeUp();
+  document.getElementById('words-status').textContent = 'Tap the first letter, then the last letter of a word.';
+  renderWordTop();
+  wordGame.timerId = setInterval(tickWordTimer, 1000);
+}
+function totalPoints() { try { var n = parseInt(localStorage.getItem('player_total_points'), 10); return isFinite(n) && n > 0 ? n : 0; } catch (e) { return 0; } }
+function addTotalPoints(n) { try { localStorage.setItem('player_total_points', String(totalPoints() + n)); } catch (e) {} }
+function showAwards(title, gamePts) {
+  stopWordTimer();
+  wordGame.over = true;
+  hideTimeUp();
+  var total = totalPoints();
+  document.getElementById('words-awards-title').textContent = title;
+  var txt = 'You scored ' + gamePts + ' points. Total: ' + total + ' points.';
+  if (total >= settingTarget()) txt += ' You reached your target of ' + settingTarget() + ' points!';
+  document.getElementById('words-awards-pts').textContent = txt;
+  document.getElementById('words-awards').classList.add('open');
+  document.getElementById('words-new-row').style.display = 'none';
+}
+function wordsNextPuzzle() {
+  document.getElementById('words-awards').classList.remove('open');
+  document.getElementById('words-new-row').style.display = '';
+  newWordPuzzle();
+}
+function wordsFinish() {
+  if (wordGame.over) return;
+  hideTimeUp();
+  var pts = wordGame.points;
+  addTotalPoints(pts);
+  renderWordTop();
+  showAwards('Good job!', pts);
+}
+function newWordPuzzle() {
+  stopWordTimer();
+  var size = wordGame.size;
+  // Pick the words: a promoted word when one is due (none in 3 games), or
+  // sometimes; then seed general words; then the built-in list.
+  var promoted = seedWords.promoted.slice();
+  var due = promoted.length > 0 && promotedSince() >= 3;
+  var includePromoted = due || (promoted.length > 0 && Math.random() < 0.34);
+  var chosen = [];
+  var usedPromoted = false;
+  if (includePromoted) {
+    var pw = promoted[Math.floor(Math.random() * promoted.length)];
+    if (pw && pw.length >= WORD_MIN_LEN && pw.length <= size) {
+      chosen.push(pw);
+      usedPromoted = true;
+    }
+  }
+  var generalPool = shuffleArr(seedWords.general.slice().concat(WORD_LIST.slice()));
+  for (var i = 0; i < generalPool.length && chosen.length < WORD_COUNT; i++) {
+    var w = generalPool[i];
+    if (w.length >= WORD_MIN_LEN && w.length <= size && chosen.indexOf(w) < 0) chosen.push(w);
+  }
+  setPromotedSince(usedPromoted ? 0 : promotedSince() + 1);
+  var grid = [];
+  for (var r = 0; r < size; r++) grid.push(new Array(size).fill(''));
+  var placed = [];
+  for (var w2 = 0; w2 < chosen.length; w2++) {
+    var word = chosen[w2];
+    var ok = false;
+    for (var attempt = 0; attempt < 200 && !ok; attempt++) {
+      var horizontal = Math.random() < 0.5;
+      var backward = Math.random() < 0.5;
+      var len = word.length;
+      var maxR = horizontal ? size - 1 : size - len;
+      var maxC = horizontal ? size - len : size - 1;
+      if (maxR < 0 || maxC < 0) break;
+      var r0 = Math.floor(Math.random() * (maxR + 1));
+      var c0 = Math.floor(Math.random() * (maxC + 1));
+      var fits = true;
+      for (var k = 0; k < len; k++) {
+        var rr = horizontal ? r0 : r0 + k;
+        var cc = horizontal ? c0 + k : c0;
+        if (grid[rr][cc] !== '') { fits = false; break; }
+      }
+      if (!fits) continue;
+      var letters = backward ? word.split('').reverse().join('') : word;
+      for (var k2 = 0; k2 < len; k2++) {
+        var rr2 = horizontal ? r0 : r0 + k2;
+        var cc2 = horizontal ? c0 + k2 : c0;
+        grid[rr2][cc2] = letters.charAt(k2);
+      }
+      placed.push({ word: word, r: r0, c: c0, horizontal: horizontal, backward: backward, len: len });
+      ok = true;
+    }
+  }
+  for (var r2 = 0; r2 < size; r2++) {
+    for (var c2 = 0; c2 < size; c2++) {
+      if (grid[r2][c2] === '') grid[r2][c2] = randomLetter();
+    }
+  }
+  wordGame.grid = grid;
+  wordGame.words = placed;
+  wordGame.found = {};
+  wordGame.foundCells = {};
+  wordGame.bonusCells = {};
+  wordGame.bonusWords = {};
+  wordGame.points = 0;
+  wordGame.bonus = 30;
+  wordGame.over = false;
+  wordGame.timeUp = false;
+  wordGame.selStart = null;
+  wordGame.selEnd = null;
+  wordGame.started = true;
+  document.getElementById('words-awards').classList.remove('open');
+  document.getElementById('words-new-row').style.display = '';
+  document.getElementById('words-bonus').textContent = '';
+  hideTimeUp();
+  renderWords();
+  startWordTimer();
+}
+function isWordSelected(r, c) {
+  var s = wordGame.selStart, e = wordGame.selEnd;
+  if (!s) return false;
+  if (!e) return (r === s.r && c === s.c);
+  if (s.r === e.r && r === s.r && c >= Math.min(s.c, e.c) && c <= Math.max(s.c, e.c)) return true;
+  if (s.c === e.c && c === s.c && r >= Math.min(s.r, e.r) && r <= Math.max(s.r, e.r)) return true;
+  return false;
+}
+function renderWords() {
+  var gridEl = document.getElementById('words-grid');
+  gridEl.innerHTML = '';
+  var size = wordGame.size;
+  for (var r = 0; r < size; r++) {
+    for (var c = 0; c < size; c++) {
+      (function (rr, cc) {
+        var b = document.createElement('button');
+        b.className = 'word-cell' + (wordGame.foundCells[rr + ',' + cc] ? ' found' : '') + (wordGame.bonusCells[rr + ',' + cc] ? ' bonus' : '') + (isWordSelected(rr, cc) ? ' selected' : '');
+        b.textContent = wordGame.grid[rr][cc];
+        // pointerdown (not click) so a press registers at once, even a hold.
+        b.addEventListener('pointerdown', function (ev) { ev.preventDefault(); onWordCell(rr, cc); });
+        b.addEventListener('click', function (ev) { ev.preventDefault(); });
+        gridEl.appendChild(b);
+      })(r, c);
+    }
+  }
+  var listEl = document.getElementById('words-list');
+  listEl.innerHTML = '';
+  wordGame.words.forEach(function (w) {
+    var sp = document.createElement('span');
+    sp.textContent = w.word;
+    if (wordGame.found[w.word]) sp.className = 'found';
+    listEl.appendChild(sp);
+  });
+  var nFound = wordGame.words.filter(function (w) { return wordGame.found[w.word]; }).length;
+  document.getElementById('words-status').textContent = 'Tap the first letter, then the last letter of a word. Found ' + nFound + ' of ' + wordGame.words.length + '.';
+  renderWordTop();
+}
+function onWordCell(r, c) {
+  if (wordGame.over || wordGame.timeUp) return;
+  if (!wordGame.selStart) { wordGame.selStart = { r: r, c: c }; wordGame.selEnd = null; renderWords(); return; }
+  var s = wordGame.selStart;
+  if (s.r === r && s.c === c) { wordGame.selStart = null; renderWords(); return; }
+  if (s.r !== r && s.c !== c) { wordGame.selStart = { r: r, c: c }; wordGame.selEnd = null; renderWords(); return; }
+  wordGame.selEnd = { r: r, c: c };
+  var letters = '';
+  var cells = [];
+  if (s.r === r) {
+    var c1 = Math.min(s.c, c), c2 = Math.max(s.c, c);
+    for (var cc = c1; cc <= c2; cc++) { letters += wordGame.grid[r][cc]; cells.push(r + ',' + cc); }
+  } else {
+    var r1 = Math.min(s.r, r), r2 = Math.max(s.r, r);
+    for (var rr = r1; rr <= r2; rr++) { letters += wordGame.grid[rr][c]; cells.push(rr + ',' + c); }
+  }
+  var rev = letters.split('').reverse().join('');
+  var match = null;
+  wordGame.words.forEach(function (w) {
+    if (!wordGame.found[w.word] && (w.word === letters || w.word === rev)) match = w;
+  });
+  wordGame.selStart = null;
+  wordGame.selEnd = null;
+  if (match) {
+    wordGame.found[match.word] = true;
+    wordGame.points += 10;
+    cells.forEach(function (key) { wordGame.foundCells[key] = true; });
+    document.getElementById('words-bonus').textContent = '';
+    var allFound = wordGame.words.every(function (w) { return wordGame.found[w.word]; });
+    if (allFound) {
+      wordGame.points += wordGame.bonus;
+      var pts = wordGame.points;
+      addTotalPoints(pts);
+      renderWords();
+      showAwards('You did it!', pts);
+      return;
+    }
+    renderWords();
+    return;
+  }
+  // Not a target word: a real word from the list still earns 1 point a letter.
+  var cand = (letters.length >= WORD_MIN_LEN) ? letters : '';
+  var candRev = (rev.length >= WORD_MIN_LEN) ? rev : '';
+  var bonusWord = null;
+  var all = allWordsSet();
+  if (cand && all[cand] && !wordGame.bonusWords[cand]) bonusWord = cand;
+  else if (candRev && all[candRev] && !wordGame.bonusWords[candRev]) bonusWord = candRev;
+  if (bonusWord) {
+    wordGame.bonusWords[bonusWord] = true;
+    wordGame.points += bonusWord.length;
+    cells.forEach(function (key) { wordGame.bonusCells[key] = true; });
+    document.getElementById('words-bonus').textContent = 'Bonus! +' + bonusWord.length + ' for ' + bonusWord + '.';
+  }
+  renderWords();
+}
+
+(async function init() {
+  setSizeIcon(false);
+  markSpeedBtns(savedSpeed());
+  applyThumbScale();
+  renderTopStrip();
+  // Open the database first: it holds the folder handle, the cached
+  // thumbnails, and the saved extra words, so it is needed even when the
+  // server list succeeds.
+  try { db = await openDb(); } catch (e) { db = null; }
+  try { await loadSeedWords(); } catch (e) {}
+  // First try the videos served by this server (no folder prompt needed).
+  var fromServer = false;
+  try { fromServer = await tryServerList(); } catch (e) { fromServer = false; }
+  if (fromServer) return;
+  // Otherwise fall back to the saved folder, then the choose screen.
+  if (db) {
+    storedHandle = await loadStoredHandle();
+    if (storedHandle) {
+      try {
+        var perm = await storedHandle.queryPermission({ mode: 'read' });
+        if (perm === 'granted') { dirHandle = storedHandle; await listVideos(); }
+      } catch (e) {}
+    }
+  }
+  if (!dirHandle) renderList();
+})();
+</script>
+</body>
+</html>
