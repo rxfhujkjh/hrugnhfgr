@@ -30,5 +30,21 @@
       "words": 0
     },
     "wordsPoints": 0
+  },
+  "2026-11-12": {
+    "am": true,
+    "pm": false,
+    "exercise": false,
+    "water": false,
+    "feet": false,
+    "visits": 0,
+    "videoSeconds": 0,
+    "videos": {},
+    "games": {
+      "make13": 0,
+      "pairs": 0,
+      "words": 0
+    },
+    "wordsPoints": 0
   }
 }
