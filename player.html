@@ -59,6 +59,10 @@
   .folder-row.current { border-color: #52a5e0; color: #52a5e0; }
   .folder-empty { color: #888; font-size: 15px; padding: 10px 4px; }
   .game-view { display: none; position: fixed; inset: 0; background: #121212; z-index: 20; flex-direction: column; padding: 16px; overflow: auto; }
+  /* Hidden Words fits on one screen: no scrolling, grid shrinks to fit. */
+  #game-words.open { display: flex; overflow: hidden; }
+  #game-words .word-grid { flex: 0 1 auto; min-height: 0; width: min(560px, 100%, calc(100vh - 470px)); width: min(560px, 100%, calc(100dvh - 470px)); margin: 0 auto; }
+  #game-words .word-list { flex: 0 0 auto; }
   .game-view.open { display: flex; }
   .game-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
   .game-head h1 { margin: 0; flex: 1; }
@@ -89,15 +93,37 @@
   /* v10: subtle square settings button */
   .settings-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 8px; width: 32px; height: 32px; font-size: 18px; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; touch-action: manipulation; }
   /* v10: video folder tiles look different from the action tiles */
-  .tile.video-folder { background: #14202e; border: 2px solid #52a5e0; }
+  .tile.video-folder { background: #14202e; border: 2px solid #52a5e0; position: relative; }
   .tile.video-folder .name { font-weight: 700; }
-  .tile.video-folder .vtag { display: block; font-size: 11px; letter-spacing: 2px; color: #52a5e0; margin-bottom: 2px; }
+  /* v12: VIDEO tag sits in the upper right corner, small but readable. */
+  /* v13: yellow and a little bigger (blue/yellow contrast, red-green colourblind). */
+  .tile.video-folder .vtag { position: absolute; top: 4px; right: 6px; font-size: 11px; letter-spacing: 1px; color: #ffd700; }
+  /* v12: Calendar — full month grid, today highlighted; day view with meds. */
+  #cal-view { display: none; }
+  #cal-view.open { display: block; }
+  .cal-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cal-head h2 { margin: 0; flex: 1; font-size: 22px; text-align: center; }
+  .cal-nav { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 8px; width: 40px; height: 40px; font-size: 20px; line-height: 1; cursor: pointer; flex-shrink: 0; touch-action: manipulation; }
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 640px; margin: 0 auto; width: 100%; }
+  .cal-dow { font-size: 15px; font-weight: 700; color: #888; text-align: center; padding: 4px 0; }
+  .cal-day { background: #1e1e1e; color: #eee; border: 1px solid #333; border-radius: 8px; aspect-ratio: 1; font-size: 20px; font-weight: 700; cursor: pointer; padding: 0; touch-action: manipulation; }
+  .cal-day.other { visibility: hidden; }
+  .cal-day.today { background: #52a5e0; border-color: #52a5e0; color: #fff; }
+  .cal-dayview { max-width: 640px; margin: 0 auto; }
+  .cal-dayview h2 { font-size: 22px; margin: 0 0 14px; }
+  .meds-row { display: flex; align-items: center; gap: 14px; background: #1e1e1e; border: 1px solid #333; border-radius: 12px; padding: 16px; margin-bottom: 12px; cursor: pointer; width: 100%; font-size: 20px; color: #eee; text-align: left; touch-action: manipulation; }
+  .meds-row .box { width: 32px; height: 32px; border: 2px solid #52a5e0; border-radius: 8px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; }
+  .meds-row.done .box { background: #2e7d5b; border-color: #2e7d5b; }
+  .meds-row.done .label { color: #2e7d5b; text-decoration: line-through; }
   /* v10: settings page */
   .set-row { margin-bottom: 18px; }
   .set-row label { display: block; font-size: 17px; margin-bottom: 6px; color: #eee; }
   .set-row .hint { font-size: 14px; color: #888; margin-top: 4px; }
   .set-row input[type=text], .set-row input[type=number] { width: 100%; max-width: 320px; background: #1e1e1e; border: 1px solid #555; color: #eee; border-radius: 10px; padding: 12px; font-size: 18px; }
   .set-row input[type=file] { font-size: 16px; color: #eee; }
+  /* v14: city search matches (same shape as the Index geo results). */
+  .geo-item { display: block; width: 100%; max-width: 320px; text-align: left; background: #1e1e1e; border: 1px solid #555; color: #eee; border-radius: 10px; padding: 12px; font-size: 17px; margin-top: 6px; cursor: pointer; }
+  .geo-sub { color: #888; font-size: 14px; }
   /* v10: calculator */
   .calc-display { background: #000; color: #eee; border: 1px solid #333; border-radius: 10px; font-size: 36px; text-align: right; padding: 14px 16px; margin: 0 auto 14px; max-width: 420px; min-height: 70px; overflow: hidden; word-break: break-all; }
   .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 420px; margin: 0 auto; width: 100%; }
@@ -108,17 +134,32 @@
   .words-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 560px; margin: 0 auto 10px; width: 100%; }
   .words-timer { font-size: 26px; font-weight: 700; color: #eee; }
   .words-timer.low { color: #e0a52a; }
-  .words-points { font-size: 20px; color: #52a5e0; font-weight: 700; }
+  .words-points { font-size: 20px; color: #52a5e0; font-weight: 700; text-align: right; }
+  .words-points .total { display: block; font-size: 16px; color: #aaa; font-weight: 400; }
+  .words-bonus-line { font-size: 15px; color: #e0a52a; text-align: center; margin: 0 auto 8px; max-width: 560px; }
+  .words-bonus-line .gone { color: #888; text-decoration: line-through; }
   .words-bonus { color: #9b7ede; font-size: 17px; font-weight: 700; text-align: center; margin: 8px 0 0; min-height: 22px; }
   .word-cell.bonus { background: #5b4a8a; border-color: #5b4a8a; color: #fff; }
-  .timeup { display: none; text-align: center; margin: 14px auto 0; max-width: 560px; }
+  .timeup { display: none; text-align: center; margin: 0 auto 10px; max-width: 560px; }
   .timeup.open { display: block; }
-  .timeup .t { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
-  .timeup .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .awards { display: none; text-align: center; margin: 20px auto 0; max-width: 560px; }
+  .timeup .t { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
+  .timeup .tu-sub { font-size: 16px; color: #aaa; margin-bottom: 10px; }
+  .timeup .tu-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .timeup .tu-btn { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 0; }
+  .timeup .tu-btn .tu-main { font-size: 17px; }
+  .timeup .tu-btn .tu-sub2 { font-size: 14px; font-weight: 400; opacity: .85; }
+  .timeup .tu-btn .tu-sub2 s { opacity: .7; }
+  .awards { display: none; text-align: center; margin: 0 auto 10px; max-width: 560px; }
   .awards.open { display: block; }
   .awards .big { font-size: 28px; font-weight: 700; color: #52a5e0; margin-bottom: 8px; }
+  .awards.open .big { animation: winpop .6s ease; }
   .awards .pts { font-size: 22px; margin-bottom: 16px; }
+  @keyframes winpop { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+  /* Confetti: colourful pieces falling from the top on a win. */
+  #confetti { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; display: none; }
+  #confetti.on { display: block; }
+  #confetti i { position: absolute; top: -16px; display: block; animation: cfall linear forwards; }
+  @keyframes cfall { to { transform: translateY(110vh) rotate(720deg); opacity: .9; } }
 </style>
 </head>
 <body>
@@ -130,7 +171,7 @@
   <div class="list-top">
     <div class="list-top-left">
       <button class="back-btn" id="back-btn" style="display:none" onclick="goBack()" aria-label="Back">&times;</button>
-      <h1>Player<span class="v-pill">v10</span></h1>
+      <h1>Player<span class="v-pill">v14</span></h1>
     </div>
     <div class="list-top-btns">
       <button class="scale-btn" id="scale-down" onclick="changeThumbScale(-0.25)" aria-label="Smaller thumbnails">&minus;</button>
@@ -143,6 +184,16 @@
     <button onclick="chooseFolder()">Choose folder</button>
   </div>
   <div class="tiles" id="tiles"></div>
+  <div id="cal-view">
+    <div class="cal-head">
+      <button class="back-btn" onclick="closeCalendar()" aria-label="Back">&times;</button>
+      <button class="cal-nav" onclick="calShift(-1)" aria-label="Previous month">&lsaquo;</button>
+      <h2 id="cal-title"></h2>
+      <button class="cal-nav" onclick="calShift(1)" aria-label="Next month">&rsaquo;</button>
+    </div>
+    <div id="cal-month"></div>
+    <div id="cal-day" class="cal-dayview" style="display:none"></div>
+  </div>
   <div class="sub" id="count"></div>
 </div>
 
@@ -187,25 +238,37 @@
     <div class="words-timer" id="words-timer"></div>
     <div class="words-points" id="words-points"></div>
   </div>
-  <div class="game-status" id="words-status">Tap the first letter, then the last letter of a word.</div>
-  <div class="word-grid" id="words-grid"></div>
-  <div class="word-list" id="words-list"></div>
-  <div class="words-bonus" id="words-bonus"></div>
-  <div class="timeup" id="words-timeup">
-    <div class="t">Time's up!</div>
-    <div class="row">
-      <button class="game-btn" onclick="wordsFinish()">Finish</button>
-      <button class="game-btn" onclick="wordsBuyTime(1)">+1 minute (10 pts)</button>
-      <button class="game-btn" onclick="wordsBuyTime(2)">+2 minutes (20 pts)</button>
-    </div>
-  </div>
+  <div class="words-bonus-line" id="words-bonus-line">Bonus +30 for all 7 words</div>
   <div class="awards" id="words-awards">
     <div class="big" id="words-awards-title">You did it!</div>
     <div class="pts" id="words-awards-pts"></div>
     <div class="game-btn-row"><button class="game-btn" onclick="wordsNextPuzzle()">Next puzzle</button></div>
   </div>
-  <div class="game-btn-row" id="words-new-row"><button class="game-btn" onclick="newWordPuzzle()">New puzzle</button></div>
+  <div class="timeup" id="words-timeup">
+    <div class="t">Time's up!</div>
+    <div class="tu-sub" id="words-timeup-sub"></div>
+    <div class="tu-row">
+      <button class="game-btn tu-btn" onclick="wordsFinish()">
+        <span class="tu-main">Finish</span>
+        <span class="tu-sub2" id="words-finish-sub"></span>
+      </button>
+      <button class="game-btn tu-btn" onclick="wordsBuyTime(1)">
+        <span class="tu-main">+1 minute</span>
+        <span class="tu-sub2" id="words-buy1-sub"></span>
+      </button>
+      <button class="game-btn tu-btn" onclick="wordsBuyTime(2)">
+        <span class="tu-main">+2 minutes</span>
+        <span class="tu-sub2" id="words-buy2-sub"></span>
+      </button>
+    </div>
+  </div>
+  <div class="game-status" id="words-status">Tap the first letter, then the last letter of a word.</div>
+  <div class="word-grid" id="words-grid"></div>
+  <div class="word-list" id="words-list"></div>
+  <div class="words-bonus" id="words-bonus"></div>
+  <div class="game-btn-row" id="words-new-row" style="display:none"><button class="game-btn" onclick="newWordPuzzle()">New puzzle</button></div>
 </div>
+<div id="confetti" aria-hidden="true"></div>
 
 <div class="game-view" id="calc-view">
   <div class="game-head">
@@ -224,7 +287,8 @@
   <div class="set-row">
     <label for="set-city">Weather city</label>
     <input type="text" id="set-city" placeholder="e.g. Chicago" autocomplete="off">
-    <div class="hint">The weather line shows this place. Tap Save after typing a city.</div>
+    <div id="set-city-results"></div>
+    <div class="hint">Type a city, press Enter, then tap a match. The weather line shows this place.</div>
   </div>
   <div class="set-row">
     <label for="set-target">Game completion target (points)</label>
@@ -237,11 +301,32 @@
     <div class="hint">How long the countdown starts with. Default 3. Enter any number.</div>
   </div>
   <div class="set-row">
+    <label for="set-word-min">Hidden Words: shortest word (letters)</label>
+    <input type="number" id="set-word-min" inputmode="numeric">
+    <div class="hint">Shortest word in a puzzle. Never below 4. Default 4.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-word-max">Hidden Words: longest word (letters)</label>
+    <input type="number" id="set-word-max" inputmode="numeric">
+    <div class="hint">Longest word in a puzzle. Default 10.</div>
+  </div>
+  <div class="set-row">
     <label for="set-words">Extra words file</label>
     <input type="file" id="set-words" accept=".txt,text/plain">
     <div class="hint" id="set-words-hint">Pick a text file of extra words. Sections: # PROMOTED for words to come up often, # WORDS for the rest. Words can be separated by spaces, commas, or new lines.</div>
   </div>
-  <div class="game-btn-row"><button class="game-btn" onclick="saveSettings()">Save</button></div>
+  <div class="set-row">
+    <label for="set-gh-repo">Medicine sharing: GitHub repo</label>
+    <input type="text" id="set-gh-repo" placeholder="e.g. rxfhujkjh/hrugnhfgr" autocomplete="off">
+    <div class="hint">The repo the medicine status is sent to, as owner/repo. Leave blank to keep it only on this tablet.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-gh-token">Medicine sharing: GitHub token</label>
+    <input type="text" id="set-gh-token" placeholder="GitHub access token" autocomplete="off">
+    <div class="hint">A token with Contents write access to that repo. It stays on this tablet only and is never put in the Player file.</div>
+  </div>
+  <!-- v14: Settings auto-save — no Save button. Every field saves itself
+       as it changes; the city search is the only place that uses Enter. -->
   <div class="game-status" id="set-status" style="text-align:center; margin-top: 10px;"></div>
 </div>
 
@@ -451,25 +536,41 @@ function pumpThumbQueue() {
   });
 }
 
-async function listVideos() {
-  videos = [];
-  folders = [];
-  folderStack = [];
-  serverMode = false;
-  currentFolder = '';
+// Read one picked folder (FileSystemDirectoryHandle): its video files and
+// its subdirectories (each kept with its handle so it can be opened).
+async function readHandle(handle) {
   var files = [];
+  var dirs = [];
   try {
-    for await (var entry of dirHandle.values()) {
+    for await (var entry of handle.values()) {
       if (entry.kind === 'file' && isVideo(entry.name)) {
         var f = await entry.getFile();
         files.push(f);
+      } else if (entry.kind === 'directory') {
+        dirs.push(entry);
       }
     }
   } catch (e) { console.error('Folder read error:', e); }
   files.sort(function (a, b) { return a.name.localeCompare(b.name); });
-  videos = files.map(function (f) {
-    return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified };
-  });
+  dirs.sort(function (a, b) { return a.name.localeCompare(b.name); });
+  return {
+    folders: dirs.map(function (d) {
+      return { name: cleanName(d.name), rawName: d.name, path: d.name, handle: d };
+    }),
+    videos: files.map(function (f) {
+      return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified };
+    })
+  };
+}
+
+async function listVideos() {
+  // Show the picked folder (dirHandle). Resets the navigation stack.
+  var res = await readHandle(dirHandle);
+  videos = res.videos;
+  folders = res.folders;
+  folderStack = [{ path: '', folders: folders, videos: videos, handle: dirHandle, serverMode: false }];
+  serverMode = false;
+  currentFolder = '';
   renderList();
 }
 
@@ -526,8 +627,9 @@ function setFolderView(entry, reset) {
   currentFolder = entry.path;
   serverMode = true;
   dirHandle = null;
-  if (reset) folderStack = [entry];
-  else folderStack.push(entry);
+  var view = { path: entry.path, folders: folders, videos: videos, handle: null, serverMode: true };
+  if (reset) folderStack = [view];
+  else folderStack.push(view);
   renderList();
 }
 
@@ -556,7 +658,22 @@ async function tryServerList() {
 
 // Open a subdirectory (from a folder tile). Navigation is transient: the
 // saved folder stays the top-level folder, so a reload returns to the tiles.
+// In picker mode the folder tile carries its directory handle; open it
+// directly. In server mode fetch the folder by path.
 async function openSubfolder(path) {
+  var f = null;
+  for (var i = 0; i < folders.length; i++) { if (folders[i].path === path) { f = folders[i]; break; } }
+  if (f && f.handle) {
+    var res = await readHandle(f.handle);
+    folderStack.push({ path: f.path, folders: res.folders, videos: res.videos, handle: f.handle, serverMode: false });
+    folders = res.folders;
+    videos = res.videos;
+    currentFolder = f.path;
+    serverMode = false;
+    dirHandle = f.handle;
+    renderList();
+    return;
+  }
   await loadServerFolder(path, false);
 }
 
@@ -568,8 +685,8 @@ function goBack() {
   folders = top.folders;
   videos = top.videos;
   currentFolder = top.path;
-  serverMode = true;
-  dirHandle = null;
+  serverMode = top.serverMode;
+  dirHandle = top.serverMode ? null : top.handle;
   renderList();
 }
 
@@ -638,28 +755,38 @@ async function switchFolder(path) {
 function renderList() {
   var tiles = document.getElementById('tiles');
   tiles.innerHTML = '';
-  // The Games and Calculator tiles are fixed, not server folders: first tiles at the top level.
-  if ((serverMode || dirHandle) && folderStack.length <= 1) {
+  // Fixed tiles are always there at the top level, even with no folder
+  // picked — the app does not depend on the folder.
+  var topLevel = folderStack.length <= 1;
+  // Order: Calendar, Games, video folders, videos, Calculator last.
+  if (topLevel) {
+    var caltile = document.createElement('button');
+    caltile.className = 'tile folder-tile';
+    caltile.innerHTML = '<div class="name"></div>';
+    caltile.querySelector('.name').textContent = 'Calendar';
+    caltile.onclick = function () { openCalendar(); };
+    tiles.appendChild(caltile);
     var gtile = document.createElement('button');
     gtile.className = 'tile folder-tile';
     gtile.innerHTML = '<div class="name"></div>';
     gtile.querySelector('.name').textContent = 'Games';
     gtile.onclick = function () { openGames(); };
     tiles.appendChild(gtile);
-    var ctile = document.createElement('button');
-    ctile.className = 'tile folder-tile';
-    ctile.innerHTML = '<div class="name"></div>';
-    ctile.querySelector('.name').textContent = 'Calculator';
-    ctile.onclick = function () { openCalc(); };
-    tiles.appendChild(ctile);
+  }
+  // No folder picked yet: a Choose folder tile sits where the videos go.
+  if (topLevel && !dirHandle && !serverMode) {
+    var chtile = document.createElement('button');
+    chtile.className = 'tile folder-tile';
+    chtile.innerHTML = '<div class="name"></div>';
+    chtile.querySelector('.name').textContent = 'Choose folder';
+    chtile.onclick = function () { chooseFolder(); };
+    tiles.appendChild(chtile);
   }
   folders.forEach(function (f) {
     var tile = document.createElement('button');
     tile.className = 'tile folder-tile video-folder';
-    tile.innerHTML = '<div class="name"></div>';
-    var nm = tile.querySelector('.name');
-    nm.innerHTML = '<span class="vtag">VIDEO</span>';
-    nm.appendChild(document.createTextNode(f.name));
+    tile.innerHTML = '<span class="vtag">VIDEO</span><div class="name"></div>';
+    tile.querySelector('.name').textContent = f.name;
     tile.onclick = function () { openSubfolder(f.path); };
     tiles.appendChild(tile);
   });
@@ -674,13 +801,23 @@ function renderList() {
     tile.onclick = function () { openPlayer(i); };
     tiles.appendChild(tile);
   });
+  // Calculator last, bottom right.
+  if (topLevel) {
+    var ctile = document.createElement('button');
+    ctile.className = 'tile folder-tile';
+    ctile.innerHTML = '<div class="name"></div>';
+    ctile.querySelector('.name').textContent = 'Calculator';
+    ctile.onclick = function () { openCalc(); };
+    tiles.appendChild(ctile);
+  }
   var parts = [];
   if (folders.length) parts.push(folders.length + (folders.length === 1 ? ' folder' : ' folders'));
   if (videos.length) parts.push(videos.length + (videos.length === 1 ? ' video' : ' videos'));
   document.getElementById('count').textContent = parts.length
     ? parts.join(' \u00b7 ')
     : (serverMode || dirHandle ? 'Nothing here.' : '');
-  document.getElementById('choose').style.display = (!folders.length && !videos.length && !dirHandle && !serverMode) ? 'block' : 'none';
+  // v12: the folder picker no longer blocks the app; it is a tile above.
+  document.getElementById('choose').style.display = 'none';
   document.getElementById('folder-btn').style.display = serverMode ? 'inline-flex' : 'none';
   document.getElementById('back-btn').style.display = (folderStack.length > 1) ? 'inline-flex' : 'none';
 }
@@ -852,6 +989,106 @@ function closeGames() {
   document.getElementById('games-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
 }
+// --- Calendar (v12): month grid, today highlighted; tap a day for its
+// medicine morning / medicine evening. Lives in the list view, so the
+// weather + day/date strip stays on top.
+var MEDS_KEY = 'player_meds';
+var calYear = 0, calMonth = 0, calDay = null; // calMonth 0-11
+var MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function calKey(y, m, d) { return y + '-' + String(m + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0'); }
+function medsAll() { try { return JSON.parse(localStorage.getItem(MEDS_KEY)) || {}; } catch (e) { return {}; } }
+function medsGet(key) { var all = medsAll(); return all[key] || { morning: false, evening: false }; }
+function medsSet(key, which, val) {
+  var all = medsAll();
+  var cur = all[key] || { morning: false, evening: false };
+  cur[which] = !!val;
+  all[key] = cur;
+  try { localStorage.setItem(MEDS_KEY, JSON.stringify(all)); } catch (e) {}
+}
+// v13: send the medicine status to GitHub so family can see it.
+// The repo (owner/repo) and token come from Settings, stored on this
+// tablet only — never in the Player file. If they are not set, the status
+// just stays on this tablet. Failures are silent: the checkbox still works.
+function b64utf8(s) { try { return btoa(unescape(encodeURIComponent(s))); } catch (e) { return btoa(s); } }
+async function syncMedsToGitHub() {
+  var repo = getVal(SET_GH_REPO, '').trim();
+  var token = getVal(SET_GH_TOKEN, '').trim();
+  if (!repo || !token || typeof fetch !== 'function') return;
+  var parts = repo.split('/');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return;
+  var url = 'https://api.github.com/repos/' + parts[0] + '/' + parts[1] + '/contents/' + MEDS_FILE;
+  var headers = { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
+  var sha = null;
+  try {
+    var cur = await fetch(url, { headers: headers });
+    if (cur && cur.ok) { var data = await cur.json(); sha = data && data.sha ? data.sha : null; }
+  } catch (e) { return; }
+  var body = { message: 'Medicine status update', content: b64utf8(JSON.stringify(medsAll(), null, 2)) };
+  if (sha) body.sha = sha;
+  try {
+    await fetch(url, { method: 'PUT', headers: Object.assign({ 'Content-Type': 'application/json' }, headers), body: JSON.stringify(body) });
+  } catch (e) {}
+}
+function openCalendar() {
+  var now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  calDay = null;
+  document.getElementById('tiles').style.display = 'none';
+  document.getElementById('count').style.display = 'none';
+  document.getElementById('cal-view').classList.add('open');
+  renderCalendar();
+}
+function closeCalendar() {
+  document.getElementById('cal-view').classList.remove('open');
+  document.getElementById('tiles').style.display = '';
+  document.getElementById('count').style.display = '';
+}
+function calShift(delta) {
+  calMonth += delta;
+  if (calMonth < 0) { calMonth = 11; calYear -= 1; }
+  if (calMonth > 11) { calMonth = 0; calYear += 1; }
+  renderCalendar();
+}
+function renderCalendar() {
+  document.getElementById('cal-day').style.display = 'none';
+  document.getElementById('cal-month').style.display = '';
+  document.getElementById('cal-title').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
+  var now = new Date();
+  var isThisMonth = now.getFullYear() === calYear && now.getMonth() === calMonth;
+  var first = new Date(calYear, calMonth, 1).getDay();
+  var days = new Date(calYear, calMonth + 1, 0).getDate();
+  var html = '<div class="cal-grid">';
+  ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(function (d) { html += '<div class="cal-dow">' + d + '</div>'; });
+  for (var i = 0; i < first; i++) html += '<button class="cal-day other" tabindex="-1" aria-hidden="true"></button>';
+  for (var d = 1; d <= days; d++) {
+    var cls = 'cal-day' + (isThisMonth && d === now.getDate() ? ' today' : '');
+    html += '<button class="' + cls + '" onclick="openCalDay(' + d + ')">' + d + '</button>';
+  }
+  html += '</div>';
+  document.getElementById('cal-month').innerHTML = html;
+}
+function openCalDay(d) {
+  calDay = d;
+  var key = calKey(calYear, calMonth, d);
+  var wd = new Date(calYear, calMonth, d);
+  var dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][wd.getDay()];
+  var m = medsGet(key);
+  document.getElementById('cal-month').style.display = 'none';
+  var dv = document.getElementById('cal-day');
+  dv.style.display = '';
+  dv.innerHTML = '<h2>' + dayName + ', ' + MONTH_NAMES[calMonth] + ' ' + d + '</h2>'
+    + '<button class="meds-row' + (m.morning ? ' done' : '') + '" onclick="toggleMed(\'' + key + '\', \'morning\')"><span class="box">' + (m.morning ? '\u2713' : '') + '</span><span class="label">Medicine morning</span></button>'
+    + '<button class="meds-row' + (m.evening ? ' done' : '') + '" onclick="toggleMed(\'' + key + '\', \'evening\')"><span class="box">' + (m.evening ? '\u2713' : '') + '</span><span class="label">Medicine evening</span></button>'
+    + '<div class="game-btn-row"><button class="game-btn" onclick="closeCalDay()">Back to calendar</button></div>';
+}
+function closeCalDay() { renderCalendar(); }
+function toggleMed(key, which) {
+  var cur = medsGet(key);
+  medsSet(key, which, !cur[which]);
+  syncMedsToGitHub();
+  openCalDay(calDay);
+}
 function openGame(which) {
   document.getElementById('games-view').classList.remove('open');
   if (which === 'make13') {
@@ -880,23 +1117,36 @@ function resumeWordTimer() {
 }
 
 // --- Calculator (simple, big buttons) ---
-var calc = { cur: '0', prev: null, op: null, fresh: true };
-function calcRender() { document.getElementById('calc-display').textContent = calc.cur; }
+// v13: the display shows the whole calculation as it is built
+// ("2 × 3 = 6") and keeps it there until cleared.
+var calc = { cur: '0', prev: null, op: null, fresh: true, expr: '0', afterEq: false };
+function opSym(op) { return op === '*' ? '×' : (op === '/' ? '÷' : op); }
+function calcRender() { document.getElementById('calc-display').textContent = calc.expr; }
 function calcDigit(d) {
-  if (calc.fresh) { calc.cur = d; calc.fresh = false; }
-  else if (calc.cur.replace('-', '').replace('.', '').length < 12) { calc.cur = (calc.cur === '0' ? d : calc.cur + d); }
+  if (calc.afterEq) { calc.cur = d; calc.expr = d; calc.prev = null; calc.op = null; calc.afterEq = false; calc.fresh = false; }
+  else if (calc.fresh) { calc.cur = d; calc.expr = (calc.expr === '0') ? d : calc.expr + ' ' + d; calc.fresh = false; }
+  else if (calc.cur.replace('-', '').replace('.', '').length < 12) {
+    var old = calc.cur;
+    calc.cur = (calc.cur === '0' ? d : calc.cur + d);
+    if (calc.expr.endsWith(old)) calc.expr = calc.expr.slice(0, calc.expr.length - old.length) + calc.cur;
+    else calc.expr = calc.cur;
+  }
   calcRender();
 }
 function calcDot() {
-  if (calc.fresh) { calc.cur = '0.'; calc.fresh = false; }
-  else if (calc.cur.indexOf('.') < 0) calc.cur += '.';
+  if (calc.afterEq) { calc.cur = '0.'; calc.expr = '0.'; calc.prev = null; calc.op = null; calc.afterEq = false; calc.fresh = false; }
+  else if (calc.fresh) { calc.cur = '0.'; calc.expr = (calc.expr === '0') ? '0.' : calc.expr + ' 0.'; calc.fresh = false; }
+  else if (calc.cur.indexOf('.') < 0) { calc.cur += '.'; calc.expr += '.'; }
   calcRender();
 }
 function calcOp(op) {
   calcApply();
   calc.prev = parseFloat(calc.cur);
   calc.op = op;
+  calc.expr = calc.cur + ' ' + opSym(op);
   calc.fresh = true;
+  calc.afterEq = false;
+  calcRender();
 }
 function calcApply() {
   if (calc.op == null || calc.prev == null) return;
@@ -908,8 +1158,14 @@ function calcApply() {
   calc.cur = isFinite(r) ? String(Math.round(r * 1e10) / 1e10) : '0';
   calc.prev = null; calc.op = null; calc.fresh = true;
 }
-function calcClear() { calc.cur = '0'; calc.prev = null; calc.op = null; calc.fresh = true; calcRender(); }
-function calcEquals() { calcApply(); calcRender(); }
+function calcClear() { calc.cur = '0'; calc.prev = null; calc.op = null; calc.fresh = true; calc.expr = '0'; calc.afterEq = false; calcRender(); }
+function calcEquals() {
+  if (calc.op == null || calc.prev == null) { calcRender(); return; }
+  calcApply();
+  calc.expr = calc.expr + ' = ' + calc.cur;
+  calc.afterEq = true;
+  calcRender();
+}
 function buildCalc() {
   var grid = document.getElementById('calc-grid');
   if (grid.childElementCount) return;
@@ -952,18 +1208,30 @@ function closeCalc() {
 // --- Settings (sticky in localStorage; words file in IndexedDB) ---
 var SET_CITY = 'player_city', SET_CITY_LAT = 'player_city_lat', SET_CITY_LON = 'player_city_lon';
 var SET_TARGET = 'player_target', SET_TIME = 'player_time';
+var SET_GH_REPO = 'player_gh_repo', SET_GH_TOKEN = 'player_gh_token';
+var SET_WORD_MIN = 'player_word_min', SET_WORD_MAX = 'player_word_max';
+var MEDS_FILE = 'meds-status.json';
 var DEF_TARGET = 300, DEF_TIME_MIN = 3, DEF_CITY = 'Chicago';
+var DEF_WORD_MIN = 4, DEF_WORD_MAX = 10;
 function setVal(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
 function getVal(k, def) { try { var v = localStorage.getItem(k); return (v == null || v === '') ? def : v; } catch (e) { return def; } }
 function settingTarget() { var n = parseInt(getVal(SET_TARGET, DEF_TARGET), 10); return (isFinite(n) && n > 0) ? n : DEF_TARGET; }
 function settingTimeMin() { var n = parseFloat(getVal(SET_TIME, DEF_TIME_MIN)); return (isFinite(n) && n > 0) ? n : DEF_TIME_MIN; }
 function settingCity() { return getVal(SET_CITY, DEF_CITY); }
+// v14: word length range. Min never below 4, max never above 10.
+function settingWordMin() { var n = parseInt(getVal(SET_WORD_MIN, DEF_WORD_MIN), 10); if (!isFinite(n)) return DEF_WORD_MIN; return Math.max(4, Math.min(10, n)); }
+function settingWordMax() { var n = parseInt(getVal(SET_WORD_MAX, DEF_WORD_MAX), 10); if (!isFinite(n)) return DEF_WORD_MAX; return Math.max(4, Math.min(10, n)); }
 function settingCityLat() { var n = parseFloat(getVal(SET_CITY_LAT, '')); return isFinite(n) ? n : null; }
 function settingCityLon() { var n = parseFloat(getVal(SET_CITY_LON, '')); return isFinite(n) ? n : null; }
 function openSettings() {
   document.getElementById('set-city').value = settingCity();
   document.getElementById('set-target').value = settingTarget();
   document.getElementById('set-time').value = settingTimeMin();
+  document.getElementById('set-word-min').value = settingWordMin();
+  document.getElementById('set-word-max').value = settingWordMax();
+  document.getElementById('set-gh-repo').value = getVal(SET_GH_REPO, '');
+  document.getElementById('set-gh-token').value = getVal(SET_GH_TOKEN, '');
+  document.getElementById('set-city-results').innerHTML = '';
   document.getElementById('set-status').textContent = '';
   document.getElementById('list-view').style.display = 'none';
   document.getElementById('settings-view').classList.add('open');
@@ -972,20 +1240,78 @@ function closeSettings() {
   document.getElementById('settings-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
 }
-function saveSettings() {
-  var city = document.getElementById('set-city').value.trim();
-  var target = parseInt(document.getElementById('set-target').value, 10);
-  var mins = parseFloat(document.getElementById('set-time').value);
-  var oldCity = getVal(SET_CITY, '');
-  if (city) setVal(SET_CITY, city);
-  if (isFinite(target) && target > 0) setVal(SET_TARGET, target);
-  if (isFinite(mins) && mins > 0) setVal(SET_TIME, mins);
-  // A changed city needs fresh coordinates, not the old city's.
-  if (city && city.toLowerCase() !== oldCity.toLowerCase()) {
-    try { localStorage.removeItem(SET_CITY_LAT); localStorage.removeItem(SET_CITY_LON); } catch (e) {}
+// v14: Settings auto-save — every field saves itself as it changes, so
+// there is no Save button. The city search is the only place that uses
+// Enter (it triggers the search; tapping a match saves the city).
+function setSaved() { var el = document.getElementById('set-status'); if (el) el.textContent = 'Saved.'; }
+function escapeHtml(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function citySearch() {
+  var q = document.getElementById('set-city').value.trim();
+  var box = document.getElementById('set-city-results');
+  if (!q) { box.innerHTML = ''; return; }
+  if (typeof fetch !== 'function') return;
+  box.innerHTML = '<div class="geo-sub" style="padding:6px 10px;">Searching…</div>';
+  fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(q) + '&count=5&language=en&format=json')
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) {
+      box.innerHTML = '';
+      var res = d && d.results;
+      if (!res || !res.length) { box.innerHTML = '<div class="geo-sub" style="padding:6px 10px;">No matches.</div>'; return; }
+      res.forEach(function (r) {
+        var item = document.createElement('button');
+        item.className = 'geo-item';
+        var sub = [r.admin1, r.country].filter(Boolean).join(', ');
+        item.innerHTML = escapeHtml(r.name) + (sub ? ' <span class="geo-sub">' + escapeHtml(sub) + '</span>' : '');
+        item.onclick = function () {
+          setVal(SET_CITY, r.name);
+          setVal(SET_CITY_LAT, r.latitude);
+          setVal(SET_CITY_LON, r.longitude);
+          document.getElementById('set-city').value = r.name;
+          box.innerHTML = '';
+          setSaved();
+          renderTopStrip();
+        };
+        box.appendChild(item);
+      });
+    })
+    .catch(function () { box.innerHTML = '<div class="geo-sub" style="padding:6px 10px;">Search failed.</div>'; });
+}
+// Auto-save wiring, attached once when the page loads.
+function wireSettingsAutosave() {
+  var city = document.getElementById('set-city');
+  if (city) city.addEventListener('keydown', function (ev) { if (ev.key === 'Enter') { ev.preventDefault(); citySearch(); } });
+  function numField(id, save) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function () { save(el.value); });
   }
-  document.getElementById('set-status').textContent = 'Saved.';
-  geocodeCity(city || settingCity(), function () { renderTopStrip(); });
+  numField('set-target', function (v) { var n = parseInt(v, 10); if (isFinite(n) && n > 0) { setVal(SET_TARGET, n); setSaved(); } });
+  numField('set-time', function (v) { var n = parseFloat(v); if (isFinite(n) && n > 0) { setVal(SET_TIME, n); setSaved(); } });
+  numField('set-word-min', function (v) {
+    var n = parseInt(v, 10);
+    if (!isFinite(n)) return;
+    n = Math.max(4, Math.min(10, n));
+    setVal(SET_WORD_MIN, n);
+    // Keep the range valid: min above max lifts the max up to it.
+    if (n > settingWordMax()) { setVal(SET_WORD_MAX, n); document.getElementById('set-word-max').value = n; }
+    setSaved();
+  });
+  numField('set-word-max', function (v) {
+    var n = parseInt(v, 10);
+    if (!isFinite(n)) return;
+    n = Math.max(4, Math.min(10, n));
+    setVal(SET_WORD_MAX, n);
+    // Keep the range valid: max below min pulls the min down to it.
+    if (n < settingWordMin()) { setVal(SET_WORD_MIN, n); document.getElementById('set-word-min').value = n; }
+    setSaved();
+  });
+  function textField(id, key) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', function () { setVal(key, el.value.trim()); setSaved(); });
+  }
+  textField('set-gh-repo', SET_GH_REPO);
+  textField('set-gh-token', SET_GH_TOKEN);
 }
 document.getElementById('set-words').addEventListener('change', function (ev) {
   var f = ev.target.files && ev.target.files[0];
@@ -1209,7 +1535,7 @@ function afterGridMove(which) {
 var WORD_LIST = ['GOSPEL', 'MUSIC', 'FAITH', 'HOPE', 'LOVE', 'PEACE', 'SING', 'SONG', 'PIANO', 'CHURCH', 'PRAYER', 'ANGEL', 'FAMILY', 'FRIEND', 'HAPPY', 'SMILE', 'FLOWER', 'GARDEN', 'SUNSHINE', 'RIVER', 'OCEAN', 'MOUNTAIN', 'SPRING', 'SUMMER', 'AUTUMN', 'WINTER', 'APPLE', 'BANANA', 'ORANGE', 'BREAD', 'COFFEE', 'BOOK', 'STORY', 'DREAM', 'STAR', 'MOON', 'RAIN', 'SNOW', 'BIRD', 'TREE', 'HOME', 'HOUSE', 'TABLE', 'CHAIR', 'WINDOW', 'ROAD', 'TRAIN', 'PLANE', 'SHIP', 'FISH', 'CAKE', 'HONEY', 'MILK', 'SOUP', 'SALAD', 'PASTA', 'PIZZA', 'CHEESE', 'BUTTER', 'CORN', 'BEAN', 'RICE', 'PLUM', 'PEAR', 'MELON', 'LEMON', 'GRAPE', 'PEACH', 'CHERRY', 'BERRY', 'MANGO', 'LAUGH', 'DANCE', 'HEART', 'LIGHT', 'GRACE', 'BLESS', 'PSALM', 'HYMN', 'CHOIR', 'ORGAN', 'VIOLIN', 'GUITAR', 'TRUMPET', 'DRUM', 'BELL', 'CANDLE', 'CROSS', 'CROWN', 'CLOUD', 'STORM', 'BREEZE', 'MEADOW', 'FOREST', 'VALLEY', 'DESERT', 'ISLAND', 'BEACH', 'WAVES', 'SUNSET', 'SUNRISE', 'MORNING', 'EVENING', 'THUNDER', 'RAINBOW', 'LEAF', 'BLOOM', 'PETAL', 'ROSE', 'TULIP', 'DAISY', 'LILY', 'VIOLET', 'ORCHID', 'JASMINE', 'LAVENDER', 'HERB', 'MINT', 'BASIL', 'SAGE', 'THYME', 'ROSEMARY', 'GINGER', 'CINNAMON', 'VANILLA', 'COCOA', 'SUGAR', 'SALT', 'PEPPER', 'ONION', 'GARLIC', 'POTATO', 'CARROT', 'TOMATO', 'LETTUCE', 'CABBAGE', 'CELERY', 'SPINACH', 'BROCCOLI', 'CUCUMBER', 'ZUCCHINI', 'EGGPLANT', 'AVOCADO', 'COCONUT', 'PINEAPPLE', 'STRAWBERRY', 'BLUEBERRY', 'RASPBERRY', 'BLACKBERRY', 'WATERMELON', 'CANTALOUPE', 'APRICOT', 'NECTARINE', 'KIWI', 'PAPAYA', 'GUAVA', 'LYCHEE', 'DATE', 'OLIVE', 'ALMOND', 'WALNUT', 'PECAN', 'CASHEW', 'PEANUT', 'HAZELNUT', 'CHESTNUT', 'PISTACHIO', 'SESAME', 'POPCORN', 'PRETZEL', 'MUFFIN', 'BAGEL', 'DONUT', 'COOKIE', 'BROWNIE', 'CUPCAKE', 'PANCAKE', 'WAFFLE', 'SYRUP', 'JELLY', 'MAPLE', 'CREAM', 'YOGURT', 'CEREAL', 'OATMEAL', 'GRANOLA', 'TOAST', 'SANDWICH', 'BURGER', 'HOTDOG', 'TACOS', 'BURRITO', 'LASAGNA', 'SPAGHETTI', 'MACARONI', 'RAVIOLI', 'RISOTTO', 'PAELLA', 'CURRY', 'STEW', 'ROAST', 'GRILL', 'BAKED', 'FRIED', 'SAUCE', 'GRAVY', 'DRESSING', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELISH', 'PICKLE', 'CAPER', 'ANCHOVY', 'SARDINE', 'SALMON', 'TUNA', 'TROUT', 'BASS', 'PERCH', 'CATFISH', 'SHRIMP', 'CRAB', 'LOBSTER', 'OYSTER', 'MUSSEL', 'CLAM', 'SCALLOP', 'SQUID', 'OCTOPUS', 'WHALE', 'DOLPHIN', 'SHARK', 'SEAL', 'OTTER', 'BEAVER', 'RACCOON', 'SQUIRREL', 'CHIPMUNK', 'RABBIT', 'HARE', 'DEER', 'MOOSE', 'BISON', 'BUFFALO', 'HORSE', 'PONY', 'DONKEY', 'MULE', 'GOAT', 'SHEEP', 'LAMB', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'PIGEON', 'SPARROW', 'ROBIN', 'BLUEJAY', 'CARDINAL', 'FINCH', 'WREN', 'EAGLE', 'HAWK', 'FALCON', 'RAVEN', 'CROW', 'DOVE', 'SWAN', 'HERON', 'STORK', 'CRANE', 'FLAMINGO', 'PELICAN', 'PENGUIN', 'OSTRICH', 'PEACOCK', 'PARROT', 'CANARY', 'COCKATOO', 'MACAW', 'TOUCAN', 'BUTTERFLY', 'MOTH', 'WASP', 'SPIDER', 'LADYBUG', 'FIREFLY', 'DRAGONFLY', 'CICADA', 'CRICKET', 'BEETLE', 'SNAIL', 'SLUG', 'WORM', 'FROG', 'TOAD', 'LIZARD', 'SNAKE', 'TURTLE', 'TORTOISE', 'CROCODILE', 'ALLIGATOR', 'CHAMELEON', 'GECKO', 'IGUANA', 'PYTHON', 'COBRA', 'VIPER', 'ANACONDA', 'JAGUAR', 'LEOPARD', 'CHEETAH', 'LION', 'TIGER', 'PANTHER', 'PUMA', 'COUGAR', 'LYNX', 'BOBCAT', 'OCELOT', 'WOLF', 'COYOTE', 'HYENA', 'JACKAL', 'MEERKAT', 'MONKEY', 'GORILLA', 'CHIMP', 'BABOON', 'LEMUR', 'KOALA', 'PANDA', 'KANGAROO', 'WALLABY', 'WOMBAT', 'PLATYPUS', 'HEDGEHOG', 'PORCUPINE', 'ARMADILLO', 'ANTEATER', 'SLOTH', 'BADGER', 'WEASEL', 'FERRET', 'MINK', 'SKUNK', 'OPOSSUM', 'MOLE', 'VOLE', 'SHREW', 'MOUSE', 'HAMSTER', 'GERBIL', 'GUINEA', 'CAPYBARA', 'MOTHER', 'FATHER', 'SISTER', 'BROTHER', 'GRANDMA', 'GRANDPA', 'GRANNY', 'AUNTIE', 'UNCLE', 'COUSIN', 'NEPHEW', 'NIECE', 'BABY', 'CHILD', 'TEEN', 'ADULT', 'ELDER', 'NEIGHBOR', 'TEACHER', 'DOCTOR', 'NURSE', 'COOK', 'BAKER', 'FARMER', 'DRIVER', 'PILOT', 'SAILOR', 'SOLDIER', 'ARTIST', 'SINGER', 'DANCER', 'ACTOR', 'WRITER', 'POET', 'PAINTER', 'MUSICIAN', 'COMPOSER', 'CONDUCTOR', 'PIANIST', 'DRUMMER', 'CELLIST', 'FLUTIST', 'HARP', 'BANJO', 'MANDOLIN', 'ACCORDION', 'HARMONICA', 'SAXOPHONE', 'CLARINET', 'OBOE', 'BASSOON', 'TUBA', 'HORN', 'CORNET', 'TROMBONE', 'MARIMBA', 'XYLOPHONE', 'TAMBOURINE', 'BAGPIPE', 'UKULELE', 'SITAR', 'LUTE', 'LYRE', 'ZITHER', 'MELODY', 'HARMONY', 'RHYTHM', 'TEMPO', 'BEAT', 'TUNE', 'ANTHEM', 'BALLAD', 'CAROL', 'VERSE', 'STANZA', 'REFRAIN', 'CHORUS', 'BRIDGE', 'INTRO', 'OUTRO', 'CODA', 'FINALE', 'OVERTURE', 'PRELUDE', 'NOCTURNE', 'SERENADE', 'CONCERTO', 'SYMPHONY', 'SONATA', 'SUITE', 'FUGUE', 'CANON', 'RONDO', 'MINUET', 'GAVOTTE', 'WALTZ', 'TANGO', 'FOXTROT', 'RUMBA', 'SAMBA', 'MAMBO', 'SALSA', 'SWING', 'JAZZ', 'BLUES', 'ROCK', 'FOLK', 'COUNTRY', 'SPIRITUAL', 'MOTET', 'MASS', 'REQUIEM', 'ORATORIO', 'OPERA', 'OPERETTA', 'MUSICAL', 'BALLET', 'REVUE', 'CABARET', 'PANTOMIME', 'COMEDY', 'TRAGEDY', 'DRAMA', 'SATIRE', 'PARODY', 'IRONY', 'HUMOR', 'JEST', 'PRANK', 'TRICK', 'JOKE', 'RIDDLE', 'PUZZLE', 'MAZE', 'GAME', 'PLAY', 'DOLL', 'KITE', 'BALL', 'MITT', 'GLOVE', 'HELMET', 'JERSEY', 'UNIFORM', 'CLEAT', 'SPIKE', 'RACKET', 'PADDLE', 'CLUB', 'IRON', 'WEDGE', 'PUTTER', 'CADDIE', 'BIRDIE', 'BOGEY', 'HOLE', 'GREEN', 'FAIRWAY', 'ROUGH', 'BUNKER', 'HAZARD', 'WATER', 'SAND', 'TRAP', 'FLAG', 'MARKER', 'DIVOT', 'STANCE', 'GRIP', 'STROKE', 'PUTT', 'CHIP', 'PITCH', 'DRIVE', 'LAYUP', 'DUNK', 'HOOP', 'COURT', 'FIELD', 'DIAMOND', 'MOUND', 'PLATE', 'BASE', 'BATTER', 'PITCHER', 'CATCHER', 'INFIELD', 'OUTFIELD', 'DUGOUT', 'BULLPEN', 'BLEACHER', 'STAND', 'CROWD', 'CHEER', 'WAVE', 'CLAP', 'STOMP', 'WHISTLE', 'SIREN', 'ALARM', 'CLOCK', 'WATCH', 'TIMER', 'CHIME', 'GONG', 'CYMBAL', 'TRIANGLE', 'MARACA', 'CLAVE', 'GUIRO', 'SHAKER', 'KALIMBA', 'MBIRA', 'CONGA', 'BONGO', 'DJEMBE', 'TABLA', 'FRAME', 'PERCUSSION', 'SECTION', 'ENSEMBLE', 'ORCHESTRA', 'BAND', 'QUARTET', 'QUINTET', 'TRIO', 'SOLO', 'DUET', 'OCTET', 'SEPTET', 'SEXTET', 'NONET', 'CHAMBER', 'CONCERT', 'RECITAL', 'SHOW', 'STAGE', 'CURTAIN', 'SPOTLIGHT', 'BACKSTAGE', 'REHEARSAL', 'AUDITION', 'CAST', 'CREW', 'DIRECTOR', 'PRODUCER', 'MANAGER', 'AGENT', 'PROMOTER', 'VENUE', 'ARENA', 'STADIUM', 'THEATER', 'HALL', 'PAVILION', 'GAZEBO', 'PERGOLA', 'ARBOR', 'TRELLIS', 'FENCE', 'GATE', 'WALL', 'ARCH', 'DOME', 'TOWER', 'SPIRE', 'STEEPLE', 'BELFRY', 'CUPOLA', 'ROTUNDA', 'ATRIUM', 'LOBBY', 'FOYER', 'CORRIDOR', 'HALLWAY', 'STAIR', 'ELEVATOR', 'RAMP', 'LANDING', 'BALCONY', 'TERRACE', 'PORCH', 'DECK', 'PATIO', 'YARD', 'LAWN', 'PATH', 'WALK', 'TRAIL', 'STREET', 'AVENUE', 'LANE', 'ALLEY', 'PLAZA', 'SQUARE', 'CIRCLE', 'CURB', 'GUTTER', 'DRAIN', 'SEWER', 'PIPE', 'VALVE', 'FAUCET', 'SHOWER', 'BASIN', 'SINK', 'MIRROR', 'TOWEL', 'SOAP', 'SHAMPOO', 'TOOTHPASTE', 'FLOSS', 'RAZOR', 'COMB', 'BRUSH', 'SCISSORS', 'NAIL', 'CLIPPER', 'FILE', 'TWEEZER', 'COTTON', 'BANDAGE', 'OINTMENT', 'PILL', 'TABLET', 'CAPSULE', 'DROPS', 'SPRAY', 'LOTION', 'POWDER', 'PERFUME', 'COLOGNE', 'LIPSTICK', 'MASCARA', 'EYELINER', 'BLUSH', 'PRIMER', 'SETTING', 'MIST', 'TONER', 'SERUM', 'ESSENCE', 'AMPOULE', 'MASK', 'PEEL', 'SCRUB', 'CLEANSER', 'WASH', 'RINSE', 'TREATMENT', 'THERAPY', 'MASSAGE', 'SAUNA', 'STEAM', 'BATH', 'SOAK', 'SWIM', 'DIVE', 'FLOAT', 'SPLASH', 'DRIP', 'DROP', 'POUR', 'SPILL', 'LEAK', 'FLOW', 'STREAM', 'BROOK', 'CREEK', 'POND', 'LAKE', 'POOL', 'COVE', 'INLET', 'OUTLET', 'HARBOR', 'PORT', 'DOCK', 'PIER', 'WHARF', 'QUAY', 'JETTY', 'LIGHTHOUSE', 'BEACON', 'BUOY', 'ANCHOR', 'CHAIN', 'ROPE', 'CABLE', 'KNOT', 'LOOP', 'HOOK', 'SPLICE', 'BINDING', 'WRAPPING', 'PACKING', 'CRATE', 'CARTON', 'CASE', 'CHEST', 'TRUNK', 'SUITCASE', 'POUCH', 'POCKET', 'WALLET', 'PURSE', 'HANDBAG', 'BACKPACK', 'SATCHEL', 'TOTE', 'DUFFEL', 'LUGGAGE', 'BAGGAGE', 'TICKET', 'BOARDING', 'PASSPORT', 'VISA', 'CUSTOMS', 'SECURITY', 'SCREENING', 'SCANNER', 'XRAY', 'METAL', 'DETECTOR', 'CONVEYOR', 'BELT', 'CAROUSEL', 'CLAIM', 'LOST', 'FOUND', 'OFFICE', 'DESK', 'COUNTER', 'DOOR', 'TERMINAL', 'CONCOURSE', 'HANGAR', 'RUNWAY', 'TAXIWAY', 'APRON', 'TARMAC', 'CONTROL', 'RADAR', 'NAVIGATION', 'COMPASS', 'CHART', 'ATLAS', 'GLOBE', 'SPHERE', 'ORBIT', 'AXIS', 'POLE', 'EQUATOR', 'MERIDIAN', 'PARALLEL', 'LATITUDE', 'LONGITUDE', 'TROPIC', 'ARCTIC', 'TEMPERATE', 'TROPICAL', 'POLAR', 'CLIMATE', 'WEATHER', 'SEASON', 'MONSOON', 'HURRICANE', 'TYPHOON', 'CYCLONE', 'TORNADO', 'TWISTER', 'FUNNEL', 'VORTEX', 'EDDY', 'CURRENT', 'TIDE', 'SURF', 'SWELL', 'RIPPLE', 'FOAM', 'HAZE', 'SMOG', 'DUST', 'SILT', 'CLAY', 'SOIL', 'LOAM', 'PEAT', 'HUMUS', 'COMPOST', 'MULCH', 'MANURE', 'SPROUT', 'SEEDLING', 'SAPLING', 'SHRUB', 'BUSH', 'HEDGE', 'VINE', 'MOSS', 'FERN', 'PALM', 'PINE', 'SPRUCE', 'CEDAR', 'BIRCH', 'ASPEN', 'WILLOW', 'POPLAR', 'BEECH', 'HICKORY', 'ACORN', 'CONE', 'NEEDLE', 'BARK', 'LIMB', 'TWIG', 'STICK', 'STUMP', 'RING', 'GRAIN', 'PLANK', 'BOARD', 'BEAM', 'JOIST', 'RAFTER', 'TRUSS', 'POST', 'PILLAR', 'COLUMN', 'CAPITAL', 'FOOTING', 'SLAB', 'BRICK', 'STONE', 'CONCRETE', 'MORTAR', 'CEMENT', 'PLASTER', 'DRYWALL', 'PANEL', 'TILE', 'SHINGLE', 'THATCH', 'SLATE', 'COPPER', 'BRASS', 'BRONZE', 'STEEL', 'ALUMINUM', 'LEAD', 'ZINC', 'NICKEL', 'CHROME', 'SILVER', 'GOLD', 'PLATINUM', 'RUBY', 'EMERALD', 'SAPPHIRE', 'TOPAZ', 'OPAL', 'PEARL', 'JADE', 'ONYX', 'QUARTZ', 'CRYSTAL', 'MARBLE', 'GRANITE', 'LIMESTONE', 'SANDSTONE', 'BASALT', 'OBSIDIAN', 'PUMICE', 'FLINT', 'CHERT', 'AGATE', 'JASPER', 'LAPIS', 'AMETHYST', 'CITRINE', 'GARNET', 'PERIDOT', 'SPINEL', 'ZIRCON', 'BERYL'];
 var WORD_COUNT = 7;
 var WORD_MIN_LEN = 4;
-var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, timerId: null, timeLeft: 0, timeUp: false, over: false };
+var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, timerId: null, timeLeft: 0, timeUp: false, over: false, banked: false };
 var seedWords = { promoted: [], general: [] };
 var promotedSinceKey = 'player_promoted_since';
 function promotedSince() { try { var n = parseInt(localStorage.getItem(promotedSinceKey), 10); return isFinite(n) && n >= 0 ? n : 0; } catch (e) { return 0; } }
@@ -1303,22 +1629,72 @@ function renderWordTop() {
   var t = document.getElementById('words-timer');
   t.textContent = fmtClock(wordGame.timeLeft);
   t.classList.toggle('low', wordGame.timeLeft > 0 && wordGame.timeLeft <= 60);
-  document.getElementById('words-points').textContent = 'Points: ' + wordGame.points;
+  // Total rises live: banked points from earlier games plus this game's points.
+  var total = totalPoints() + (wordGame.banked ? 0 : wordGame.points);
+  var pe = document.getElementById('words-points');
+  pe.innerHTML = 'Points: ' + wordGame.points + '<span class="total">Total: ' + total + '</span>';
+  renderBonusLine();
+}
+function renderBonusLine() {
+  var el = document.getElementById('words-bonus-line');
+  if (!el) return;
+  if (wordGame.over) {
+    var won = wordGame.words.length > 0 && wordGame.words.every(function (w) { return wordGame.found[w.word]; });
+    el.innerHTML = won ? 'Bonus +' + wordGame.bonus + ' for all 7 words' : 'Bonus <span class="gone">+' + wordGame.bonus + '</span>';
+    return;
+  }
+  el.textContent = 'Bonus +' + wordGame.bonus + ' for all 7 words';
 }
 function playBeep() {
+  // Softer single tone when time runs out.
   try {
     var AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     var ctx = new AC();
-    [0, 0.18].forEach(function (delay, i) {
+    var o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'sine'; o.frequency.value = 520;
+    g.gain.value = 0.12;
+    o.connect(g); g.connect(ctx.destination);
+    o.start(ctx.currentTime);
+    o.stop(ctx.currentTime + 0.3);
+  } catch (e) {}
+}
+function playWinSound() {
+  // Bright ascending chime when she wins.
+  try {
+    var AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    var ctx = new AC();
+    [523, 659, 784, 1047].forEach(function (freq, i) {
       var o = ctx.createOscillator(), g = ctx.createGain();
-      o.type = 'sine'; o.frequency.value = i === 0 ? 880 : 660;
-      g.gain.value = 0.15;
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + i * 0.13);
+      g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + i * 0.13 + 0.03);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + i * 0.13 + 0.5);
       o.connect(g); g.connect(ctx.destination);
-      o.start(ctx.currentTime + delay);
-      o.stop(ctx.currentTime + delay + 0.15);
+      o.start(ctx.currentTime + i * 0.13);
+      o.stop(ctx.currentTime + i * 0.13 + 0.55);
     });
   } catch (e) {}
+}
+function showConfetti() {
+  var box = document.getElementById('confetti');
+  if (!box) return;
+  box.innerHTML = '';
+  var colors = ['#52a5e0', '#e0a52a', '#9b7ede', '#e06a8a', '#6ac07a', '#e06a4a'];
+  for (var i = 0; i < 90; i++) {
+    var p = document.createElement('i');
+    var size = 6 + Math.floor(Math.random() * 8);
+    p.style.left = (Math.random() * 100) + 'vw';
+    p.style.width = size + 'px';
+    p.style.height = (size * 0.6) + 'px';
+    p.style.background = colors[i % colors.length];
+    p.style.animationDuration = (1.8 + Math.random() * 1.6) + 's';
+    p.style.animationDelay = (Math.random() * 0.5) + 's';
+    box.appendChild(p);
+  }
+  box.classList.add('on');
+  setTimeout(function () { box.classList.remove('on'); box.innerHTML = ''; }, 4500);
 }
 function tickWordTimer() {
   if (wordGame.over) { stopWordTimer(); return; }
@@ -1341,6 +1717,14 @@ function startWordTimer() {
 function showTimeUp() {
   var tu = document.getElementById('words-timeup');
   tu.classList.add('open');
+  document.getElementById('words-new-row').style.display = 'none';
+  var found = wordGame.words.filter(function (w) { return wordGame.found[w.word]; }).length;
+  document.getElementById('words-timeup-sub').textContent = 'You found ' + found + ' of 7 words. Finish now and keep your points, or buy more time.';
+  // Finish keeps her earned points; the +30 bonus is already gone.
+  document.getElementById('words-finish-sub').innerHTML = 'Keep ' + wordGame.points + ' points &middot; bonus <s>+30</s>';
+  // Buying time shows the bonus she would still have.
+  document.getElementById('words-buy1-sub').textContent = 'bonus +' + Math.max(0, wordGame.bonus - 10);
+  document.getElementById('words-buy2-sub').textContent = 'bonus +' + Math.max(0, wordGame.bonus - 20);
   var btns = tu.querySelectorAll('button');
   if (btns[1]) btns[1].disabled = wordGame.bonus < 10;
   if (btns[2]) btns[2].disabled = wordGame.bonus < 20;
@@ -1370,11 +1754,13 @@ function showAwards(title, gamePts) {
   if (total >= settingTarget()) txt += ' You reached your target of ' + settingTarget() + ' points!';
   document.getElementById('words-awards-pts').textContent = txt;
   document.getElementById('words-awards').classList.add('open');
-  document.getElementById('words-new-row').style.display = 'none';
+  document.getElementById('words-new-row').style.display = '';
+  renderBonusLine();
+  if (title === 'You did it!') { showConfetti(); playWinSound(); }
 }
 function wordsNextPuzzle() {
   document.getElementById('words-awards').classList.remove('open');
-  document.getElementById('words-new-row').style.display = '';
+  document.getElementById('words-new-row').style.display = 'none';
   newWordPuzzle();
 }
 function wordsFinish() {
@@ -1382,12 +1768,17 @@ function wordsFinish() {
   hideTimeUp();
   var pts = wordGame.points;
   addTotalPoints(pts);
+  wordGame.banked = true;
   renderWordTop();
   showAwards('Good job!', pts);
 }
 function newWordPuzzle() {
   stopWordTimer();
   var size = wordGame.size;
+  // v14: the word length range comes from Settings (min never below 4).
+  var wMin = settingWordMin(), wMax = settingWordMax();
+  if (wMin > wMax) wMax = wMin;
+  wMax = Math.min(wMax, size);
   // Pick the words: a promoted word when one is due (none in 3 games), or
   // sometimes; then seed general words; then the built-in list.
   var promoted = seedWords.promoted.slice();
@@ -1397,7 +1788,7 @@ function newWordPuzzle() {
   var usedPromoted = false;
   if (includePromoted) {
     var pw = promoted[Math.floor(Math.random() * promoted.length)];
-    if (pw && pw.length >= WORD_MIN_LEN && pw.length <= size) {
+    if (pw && pw.length >= wMin && pw.length <= wMax) {
       chosen.push(pw);
       usedPromoted = true;
     }
@@ -1405,7 +1796,7 @@ function newWordPuzzle() {
   var generalPool = shuffleArr(seedWords.general.slice().concat(WORD_LIST.slice()));
   for (var i = 0; i < generalPool.length && chosen.length < WORD_COUNT; i++) {
     var w = generalPool[i];
-    if (w.length >= WORD_MIN_LEN && w.length <= size && chosen.indexOf(w) < 0) chosen.push(w);
+    if (w.length >= wMin && w.length <= wMax && chosen.indexOf(w) < 0) chosen.push(w);
   }
   setPromotedSince(usedPromoted ? 0 : promotedSince() + 1);
   var grid = [];
@@ -1455,11 +1846,12 @@ function newWordPuzzle() {
   wordGame.bonus = 30;
   wordGame.over = false;
   wordGame.timeUp = false;
+  wordGame.banked = false;
   wordGame.selStart = null;
   wordGame.selEnd = null;
   wordGame.started = true;
   document.getElementById('words-awards').classList.remove('open');
-  document.getElementById('words-new-row').style.display = '';
+  document.getElementById('words-new-row').style.display = 'none';
   document.getElementById('words-bonus').textContent = '';
   hideTimeUp();
   renderWords();
@@ -1535,6 +1927,7 @@ function onWordCell(r, c) {
       wordGame.points += wordGame.bonus;
       var pts = wordGame.points;
       addTotalPoints(pts);
+      wordGame.banked = true;
       renderWords();
       showAwards('You did it!', pts);
       return;
@@ -1543,8 +1936,11 @@ function onWordCell(r, c) {
     return;
   }
   // Not a target word: a real word from the list still earns 1 point a letter.
-  var cand = (letters.length >= WORD_MIN_LEN) ? letters : '';
-  var candRev = (rev.length >= WORD_MIN_LEN) ? rev : '';
+  // v14: a bonus word must also sit inside the Settings length range.
+  var wMin = settingWordMin(), wMax = settingWordMax();
+  if (wMin > wMax) wMax = wMin;
+  var cand = (letters.length >= wMin && letters.length <= wMax) ? letters : '';
+  var candRev = (rev.length >= wMin && rev.length <= wMax) ? rev : '';
   var bonusWord = null;
   var all = allWordsSet();
   if (cand && all[cand] && !wordGame.bonusWords[cand]) bonusWord = cand;
@@ -1562,6 +1958,7 @@ function onWordCell(r, c) {
   setSizeIcon(false);
   markSpeedBtns(savedSpeed());
   applyThumbScale();
+  wireSettingsAutosave();
   renderTopStrip();
   // Open the database first: it holds the folder handle, the cached
   // thumbnails, and the saved extra words, so it is needed even when the
