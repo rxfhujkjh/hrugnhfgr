@@ -1,19 +1,48 @@
 {
   "2026-11-09": {
-    "am": false,
-    "pm": true,
+    "am": true,
+    "pm": false,
     "exercise": false,
     "water": false,
     "feet": true,
     "visits": 0,
-    "videoSeconds": 0,
-    "videos": {},
+    "videoSeconds": 7,
+    "videos": {
+      "News": {
+        "clicks": 2,
+        "watches": 2
+      },
+      "Shorts": {
+        "clicks": 2,
+        "watches": 0
+      },
+      "Gameshow": {
+        "clicks": 2,
+        "watches": 1
+      },
+      "Health": {
+        "clicks": 1,
+        "watches": 0
+      },
+      "Music": {
+        "clicks": 2,
+        "watches": 0
+      },
+      "Gospel": {
+        "clicks": 2,
+        "watches": 1
+      },
+      "Family": {
+        "clicks": 1,
+        "watches": 0
+      }
+    },
     "games": {
       "make13": 0,
       "pairs": 0,
-      "words": 7
+      "words": 9
     },
-    "wordsPoints": 400
+    "wordsPoints": 700
   },
   "2026-11-10": {
     "am": false,
