@@ -17,21 +17,22 @@
   .folder-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; }
   .folder-btn svg { width: 18px; height: 18px; }
   .list-top-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .back-btn { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 50%; width: 48px; height: 48px; font-size: 30px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; touch-action: manipulation; }
+  .back-btn { background: #1e1e1e; border: 2px solid #555; color: #eee; border-radius: 50%; width: 60px; height: 60px; font-size: 40px; font-weight: 700; line-height: 1; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; touch-action: manipulation; }
   .tile.folder-tile { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; }
   .tile.folder-tile .name { padding: 12px; font-size: 18px; text-align: center; }
   .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--tile-w, 107px), 1fr)); gap: 12px; }
   .tile { background: #1e1e1e; border: 1px solid #333; border-radius: 10px; overflow: hidden; cursor: pointer; padding: 0; text-align: left; touch-action: manipulation; }
   .tile video { width: 100%; height: var(--tile-h, 67px); object-fit: cover; display: block; background: #000; }
   .tile img.thumb { width: 100%; height: var(--tile-h, 67px); object-fit: cover; display: block; background: #000; }
-  .tile .name { padding: 10px; font-size: 15px; color: #eee; }
+  .tile .name { padding: 10px; font-size: 16px; color: #eee; }
+  .tile:not(.folder-tile) .name { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .choose { text-align: center; padding: 40px 16px; }
   .choose button { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 16px 28px; font-size: 18px; cursor: pointer; }
   .choose p { color: #888; font-size: 14px; margin-top: 14px; }
   #player-view { display: none; position: fixed; inset: 0; background: #000; z-index: 20; flex-direction: column; }
   #player-view.open { display: flex; }
   #player-view video { flex: 1; width: 100%; min-height: 0; background: #000; }
-  .close-btn { position: absolute; top: 10px; left: 10px; background: rgba(30,30,30,.85); border: 1px solid #555; color: #eee; border-radius: 50%; width: 56px; height: 56px; font-size: 38px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 30; touch-action: manipulation; }
+  .close-btn { position: absolute; top: 10px; left: 10px; background: rgba(30,30,30,.85); border: 2px solid #777; color: #eee; border-radius: 50%; width: 60px; height: 60px; font-size: 40px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 30; touch-action: manipulation; }
   .size-btn { position: absolute; top: 10px; right: 10px; background: rgba(30,30,30,.85); border: 1px solid #555; color: #eee; border-radius: 50%; width: 44px; height: 44px; cursor: pointer; z-index: 30; display: flex; align-items: center; justify-content: center; }
   .size-btn svg { width: 26px; height: 26px; }
   .controls { padding: 8px 12px 10px; background: #000; position: relative; }
@@ -61,7 +62,7 @@
   .game-view { display: none; position: fixed; inset: 0; background: #121212; z-index: 20; flex-direction: column; padding: 16px; overflow: auto; }
   /* Hidden Words fits on one screen: no scrolling, grid shrinks to fit. */
   #game-words.open { display: flex; overflow: hidden; }
-  #game-words .word-grid { flex: 0 1 auto; min-height: 0; width: min(560px, 100%, calc(100vh - 470px)); width: min(560px, 100%, calc(100dvh - 470px)); margin: 0 auto; }
+  #game-words .word-grid { flex: 0 1 auto; min-height: 0; width: calc(min(560px, 100%, calc(100vh - 470px)) * var(--words-scale, 1)); width: calc(min(560px, 100%, calc(100dvh - 470px)) * var(--words-scale, 1)); margin: 0 auto; }
   #game-words .word-list { flex: 0 0 auto; }
   .game-view.open { display: flex; }
   .game-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -102,8 +103,9 @@
   #cal-view { display: none; }
   #cal-view.open { display: block; }
   .cal-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .folder-label { font-size: 20px; font-weight: 700; color: #eee; padding: 2px 4px 10px; }
   .cal-head h2 { margin: 0; flex: 1; font-size: 22px; text-align: center; }
-  .cal-nav { background: #1e1e1e; border: 1px solid #333; color: #eee; border-radius: 8px; width: 40px; height: 40px; font-size: 20px; line-height: 1; cursor: pointer; flex-shrink: 0; touch-action: manipulation; }
+  .cal-nav { background: #1e1e1e; border: 2px solid #555; color: #eee; border-radius: 50%; width: 60px; height: 60px; font-size: 36px; font-weight: 700; line-height: 1; cursor: pointer; flex-shrink: 0; touch-action: manipulation; }
   .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; max-width: 640px; margin: 0 auto; width: 100%; }
   .cal-dow { font-size: 15px; font-weight: 700; color: #888; text-align: center; padding: 4px 0; }
   .cal-day { background: #1e1e1e; color: #eee; border: 1px solid #333; border-radius: 8px; aspect-ratio: 1; font-size: 20px; font-weight: 700; cursor: pointer; padding: 0; touch-action: manipulation; }
@@ -166,6 +168,35 @@
   .awards.open .big { animation: winpop .6s ease; }
   .awards .pts { font-size: 22px; margin-bottom: 16px; }
   @keyframes winpop { 0% { transform: scale(.5); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+  /* v16: fastest-time badge next to the points (subtle, muted). */
+  .words-best { display: inline-block; font-size: 14px; color: #9db8c9; border: 1px solid #3a4a56; border-radius: 10px; padding: 2px 8px; margin-left: 8px; font-weight: 400; white-space: nowrap; }
+  /* v16: fading toast (bonus words, day-check "Recorded"). */
+  #toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(8px); background: rgba(30,30,30,.95); border: 1px solid #555; color: #eee; border-radius: 12px; padding: 12px 18px; font-size: 18px; z-index: 70; opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .3s ease; max-width: 92vw; text-align: center; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  /* v18 revised: NEW badge on a video folder tile (file-age based). */
+  .tile.video-folder .new-badge { position: absolute; top: 4px; left: 6px; background: #ffd700; color: #111; font-size: 12px; font-weight: 700; letter-spacing: 1px; border-radius: 8px; padding: 2px 7px; z-index: 2; }
+  /* v18 revised: custom past-date confirm popup (replaces window.confirm). */
+  #confirm-pop { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 80; display: none; align-items: center; justify-content: center; padding: 20px; }
+  #confirm-pop.open { display: flex; }
+  #confirm-pop .confirm-card { background: #1e1e1e; border: 1px solid #555; border-radius: 12px; padding: 20px; width: 100%; max-width: 420px; text-align: center; }
+  #confirm-pop .confirm-msg { font-size: 22px; font-weight: 700; color: #eee; margin-bottom: 18px; }
+  #confirm-pop .confirm-row { display: flex; gap: 12px; justify-content: center; }
+  #confirm-pop .confirm-btn { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 14px 28px; font-size: 20px; font-weight: 700; cursor: pointer; min-width: 110px; touch-action: manipulation; }
+  #confirm-pop .confirm-btn.no { background: #333; border: 1px solid #555; }
+  /* v16: weather hint under the top strip, shown when no weather is showing. */
+  .wx-hint { font-size: 14px; color: #888; margin-bottom: 10px; }
+  /* v16: activity grid (tasks x days). */
+  .act-note { font-size: 14px; color: #888; margin: 0 auto 8px; max-width: 560px; }
+  .act-grid { border-collapse: collapse; margin: 0 auto 8px; max-width: 560px; width: 100%; font-size: 17px; }
+  .act-grid th, .act-grid td { border: 1px solid #333; padding: 8px 6px; text-align: center; }
+  .act-grid th { color: #888; font-size: 14px; font-weight: 400; }
+  .act-grid th.today { color: #52a5e0; font-weight: 700; }
+  .act-grid td.task { text-align: left; color: #eee; }
+  .act-grid td.today { background: #1a2a3a; }
+  .act-grid .yes { color: #2e7d5b; font-weight: 700; font-size: 20px; }
+  .act-grid .no { color: #555; font-size: 18px; }
+  .act-grid .num { font-weight: 700; }
+  .act-grid .num.zero { color: #888; font-weight: 400; }
   /* Confetti: colourful pieces falling from the top on a win. */
   #confetti { position: fixed; inset: 0; z-index: 60; pointer-events: none; overflow: hidden; display: none; }
   #confetti.on { display: block; }
@@ -179,10 +210,11 @@
     <div class="wx" id="wx-line"></div>
     <div class="dd"><span class="dow" id="dd-dow"></span><span class="date" id="dd-date"></span></div>
   </div>
+  <div class="wx-hint" id="wx-hint" style="display:none"></div>
   <div class="list-top">
     <div class="list-top-left">
       <button class="back-btn" id="back-btn" style="display:none" onclick="goBack()" aria-label="Back">&times;</button>
-      <h1>Player<span class="v-pill">v15</span></h1>
+      <h1>Player<span class="v-pill">v18</span></h1>
     </div>
     <div class="list-top-btns">
       <button class="scale-btn" id="scale-down" onclick="changeThumbScale(-0.25)" aria-label="Smaller thumbnails">&minus;</button>
@@ -191,6 +223,7 @@
       <button class="settings-btn" onclick="openSettings()" aria-label="Settings">&#9881;</button>
     </div>
   </div>
+  <div id="folder-label" class="folder-label" style="display:none"></div>
   <div id="choose" class="choose" style="display:none">
     <button onclick="chooseFolder()">Choose folder</button>
   </div>
@@ -244,6 +277,8 @@
   <div class="game-head">
     <button class="back-btn" onclick="closeGame()" aria-label="Back">&times;</button>
     <h1>Hidden Words</h1>
+    <button class="scale-btn" onclick="changeWordsScale(-0.25)" aria-label="Smaller puzzle">&minus;</button>
+    <button class="scale-btn" onclick="changeWordsScale(0.25)" aria-label="Bigger puzzle">+</button>
   </div>
   <div class="words-top">
     <div class="words-timer" id="words-timer"></div>
@@ -253,7 +288,7 @@
   <div class="awards" id="words-awards">
     <div class="big" id="words-awards-title">You did it!</div>
     <div class="pts" id="words-awards-pts"></div>
-    <div class="game-btn-row"><button class="game-btn" onclick="wordsNextPuzzle()">Next puzzle</button></div>
+    <div class="game-btn-row"><button class="game-btn" onclick="wordsNextGame()">Next game</button></div>
   </div>
   <div class="timeup" id="words-timeup">
     <div class="t">Time's up!</div>
@@ -277,9 +312,19 @@
   <div class="word-grid" id="words-grid"></div>
   <div class="word-list" id="words-list"></div>
   <div class="words-bonus" id="words-bonus"></div>
-  <div class="game-btn-row" id="words-new-row" style="display:none"><button class="game-btn" onclick="newWordPuzzle()">New puzzle</button></div>
+  <div class="game-btn-row" id="words-startover-row"><button class="game-btn" onclick="wordsStartOver()">Start over</button></div>
 </div>
 <div id="confetti" aria-hidden="true"></div>
+<div id="toast" aria-hidden="true"></div>
+<div id="confirm-pop" aria-hidden="true">
+  <div class="confirm-card">
+    <div class="confirm-msg" id="confirm-msg"></div>
+    <div class="confirm-row">
+      <button class="confirm-btn" id="confirm-yes" onclick="pastConfirmAnswer(true)">Yes</button>
+      <button class="confirm-btn no" id="confirm-no" onclick="pastConfirmAnswer(false)">No</button>
+    </div>
+  </div>
+</div>
 
 <div class="game-view" id="calc-view">
   <div class="game-head">
@@ -320,14 +365,29 @@
     <div class="hint">How long the countdown starts with. Default 3. Enter any number.</div>
   </div>
   <div class="set-row">
+    <label for="set-toast">Toast message time (seconds)</label>
+    <input type="number" id="set-toast" inputmode="numeric">
+    <div class="hint">How long a message stays on screen. Default 5. Enter any number of seconds.</div>
+  </div>
+  <div class="set-row">
     <label for="set-word-min">Hidden Words: shortest word (letters)</label>
     <input type="number" id="set-word-min" inputmode="numeric">
-    <div class="hint">Shortest word in a puzzle. Never below 4. Default 4.</div>
+    <div class="hint">Shortest general word in a puzzle. Personal words ignore this. Never below 4. Default 4.</div>
   </div>
   <div class="set-row">
     <label for="set-word-max">Hidden Words: longest word (letters)</label>
     <input type="number" id="set-word-max" inputmode="numeric">
-    <div class="hint">Longest word in a puzzle. Default 10.</div>
+    <div class="hint">Longest general word in a puzzle. Personal words ignore this. Default 10.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-pers-min">Hidden Words: fewest personal words</label>
+    <input type="number" id="set-pers-min" inputmode="numeric">
+    <div class="hint">At least this many words from the extra words file in every puzzle. Default 1.</div>
+  </div>
+  <div class="set-row">
+    <label for="set-pers-max">Hidden Words: most personal words</label>
+    <input type="number" id="set-pers-max" inputmode="numeric">
+    <div class="hint">At most this many words from the extra words file in a puzzle. Default 2.</div>
   </div>
   <div class="set-row">
     <label for="set-words">Extra words file</label>
@@ -424,6 +484,19 @@ function fmtTime(sec) {
   var m = Math.floor(sec / 60), s = Math.floor(sec % 60);
   return m + ':' + (s < 10 ? '0' : '') + s;
 }
+// v16: one small fading toast (bonus words, day-check "Recorded").
+var toastTimer = null;
+function showToast(text, ms) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = text;
+  el.classList.add('show');
+  if (toastTimer) clearTimeout(toastTimer);
+  // v18 revised: the toast stays for the Settings duration (default 5s);
+  // an explicit ms still overrides it.
+  var dur = (typeof ms === 'number' && isFinite(ms) && ms >= 0) ? ms : toastDurationMs();
+  toastTimer = setTimeout(function () { el.classList.remove('show'); }, dur);
+}
 
 function openDb() {
   return new Promise(function (resolve, reject) {
@@ -459,19 +532,28 @@ function loadStoredHandle() {
 // visits read the saved thumbnail and show it at once. No server change,
 // no saved JPEGs on the server. If a video cannot be decoded, the tile
 // keeps a plain play placeholder instead of a black box.
+// v17: a captured frame that is all black is NOT a thumbnail — it is
+// discarded (and retried later in the video), so a black frame can never
+// be saved. Thumbnails are versioned, so ones saved by older versions
+// (some all-black) are ignored and regenerate.
 var THUMB_W = 320, THUMB_H = 200;
+var THUMB_VERSION = 'v17';
 var THUMB_PLACEHOLDER = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="320" height="200"><rect width="320" height="200" fill="#000"/><text x="160" y="118" font-size="64" fill="#666" text-anchor="middle">\u25b6</text></svg>');
 var thumbMem = {}; // in-memory cache for this session: key -> data URL
 var thumbQueue = [];
 var thumbWorking = false;
 function thumbKey(v) {
   // Stable across loads. Blob URLs change on every load, so local files use
-  // name + size + time instead of their URL.
-  if (v.file) return 'local|' + (v.fileName || '') + '|' + (v.size != null ? v.size : '') + '|' + (v.mtime || '');
-  var base = v.url || v.fileName || '';
-  if (v.size != null) base += '|' + v.size;
-  if (v.mtime) base += '|' + v.mtime;
-  return base;
+  // name + size + time instead of their URL. The version prefix means
+  // thumbnails saved by an older version are ignored and regenerate.
+  var base;
+  if (v.file) base = 'local|' + (v.fileName || '') + '|' + (v.size != null ? v.size : '') + '|' + (v.mtime || '');
+  else {
+    base = v.url || v.fileName || '';
+    if (v.size != null) base += '|' + v.size;
+    if (v.mtime) base += '|' + v.mtime;
+  }
+  return THUMB_VERSION + '|' + base;
 }
 function getThumb(key) {
   if (thumbMem[key]) return Promise.resolve(thumbMem[key]);
@@ -497,36 +579,120 @@ function saveThumb(key, data) {
     tx.objectStore('thumbs').put({ key: key, data: data });
   } catch (e) {}
 }
+// v17: is the drawn frame (nearly) all black? Sample the canvas pixels;
+// a frame counts as black when almost every sampled pixel is near black.
+function thumbFrameIsBlack(canvas) {
+  try {
+    var ctx = canvas.getContext('2d');
+    if (!ctx) return false;
+    var d = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    var total = 0, dark = 0;
+    for (var i = 0; i < d.length; i += 4 * 29) {
+      total++;
+      if (d[i] < 16 && d[i + 1] < 16 && d[i + 2] < 16) dark++;
+    }
+    return total > 0 && dark / total > 0.98;
+  } catch (e) { return false; }
+}
 function captureThumb(videoUrl) {
   return new Promise(function (resolve) {
     var v = document.createElement('video');
     v.muted = true;
+    v.playsInline = true;
     v.preload = 'auto';
+    // v17: keep the capture video in the document, off-screen only. No
+    // visibility:hidden — Firefox may skip decoding frames for a hidden
+    // video, so the draw came out black. display:none would stop it
+    // loading, so it is positioned off-screen instead.
+    v.style.position = 'fixed';
+    v.style.left = '-9999px';
+    v.style.top = '0';
+    v.style.width = '160px';
+    v.style.height = '90px';
+    document.body.appendChild(v);
     var done = false;
-    var timer = setTimeout(function () { finish(null); }, 10000);
+    var timer = setTimeout(function () { finish(null); }, 15000);
+    var seekTimer = null;
+    var drawTimer = null;
+    var tries = [0.5];
+    var tryIndex = 0;
+    var drawnTry = -1;
     function finish(data) {
       if (done) return; done = true;
       clearTimeout(timer);
+      if (seekTimer) clearTimeout(seekTimer);
+      if (drawTimer) clearTimeout(drawTimer);
       v.removeAttribute('src');
       try { v.load(); } catch (e) {}
+      if (v.parentNode) v.parentNode.removeChild(v);
       resolve(data);
     }
-    v.addEventListener('loadedmetadata', function () {
-      var t = 0.5;
-      if (isFinite(v.duration) && v.duration > 0) t = Math.min(0.5, v.duration / 2);
-      try { v.currentTime = t; } catch (e) { finish(null); }
-    });
-    v.addEventListener('seeked', function () {
+    function tryDraw() {
+      if (done) return;
+      if (drawnTry === tryIndex) return; // one draw per seek attempt
+      drawnTry = tryIndex;
+      if (!v.videoWidth || !v.videoHeight) { nextTry(); return; }
+      var canvas = document.createElement('canvas');
+      canvas.width = THUMB_W; canvas.height = THUMB_H;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) { finish(null); return; }
       try {
-        if (!v.videoWidth || !v.videoHeight) { finish(null); return; }
-        var canvas = document.createElement('canvas');
-        canvas.width = THUMB_W; canvas.height = THUMB_H;
-        var ctx = canvas.getContext('2d');
         var scale = Math.max(THUMB_W / v.videoWidth, THUMB_H / v.videoHeight);
         var dw = v.videoWidth * scale, dh = v.videoHeight * scale;
         ctx.drawImage(v, (THUMB_W - dw) / 2, (THUMB_H - dh) / 2, dw, dh);
-        finish(canvas.toDataURL('image/jpeg', 0.8));
-      } catch (e) { finish(null); }
+      } catch (e) { finish(null); return; }
+      // v17: a black frame is not a thumbnail. Do not save it; try a
+      // later point in the video instead.
+      if (thumbFrameIsBlack(canvas)) { nextTry(); return; }
+      try { finish(canvas.toDataURL('image/jpeg', 0.8)); } catch (e) { finish(null); }
+    }
+    function nextTry() {
+      tryIndex++;
+      if (tryIndex >= tries.length) { finish(null); return; }
+      seekTo(tries[tryIndex]);
+    }
+    function seekTo(t) {
+      try { v.currentTime = t; } catch (e) { finish(null); return; }
+      if (seekTimer) clearTimeout(seekTimer);
+      seekTimer = setTimeout(function () {
+        if (done) return;
+        drawWhenReady();
+      }, 3000);
+    }
+    function drawWhenReady() {
+      if (done) return;
+      // v17: wait for a real frame. requestVideoFrameCallback fires when
+      // a frame is presented after the seek; without it, fall back to
+      // drawing once a frame is available, else shortly after.
+      if (typeof v.requestVideoFrameCallback === 'function') {
+        try {
+          v.requestVideoFrameCallback(function () { tryDraw(); });
+          if (drawTimer) clearTimeout(drawTimer);
+          drawTimer = setTimeout(function () { if (!done) tryDraw(); }, 1500);
+          return;
+        } catch (e) {}
+      }
+      if (v.readyState >= 2) { tryDraw(); return; }
+      if (drawTimer) clearTimeout(drawTimer);
+      drawTimer = setTimeout(function () { if (!done) tryDraw(); }, 250);
+    }
+    v.addEventListener('loadedmetadata', function () {
+      var dur = (isFinite(v.duration) && v.duration > 0) ? v.duration : 0;
+      tries = [0.5];
+      if (dur > 2.5) tries.push(2);
+      else if (dur > 0.6) tries.push(dur / 2);
+      if (dur > 5) tries.push(dur * 0.1);
+      tries = tries.filter(function (t, i) { return tries.indexOf(t) === i; });
+      tryIndex = 0;
+      drawnTry = -1;
+      seekTo(tries[0]);
+    });
+    v.addEventListener('seeked', function () { drawWhenReady(); });
+    // Fallback: if the seeked event is missed but a frame is ready after
+    // the seek, draw from the current position.
+    v.addEventListener('loadeddata', function () {
+      if (done) return;
+      if (v.currentTime > 0) drawWhenReady();
     });
     v.addEventListener('error', function () { finish(null); });
     v.src = videoUrl;
@@ -636,6 +802,67 @@ async function fetchFolder(path) {
   subfolders.sort(function (a, b) { return a.rawName.localeCompare(b.rawName); });
   vids.sort(function (a, b) { return a.fileName.localeCompare(b.fileName); });
   return { folders: subfolders, videos: vids };
+}
+
+// v18 revised: a video folder shows a NEW badge when it holds a video
+// added or changed in the last 24 hours (file age, not viewing — anyone
+// may look without clearing it for anyone else, and family members may
+// add videos). The newest file time is cached briefly per folder.
+var NEW_WINDOW_MS = 24 * 60 * 60 * 1000;
+var NEW_CACHE_MS = 60 * 1000;
+var folderNewCache = {}; // path -> { newest: number|null, at: ms }
+// File time as ms since the epoch. Handles the server's `modified` (ISO
+// string or epoch seconds/ms) and a picked file's `lastModified` (ms).
+function mtimeMs(m) {
+  if (m == null) return null;
+  if (m && typeof m.getTime === 'function') { try { var t = m.getTime(); return isFinite(t) ? t : null; } catch (e) { return null; } }
+  if (typeof m === 'number') {
+    if (!isFinite(m)) return null;
+    if (m > 1e12) return m;
+    if (m > 1e9) return m * 1000;
+    return m;
+  }
+  if (typeof m === 'string') {
+    var s = m.trim();
+    if (!s) return null;
+    if (/^-?\d+(\.\d+)?$/.test(s)) return mtimeMs(parseFloat(s));
+    var t2 = Date.parse(s);
+    return isFinite(t2) ? t2 : null;
+  }
+  return null;
+}
+// Newest video file time in a folder, or null if it holds no videos.
+// Rejects when the folder cannot be read (no badge, fail silent).
+async function folderNewestMtime(f) {
+  if (f.handle) {
+    var newest = null;
+    for await (var entry of f.handle.values()) {
+      if (entry.kind === 'file' && isVideo(entry.name)) {
+        var file = await entry.getFile();
+        var m = mtimeMs(file.lastModified);
+        if (m != null && (newest == null || m > newest)) newest = m;
+      }
+    }
+    return newest;
+  }
+  var res = await fetchFolder(f.path);
+  if (!res) throw new Error('folder list failed');
+  var newest2 = null;
+  res.videos.forEach(function (v) {
+    var m2 = mtimeMs(v.mtime);
+    if (m2 != null && (newest2 == null || m2 > newest2)) newest2 = m2;
+  });
+  return newest2;
+}
+// True when the folder holds a video from the last 24 hours.
+function folderHasNew(f) {
+  var now = Date.now();
+  var cached = folderNewCache[f.path];
+  if (cached && (now - cached.at) < NEW_CACHE_MS) return Promise.resolve(cached.newest != null && cached.newest > now - NEW_WINDOW_MS);
+  return folderNewestMtime(f).then(function (newest) {
+    folderNewCache[f.path] = { newest: newest, at: Date.now() };
+    return newest != null && newest > Date.now() - NEW_WINDOW_MS;
+  }).catch(function () { return false; });
 }
 
 // Show one folder's contents (folder tiles + video tiles). reset=true starts
@@ -816,6 +1043,17 @@ function renderList() {
     tile.querySelector('.name').textContent = f.name;
     tile.onclick = function () { openSubfolder(f.path); };
     tiles.appendChild(tile);
+    // v18 revised: NEW badge when the folder holds a video from the last
+    // 24 hours (file age). Viewing never clears it.
+    folderHasNew(f).then(function (isNew) {
+      if (!isNew) return;
+      if (!tile.isConnected) return;
+      if (tile.querySelector('.new-badge')) return;
+      var b = document.createElement('span');
+      b.className = 'new-badge';
+      b.textContent = 'NEW';
+      tile.appendChild(b);
+    });
   });
   videos.forEach(function (v, i) {
     var tile = document.createElement('button');
@@ -847,6 +1085,13 @@ function renderList() {
   document.getElementById('choose').style.display = 'none';
   document.getElementById('folder-btn').style.display = serverMode ? 'inline-flex' : 'none';
   document.getElementById('back-btn').style.display = (folderStack.length > 1) ? 'inline-flex' : 'none';
+  // v18: show which folder you are in when a subfolder is open; the home
+  // page shows no folder label.
+  var fl = document.getElementById('folder-label');
+  if (folderStack.length > 1) { fl.style.display = ''; fl.textContent = currentFolderLabel(); }
+  else { fl.style.display = 'none'; fl.textContent = ''; }
+  // v17: the home page and the video folders have separate tile sizes.
+  applyThumbScale();
 }
 
 async function chooseFolder() {
@@ -888,21 +1133,45 @@ document.getElementById('dir-input').addEventListener('change', function (ev) {
 function savedSpeed() { try { var s = parseFloat(localStorage.getItem(SPEED_KEY)); return (s === 0.5 || s === 0.75 || s === 1) ? s : 1; } catch (e) { return 1; } }
 function savedVolume() { try { var v = parseFloat(localStorage.getItem(VOL_KEY)); return (isFinite(v) && v >= 0 && v <= 1) ? v : 1; } catch (e) { return 1; } }
 
-// Thumbnail size on the directory view: 0.5x to 2x, quarter steps, sticky.
-var THUMB_MIN = 0.5, THUMB_MAX = 2, THUMB_STEP = 0.25;
-function thumbScale() { try { var s = parseFloat(localStorage.getItem(THUMB_SCALE_KEY)); return (isFinite(s) && s >= THUMB_MIN && s <= THUMB_MAX) ? s : 1; } catch (e) { return 1; } }
+// v17: tile size is TWO separate sticky settings — one for the video
+// folders and one for the entry (home) page. Changing the video size
+// must not change the home page, or the other way round.
+var THUMB_MIN = 0.5, THUMB_MAX = 3, THUMB_STEP = 0.25;
+var HOME_SCALE_KEY = 'player_home_scale';
+function readScale(key) { try { var s = parseFloat(localStorage.getItem(key)); return (isFinite(s) && s >= THUMB_MIN && s <= THUMB_MAX) ? s : 1; } catch (e) { return 1; } }
+// Video scale (all video folders share it; key kept from v16).
+function videoScale() { return readScale(THUMB_SCALE_KEY); }
+function thumbScale() { return videoScale(); }
+// Entry (home) page scale.
+function homeScale() { return readScale(HOME_SCALE_KEY); }
 function applyThumbScale() {
-  var s = thumbScale();
+  var s = (folderStack.length <= 1) ? homeScale() : videoScale();
   var root = document.documentElement;
   root.style.setProperty('--tile-w', Math.round(107 * s) + 'px');
   root.style.setProperty('--tile-h', Math.round(67 * s) + 'px');
 }
 function changeThumbScale(delta) {
-  var s = thumbScale() + delta;
+  // The +/- buttons adjust the scale for the view on screen: the entry
+  // scale on the home page, the video scale inside a video folder.
+  var key = (folderStack.length <= 1) ? HOME_SCALE_KEY : THUMB_SCALE_KEY;
+  var s = readScale(key) + delta;
   s = Math.max(THUMB_MIN, Math.min(THUMB_MAX, s));
   s = Math.round(s * 4) / 4;
-  try { localStorage.setItem(THUMB_SCALE_KEY, String(s)); } catch (e) {}
+  try { localStorage.setItem(key, String(s)); } catch (e) {}
   applyThumbScale();
+}
+// v18 revised: Hidden Words puzzle scale (grid only, not the header).
+// 0.75x–2x in quarter steps, default 1x, sticky in localStorage.
+var WORDS_SCALE_KEY = 'player_words_scale';
+var WORDS_MIN = 0.75, WORDS_MAX = 2, WORDS_STEP = 0.25;
+function readWordsScale() { try { var s = parseFloat(localStorage.getItem(WORDS_SCALE_KEY)); return (isFinite(s) && s >= WORDS_MIN && s <= WORDS_MAX) ? s : 1; } catch (e) { return 1; } }
+function applyWordsScale() { document.documentElement.style.setProperty('--words-scale', String(readWordsScale())); }
+function changeWordsScale(delta) {
+  var s = readWordsScale() + delta;
+  s = Math.max(WORDS_MIN, Math.min(WORDS_MAX, s));
+  s = Math.round(s * 4) / 4;
+  try { localStorage.setItem(WORDS_SCALE_KEY, String(s)); } catch (e) {}
+  applyWordsScale();
 }
 function markSpeedBtns(s) { var btns = document.querySelectorAll('.speed-btn'); for (var i = 0; i < btns.length; i++) { btns[i].classList.toggle('active', parseFloat(btns[i].getAttribute('data-speed')) === s); } }
 function setSpeed(s) { try { localStorage.setItem(SPEED_KEY, String(s)); } catch (e) {} var p = document.getElementById('player'); p.playbackRate = s; markSpeedBtns(s); }
@@ -995,6 +1264,7 @@ function closePlayer() {
   document.getElementById('player-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
   setPlayBtn(false);
+  maybeRefreshWeather();
 }
 
 function setPlayBtn(playing) {
@@ -1061,6 +1331,7 @@ function openGames() {
 function closeGames() {
   document.getElementById('games-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
+  maybeRefreshWeather();
 }
 // --- Activity view (v15): the numbers, bare labels only. ---
 function fmtDur(sec) {
@@ -1069,20 +1340,129 @@ function fmtDur(sec) {
   var mm = (m < 10 ? '0' : '') + m, ss = (s < 10 ? '0' : '') + s;
   return h > 0 ? h + ':' + mm + ':' + ss : m + ':' + ss;
 }
+// v16: read the shared activity back from GitHub, so family opening this
+// app sees the activity in the app instead of an empty local state.
+// Failures are silent: the local state shows as today.
+var remoteActivity = null;
+var remoteActivityAt = 0;
+function b64ToUtf8(s) {
+  try { return decodeURIComponent(escape(atob(s))); } catch (e) { try { return atob(s); } catch (e2) { return null; } }
+}
+async function fetchActivityFromGitHub() {
+  var repo = getVal(SET_GH_REPO, '').trim();
+  if (!repo || typeof fetch !== 'function') return null;
+  var parts = repo.split('/');
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return null;
+  try {
+    var url = 'https://api.github.com/repos/' + parts[0] + '/' + parts[1] + '/contents/' + ACTIVITY_FILE;
+    var res = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } });
+    if (!res || !res.ok) return null;
+    var data = await res.json();
+    if (!data || typeof data.content !== 'string') return null;
+    var txt = b64ToUtf8(data.content.replace(/\s/g, ''));
+    if (txt == null) return null;
+    var json = JSON.parse(txt);
+    if (!json || typeof json !== 'object') return null;
+    return json;
+  } catch (e) { return null; }
+}
+function refreshRemoteActivity() {
+  var now = Date.now();
+  if (remoteActivity && (now - remoteActivityAt) < 15 * 60 * 1000) return;
+  fetchActivityFromGitHub().then(function (data) {
+    if (data) {
+      remoteActivity = data; remoteActivityAt = Date.now();
+      // v18 revised: if a calendar day view is open, re-render it with
+      // the merged data once the shared copy arrives.
+      if (document.getElementById('cal-view').classList.contains('open') && calDay != null) renderCalDay(calDay);
+    }
+    if (document.getElementById('activity-view').classList.contains('open')) renderActivity();
+  });
+}
+// One day's record for the grid: the shared copy if there is one, with
+// today's local state on top (local is freshest on this tablet; the shared
+// copy is what family browsers have).
+function activityDayForGrid(key) {
+  var local = dayRecord(key);
+  var remote = (remoteActivity && remoteActivity[key]) ? remoteActivity[key] : null;
+  if (!remote) return local;
+  function num(v) { return (isFinite(v) && v > 0) ? v : 0; }
+  function bool(v) { return !!v; }
+  var lg = local.games || {}, rg = remote.games || {};
+  if (key === todayKey()) {
+    return {
+      am: bool(local.am) || bool(remote.am),
+      pm: bool(local.pm) || bool(remote.pm),
+      exercise: bool(local.exercise) || bool(remote.exercise),
+      water: bool(local.water) || bool(remote.water),
+      feet: bool(local.feet) || bool(remote.feet),
+      visits: Math.max(num(local.visits), num(remote.visits)),
+      videoSeconds: Math.max(num(local.videoSeconds), num(remote.videoSeconds)),
+      videos: local.videos || remote.videos || {},
+      games: { make13: Math.max(num(lg.make13), num(rg.make13)), pairs: Math.max(num(lg.pairs), num(rg.pairs)), words: Math.max(num(lg.words), num(rg.words)) },
+      wordsPoints: Math.max(num(local.wordsPoints), num(remote.wordsPoints))
+    };
+  }
+  return {
+    am: remote.am != null ? bool(remote.am) : bool(local.am),
+    pm: remote.pm != null ? bool(remote.pm) : bool(local.pm),
+    exercise: remote.exercise != null ? bool(remote.exercise) : bool(local.exercise),
+    water: remote.water != null ? bool(remote.water) : bool(local.water),
+    feet: remote.feet != null ? bool(remote.feet) : bool(local.feet),
+    visits: remote.visits != null ? num(remote.visits) : num(local.visits),
+    videoSeconds: remote.videoSeconds != null ? num(remote.videoSeconds) : num(local.videoSeconds),
+    videos: remote.videos || local.videos || {},
+    games: { make13: rg.make13 != null ? num(rg.make13) : num(lg.make13), pairs: rg.pairs != null ? num(rg.pairs) : num(lg.pairs), words: rg.words != null ? num(rg.words) : num(lg.words) },
+    wordsPoints: remote.wordsPoints != null ? num(remote.wordsPoints) : num(local.wordsPoints)
+  };
+}
 function openActivity() {
   document.getElementById('list-view').style.display = 'none';
   document.getElementById('activity-view').classList.add('open');
   renderActivity();
+  refreshRemoteActivity();
 }
 function closeActivity() {
   document.getElementById('activity-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
+  maybeRefreshWeather();
 }
 function renderActivity() {
   var body = document.getElementById('activity-body');
   var key = todayKey();
-  var rec = dayRecord(key);
+  var rec = activityDayForGrid(key);
   var html = '';
+  // v16: Daily tasks — a grid of every task, one column per day, five days
+  // up to today. Done shows a check; not done shows a dash, so undone
+  // reads as undone. No future days: they cannot be completed yet.
+  html += '<div class="act-sec">Daily tasks</div>';
+  html += '<div class="act-note">' + (remoteActivity ? 'Shared' : 'On this device') + '</div>';
+  var now = new Date();
+  var days = [];
+  for (var off = -4; off <= 0; off++) {
+    var dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + off);
+    var dk = calKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    days.push({ key: dk, dow: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dt.getDay()], num: dt.getDate(), today: off === 0, rec: activityDayForGrid(dk) });
+  }
+  html += '<table class="act-grid"><tr><th></th>';
+  days.forEach(function (d) {
+    html += '<th' + (d.today ? ' class="today"' : '') + '>' + d.dow + ' ' + d.num + '</th>';
+  });
+  html += '</tr>';
+  DAY_CHECKS.forEach(function (c) {
+    html += '<tr><td class="task">' + c.label + '</td>';
+    days.forEach(function (d) {
+      var done = !!d.rec[c.field];
+      html += '<td' + (d.today ? ' class="today"' : '') + '>' + (done ? '<span class="yes">\u2713</span>' : '<span class="no">\u2013</span>') + '</td>';
+    });
+    html += '</tr>';
+  });
+  html += '<tr><td class="task">Visits</td>';
+  days.forEach(function (d) {
+    var n = d.rec.visits || 0;
+    html += '<td' + (d.today ? ' class="today"' : '') + '><span class="num' + (n === 0 ? ' zero' : '') + '">' + n + '</span></td>';
+  });
+  html += '</tr></table>';
   // Videos: time today, then each folder's clicks and watches.
   var folders = Object.keys(rec.videos || {});
   html += '<div class="act-sec">Videos</div>';
@@ -1100,22 +1480,6 @@ function renderActivity() {
   html += '<div class="act-row"><span>Hidden Words</span><span class="n">' + (g.words || 0) + '</span></div>';
   html += '<div class="act-row"><span>Total</span><span class="n">' + total + '</span></div>';
   html += '<div class="act-row"><span>Words points</span><span class="n">' + (rec.wordsPoints || 0) + '</span></div>';
-  // Visits: one count per day, two days before today to two days after.
-  html += '<div class="act-sec">Visits</div>';
-  var now = new Date();
-  var days = [];
-  for (var off = -2; off <= 2; off++) {
-    var dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + off);
-    var k = calKey(dt.getFullYear(), dt.getMonth(), dt.getDate());
-    var r = dayRecord(k);
-    var dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dt.getDay()];
-    days.push({ dow: dow, n: (r.visits || 0), today: off === 0 });
-  }
-  html += '<div class="act-days">';
-  days.forEach(function (d) {
-    html += '<div class="act-day' + (d.today ? ' today' : '') + '"><div class="d">' + d.dow + '</div><div class="v">' + d.n + '</div></div>';
-  });
-  html += '</div>';
   body.innerHTML = html;
 }
 // --- Calendar (v12): month grid, today highlighted; tap a day for its
@@ -1207,23 +1571,56 @@ function openCalendar() {
   calYear = now.getFullYear();
   calMonth = now.getMonth();
   calDay = null;
+  // v18: only one X is visible while the calendar is open — the one in
+  // the calendar header. The list-top back X is hidden until the
+  // calendar closes.
+  document.getElementById('back-btn').style.display = 'none';
   document.getElementById('tiles').style.display = 'none';
   document.getElementById('count').style.display = 'none';
   document.getElementById('cal-view').classList.add('open');
   renderCalendar();
+  // v18 revised: fetch the shared activity so the day view can show the
+  // GitHub copy when this browser's own storage is empty.
+  refreshRemoteActivity();
 }
 function closeCalendar() {
+  // v16: if a day view is open, the back button goes back to the month
+  // grid, not all the way out to the tiles.
+  if (calDay != null) { closeCalDay(); return; }
   document.getElementById('cal-view').classList.remove('open');
   document.getElementById('tiles').style.display = '';
   document.getElementById('count').style.display = '';
+  // v18: restore the list-top back X (hidden while the calendar was open).
+  document.getElementById('back-btn').style.display = (folderStack.length > 1) ? 'inline-flex' : 'none';
+  maybeRefreshWeather();
 }
 function calShift(delta) {
+  // v18: in a day view the carets move one day, not one month.
+  if (calDay != null) { calDayShift(delta); return; }
   calMonth += delta;
   if (calMonth < 0) { calMonth = 11; calYear -= 1; }
   if (calMonth > 11) { calMonth = 0; calYear += 1; }
   renderCalendar();
 }
+// v18: move to the adjacent day from a day view. Future days are blocked
+// with the same message as tapping a future day; past days just open.
+function calDayShift(delta) {
+  if (calDay == null) return;
+  var d = new Date(calYear, calMonth, calDay + delta);
+  var now = new Date();
+  var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  if (d.getTime() > t0) {
+    var diff = Math.round((d.getTime() - t0) / 86400000);
+    var rel = diff === 1 ? 'tomorrow' : diff === 2 ? 'two days from now' : diff + ' days from now';
+    showToast("That's tomorrow — nothing to do.");
+    return;
+  }
+  calYear = d.getFullYear();
+  calMonth = d.getMonth();
+  renderCalDay(d.getDate());
+}
 function renderCalendar() {
+  calDay = null;
   document.getElementById('cal-day').style.display = 'none';
   document.getElementById('cal-month').style.display = '';
   document.getElementById('cal-title').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
@@ -1251,12 +1648,67 @@ var DAY_CHECKS = [
   { field: 'water', label: 'Drink water' },
   { field: 'feet', label: 'Sit with feet raised' }
 ];
+// v16: date guards. Activity is recorded on the day it happens: future
+// dates cannot be set at all, and past dates ask first (so a tap on the
+// wrong day does not silently change another day).
+function calRelName(d) {
+  var now = new Date();
+  var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  var t1 = new Date(calYear, calMonth, d).getTime();
+  var diff = Math.round((t1 - t0) / 86400000);
+  if (diff === 1) return "tomorrow";
+  if (diff === 2) return "two days from now";
+  return diff + ' days from now';
+}
+// v18 revised: past dates ask with a custom in-app popup (no browser
+// confirm). It names the day in short form, e.g. "Tues Nov 2".
+var DOW_SHORT = ['Sun', 'Mon', 'Tues', 'Wed', 'Thu', 'Fri', 'Sat'];
+var MON_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function shortDayLabel(y, m, d) {
+  var wd = new Date(y, m, d);
+  return DOW_SHORT[wd.getDay()] + ' ' + MON_SHORT[m] + ' ' + d;
+}
+var pastConfirmYes = null;
+function showPastConfirm(d, onYes) {
+  var msg = document.getElementById('confirm-msg');
+  if (msg) msg.textContent = 'Do you want to update ' + shortDayLabel(calYear, calMonth, d) + '?';
+  pastConfirmYes = onYes || null;
+  var pop = document.getElementById('confirm-pop');
+  if (pop) { pop.classList.add('open'); pop.setAttribute('aria-hidden', 'false'); }
+}
+function hidePastConfirm() {
+  pastConfirmYes = null;
+  var pop = document.getElementById('confirm-pop');
+  if (pop) { pop.classList.remove('open'); pop.setAttribute('aria-hidden', 'true'); }
+}
+function pastConfirmAnswer(yes) {
+  var cb = pastConfirmYes;
+  hidePastConfirm();
+  if (yes && cb) cb();
+}
 function openCalDay(d) {
+  var now = new Date();
+  var t0 = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  var t1 = new Date(calYear, calMonth, d).getTime();
+  if (t1 > t0) {
+    showToast("That's tomorrow — nothing to do.");
+    return;
+  }
+  if (t1 < t0) {
+    showPastConfirm(d, function () { renderCalDay(d); });
+    return;
+  }
+  renderCalDay(d);
+}
+function renderCalDay(d) {
   calDay = d;
+  document.getElementById('cal-title').textContent = MONTH_NAMES[calMonth] + ' ' + calYear;
   var key = calKey(calYear, calMonth, d);
   var wd = new Date(calYear, calMonth, d);
   var dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][wd.getDay()];
-  var rec = dayRecord(key);
+  // v18 revised: the day view shows the merged local + GitHub record, so
+  // a fresh browser shows checks that another browser already sent up.
+  var rec = activityDayForGrid(key);
   document.getElementById('cal-month').style.display = 'none';
   var dv = document.getElementById('cal-day');
   dv.style.display = '';
@@ -1275,11 +1727,18 @@ function closeCalDay() { renderCalendar(); }
 // A day check tap saves the change and sends the activity up, so the
 // family sees today's status during the day.
 function toggleCheck(key, field) {
+  // v18 revised: flip the value the day view is showing (merged local +
+  // GitHub), but only change that one field in the local record.
+  var shown = activityDayForGrid(key);
   var rec = dayRecord(key);
-  rec[field] = !rec[field];
+  rec[field] = !shown[field];
   daySave(key, rec);
+  // Keep the in-memory shared copy in step, so the re-render shows the
+  // new value even before the GitHub copy catches up.
+  if (remoteActivity && remoteActivity[key]) remoteActivity[key][field] = rec[field];
   syncActivityToGitHub();
-  openCalDay(calDay);
+  showToast('Recorded');
+  renderCalDay(calDay);
 }
 function setVisits(key, val) {
   var n = parseInt(val, 10);
@@ -1288,8 +1747,10 @@ function setVisits(key, val) {
   var rec = dayRecord(key);
   rec.visits = n;
   daySave(key, rec);
+  if (remoteActivity && remoteActivity[key]) remoteActivity[key].visits = n;
   syncActivityToGitHub();
-  openCalDay(calDay);
+  showToast('Recorded');
+  renderCalDay(calDay);
 }
 function openGame(which) {
   document.getElementById('games-view').classList.remove('open');
@@ -1405,6 +1866,7 @@ function openCalc() {
 function closeCalc() {
   document.getElementById('calc-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
+  maybeRefreshWeather();
 }
 
 // --- Settings (sticky in localStorage; words file in IndexedDB) ---
@@ -1412,16 +1874,27 @@ var SET_CITY = 'player_city', SET_CITY_LAT = 'player_city_lat', SET_CITY_LON = '
 var SET_TARGET = 'player_target', SET_TIME = 'player_time';
 var SET_GH_REPO = 'player_gh_repo', SET_GH_TOKEN = 'player_gh_token';
 var SET_WORD_MIN = 'player_word_min', SET_WORD_MAX = 'player_word_max';
+var SET_PERS_MIN = 'player_pers_min', SET_PERS_MAX = 'player_pers_max';
+var SET_TOAST_SECS = 'player_toast_secs';
+var DEF_TOAST_SECS = 5;
 var DEF_TARGET = 300, DEF_TIME_MIN = 3, DEF_CITY = 'Chicago';
 var DEF_WORD_MIN = 4, DEF_WORD_MAX = 10;
+var DEF_PERS_MIN = 1, DEF_PERS_MAX = 2;
 function setVal(k, v) { try { localStorage.setItem(k, String(v)); } catch (e) {} }
 function getVal(k, def) { try { var v = localStorage.getItem(k); return (v == null || v === '') ? def : v; } catch (e) { return def; } }
 function settingTarget() { var n = parseInt(getVal(SET_TARGET, DEF_TARGET), 10); return (isFinite(n) && n > 0) ? n : DEF_TARGET; }
 function settingTimeMin() { var n = parseFloat(getVal(SET_TIME, DEF_TIME_MIN)); return (isFinite(n) && n > 0) ? n : DEF_TIME_MIN; }
 function settingCity() { return getVal(SET_CITY, DEF_CITY); }
-// v14: word length range. Min never below 4, max never above 10.
+// v18 revised: toast duration in seconds (any value, sticky). Default 5.
+function settingToastSecs() { var s = parseFloat(getVal(SET_TOAST_SECS, DEF_TOAST_SECS)); return (isFinite(s) && s >= 0) ? s : DEF_TOAST_SECS; }
+function toastDurationMs() { return Math.round(settingToastSecs() * 1000); }
+// v14: word length range, general pool only (v16). Min never below 4,
+// max never above 10.
 function settingWordMin() { var n = parseInt(getVal(SET_WORD_MIN, DEF_WORD_MIN), 10); if (!isFinite(n)) return DEF_WORD_MIN; return Math.max(4, Math.min(10, n)); }
 function settingWordMax() { var n = parseInt(getVal(SET_WORD_MAX, DEF_WORD_MAX), 10); if (!isFinite(n)) return DEF_WORD_MAX; return Math.max(4, Math.min(10, n)); }
+// v16: personal-words count range (words from the extra words file).
+function settingPersMin() { var n = parseInt(getVal(SET_PERS_MIN, DEF_PERS_MIN), 10); if (!isFinite(n)) return DEF_PERS_MIN; return Math.max(0, Math.min(WORD_COUNT, n)); }
+function settingPersMax() { var n = parseInt(getVal(SET_PERS_MAX, DEF_PERS_MAX), 10); if (!isFinite(n)) return DEF_PERS_MAX; return Math.max(settingPersMin(), Math.min(WORD_COUNT, n)); }
 function settingCityLat() { var n = parseFloat(getVal(SET_CITY_LAT, '')); return isFinite(n) ? n : null; }
 function settingCityLon() { var n = parseFloat(getVal(SET_CITY_LON, '')); return isFinite(n) ? n : null; }
 function openSettings() {
@@ -1430,6 +1903,9 @@ function openSettings() {
   document.getElementById('set-time').value = settingTimeMin();
   document.getElementById('set-word-min').value = settingWordMin();
   document.getElementById('set-word-max').value = settingWordMax();
+  document.getElementById('set-pers-min').value = settingPersMin();
+  document.getElementById('set-pers-max').value = settingPersMax();
+  document.getElementById('set-toast').value = settingToastSecs();
   document.getElementById('set-gh-repo').value = getVal(SET_GH_REPO, '');
   document.getElementById('set-gh-token').value = getVal(SET_GH_TOKEN, '');
   document.getElementById('set-city-results').innerHTML = '';
@@ -1440,6 +1916,7 @@ function openSettings() {
 function closeSettings() {
   document.getElementById('settings-view').classList.remove('open');
   document.getElementById('list-view').style.display = '';
+  maybeRefreshWeather();
 }
 // v14: Settings auto-save — every field saves itself as it changes, so
 // there is no Save button. The city search is the only place that uses
@@ -1506,6 +1983,38 @@ function wireSettingsAutosave() {
     if (n < settingWordMin()) { setVal(SET_WORD_MIN, n); document.getElementById('set-word-min').value = n; }
     setSaved();
   });
+  numField('set-pers-min', function (v) {
+    var n = parseInt(v, 10);
+    if (!isFinite(n)) return;
+    n = Math.max(0, Math.min(WORD_COUNT, n));
+    setVal(SET_PERS_MIN, n);
+    // Keep the range valid: min above max lifts the max up to it.
+    if (n > settingPersMax()) { setVal(SET_PERS_MAX, n); document.getElementById('set-pers-max').value = n; }
+    setSaved();
+  });
+  numField('set-pers-max', function (v) {
+    var n = parseInt(v, 10);
+    if (!isFinite(n)) return;
+    n = Math.max(0, Math.min(WORD_COUNT, n));
+    setVal(SET_PERS_MAX, n);
+    // Keep the range valid: max below min pulls the min down to it.
+    if (n < settingPersMin()) { setVal(SET_PERS_MIN, n); document.getElementById('set-pers-min').value = n; }
+    setSaved();
+  });
+  // v18 revised: toast duration in seconds — any non-negative number.
+  numField('set-toast', function (v) {
+    var n = parseFloat(v);
+    if (!isFinite(n) || n < 0) return;
+    setVal(SET_TOAST_SECS, n);
+    setSaved();
+  });
+  // v16: the typed city name saves when the field changes (blur/Enter),
+  // so a city counts even if no match is ever tapped.
+  var cityField = document.getElementById('set-city');
+  if (cityField) cityField.addEventListener('change', function () {
+    var v = cityField.value.trim();
+    if (v) { setVal(SET_CITY, v); setSaved(); renderTopStrip(); }
+  });
   function textField(id, key) {
     var el = document.getElementById(id);
     if (!el) return;
@@ -1571,14 +2080,50 @@ function geocodeCity(name, done) {
     })
     .catch(function () { if (done) done(null); });
 }
+// v16: weather auto-refresh (home view only) + a hint when it is not showing.
+var WX_REFRESH_MS = 15 * 60 * 1000;
+var wxLastOk = 0;
+var wxTimerId = null;
+function isHomeView() {
+  var lv = document.getElementById('list-view');
+  if (!lv || lv.style.display === 'none') return false;
+  if (document.getElementById('player-view').classList.contains('open')) return false;
+  if (document.querySelectorAll('.game-view.open').length) return false;
+  var t = document.getElementById('tiles');
+  if (t && t.style.display === 'none') return false;
+  return true;
+}
+function maybeRefreshWeather() {
+  if (!isHomeView()) return;
+  if (Date.now() - wxLastOk < WX_REFRESH_MS) return;
+  renderTopStrip();
+}
+function startWxTimer() {
+  if (wxTimerId) return;
+  wxTimerId = setInterval(function () { if (isHomeView()) renderTopStrip(); }, WX_REFRESH_MS);
+}
+function updateWxHint(showing) {
+  var hint = document.getElementById('wx-hint');
+  if (!hint) return;
+  if (showing) { hint.style.display = 'none'; return; }
+  var hasCoords = settingCityLat() != null && settingCityLon() != null;
+  hint.textContent = hasCoords ? 'Weather unavailable right now.' : 'Weather: select a city in Settings.';
+  hint.style.display = '';
+}
 function renderTopStrip() {
   renderDayDate();
   var wx = document.getElementById('wx-line');
   var city = settingCity();
   var lat = settingCityLat(), lon = settingCityLon();
-  function show(text) { wx.textContent = text; }
+  function show(text, loading) {
+    wx.textContent = text;
+    if (loading) { updateWxHint(true); return; }
+    var ok = text.indexOf('\u00b0F') >= 0;
+    if (ok) wxLastOk = Date.now();
+    updateWxHint(ok);
+  }
   if (lat == null || lon == null) {
-    show(city + ' · …');
+    show(city + ' \u00b7 \u2026', true);
     geocodeCity(city, function (co) {
       if (!co) { show(city); return; }
       loadWeather(co.lat, co.lon, city, show);
@@ -1751,12 +2296,9 @@ function afterGridMove(which) {
 // --- Hidden Words: find hidden words in a letter grid; a new puzzle follows ---
 var WORD_LIST = ['GOSPEL', 'MUSIC', 'FAITH', 'HOPE', 'LOVE', 'PEACE', 'SING', 'SONG', 'PIANO', 'CHURCH', 'PRAYER', 'ANGEL', 'FAMILY', 'FRIEND', 'HAPPY', 'SMILE', 'FLOWER', 'GARDEN', 'SUNSHINE', 'RIVER', 'OCEAN', 'MOUNTAIN', 'SPRING', 'SUMMER', 'AUTUMN', 'WINTER', 'APPLE', 'BANANA', 'ORANGE', 'BREAD', 'COFFEE', 'BOOK', 'STORY', 'DREAM', 'STAR', 'MOON', 'RAIN', 'SNOW', 'BIRD', 'TREE', 'HOME', 'HOUSE', 'TABLE', 'CHAIR', 'WINDOW', 'ROAD', 'TRAIN', 'PLANE', 'SHIP', 'FISH', 'CAKE', 'HONEY', 'MILK', 'SOUP', 'SALAD', 'PASTA', 'PIZZA', 'CHEESE', 'BUTTER', 'CORN', 'BEAN', 'RICE', 'PLUM', 'PEAR', 'MELON', 'LEMON', 'GRAPE', 'PEACH', 'CHERRY', 'BERRY', 'MANGO', 'LAUGH', 'DANCE', 'HEART', 'LIGHT', 'GRACE', 'BLESS', 'PSALM', 'HYMN', 'CHOIR', 'ORGAN', 'VIOLIN', 'GUITAR', 'TRUMPET', 'DRUM', 'BELL', 'CANDLE', 'CROSS', 'CROWN', 'CLOUD', 'STORM', 'BREEZE', 'MEADOW', 'FOREST', 'VALLEY', 'DESERT', 'ISLAND', 'BEACH', 'WAVES', 'SUNSET', 'SUNRISE', 'MORNING', 'EVENING', 'THUNDER', 'RAINBOW', 'LEAF', 'BLOOM', 'PETAL', 'ROSE', 'TULIP', 'DAISY', 'LILY', 'VIOLET', 'ORCHID', 'JASMINE', 'LAVENDER', 'HERB', 'MINT', 'BASIL', 'SAGE', 'THYME', 'ROSEMARY', 'GINGER', 'CINNAMON', 'VANILLA', 'COCOA', 'SUGAR', 'SALT', 'PEPPER', 'ONION', 'GARLIC', 'POTATO', 'CARROT', 'TOMATO', 'LETTUCE', 'CABBAGE', 'CELERY', 'SPINACH', 'BROCCOLI', 'CUCUMBER', 'ZUCCHINI', 'EGGPLANT', 'AVOCADO', 'COCONUT', 'PINEAPPLE', 'STRAWBERRY', 'BLUEBERRY', 'RASPBERRY', 'BLACKBERRY', 'WATERMELON', 'CANTALOUPE', 'APRICOT', 'NECTARINE', 'KIWI', 'PAPAYA', 'GUAVA', 'LYCHEE', 'DATE', 'OLIVE', 'ALMOND', 'WALNUT', 'PECAN', 'CASHEW', 'PEANUT', 'HAZELNUT', 'CHESTNUT', 'PISTACHIO', 'SESAME', 'POPCORN', 'PRETZEL', 'MUFFIN', 'BAGEL', 'DONUT', 'COOKIE', 'BROWNIE', 'CUPCAKE', 'PANCAKE', 'WAFFLE', 'SYRUP', 'JELLY', 'MAPLE', 'CREAM', 'YOGURT', 'CEREAL', 'OATMEAL', 'GRANOLA', 'TOAST', 'SANDWICH', 'BURGER', 'HOTDOG', 'TACOS', 'BURRITO', 'LASAGNA', 'SPAGHETTI', 'MACARONI', 'RAVIOLI', 'RISOTTO', 'PAELLA', 'CURRY', 'STEW', 'ROAST', 'GRILL', 'BAKED', 'FRIED', 'SAUCE', 'GRAVY', 'DRESSING', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELISH', 'PICKLE', 'CAPER', 'ANCHOVY', 'SARDINE', 'SALMON', 'TUNA', 'TROUT', 'BASS', 'PERCH', 'CATFISH', 'SHRIMP', 'CRAB', 'LOBSTER', 'OYSTER', 'MUSSEL', 'CLAM', 'SCALLOP', 'SQUID', 'OCTOPUS', 'WHALE', 'DOLPHIN', 'SHARK', 'SEAL', 'OTTER', 'BEAVER', 'RACCOON', 'SQUIRREL', 'CHIPMUNK', 'RABBIT', 'HARE', 'DEER', 'MOOSE', 'BISON', 'BUFFALO', 'HORSE', 'PONY', 'DONKEY', 'MULE', 'GOAT', 'SHEEP', 'LAMB', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'PIGEON', 'SPARROW', 'ROBIN', 'BLUEJAY', 'CARDINAL', 'FINCH', 'WREN', 'EAGLE', 'HAWK', 'FALCON', 'RAVEN', 'CROW', 'DOVE', 'SWAN', 'HERON', 'STORK', 'CRANE', 'FLAMINGO', 'PELICAN', 'PENGUIN', 'OSTRICH', 'PEACOCK', 'PARROT', 'CANARY', 'COCKATOO', 'MACAW', 'TOUCAN', 'BUTTERFLY', 'MOTH', 'WASP', 'SPIDER', 'LADYBUG', 'FIREFLY', 'DRAGONFLY', 'CICADA', 'CRICKET', 'BEETLE', 'SNAIL', 'SLUG', 'WORM', 'FROG', 'TOAD', 'LIZARD', 'SNAKE', 'TURTLE', 'TORTOISE', 'CROCODILE', 'ALLIGATOR', 'CHAMELEON', 'GECKO', 'IGUANA', 'PYTHON', 'COBRA', 'VIPER', 'ANACONDA', 'JAGUAR', 'LEOPARD', 'CHEETAH', 'LION', 'TIGER', 'PANTHER', 'PUMA', 'COUGAR', 'LYNX', 'BOBCAT', 'OCELOT', 'WOLF', 'COYOTE', 'HYENA', 'JACKAL', 'MEERKAT', 'MONKEY', 'GORILLA', 'CHIMP', 'BABOON', 'LEMUR', 'KOALA', 'PANDA', 'KANGAROO', 'WALLABY', 'WOMBAT', 'PLATYPUS', 'HEDGEHOG', 'PORCUPINE', 'ARMADILLO', 'ANTEATER', 'SLOTH', 'BADGER', 'WEASEL', 'FERRET', 'MINK', 'SKUNK', 'OPOSSUM', 'MOLE', 'VOLE', 'SHREW', 'MOUSE', 'HAMSTER', 'GERBIL', 'GUINEA', 'CAPYBARA', 'MOTHER', 'FATHER', 'SISTER', 'BROTHER', 'GRANDMA', 'GRANDPA', 'GRANNY', 'AUNTIE', 'UNCLE', 'COUSIN', 'NEPHEW', 'NIECE', 'BABY', 'CHILD', 'TEEN', 'ADULT', 'ELDER', 'NEIGHBOR', 'TEACHER', 'DOCTOR', 'NURSE', 'COOK', 'BAKER', 'FARMER', 'DRIVER', 'PILOT', 'SAILOR', 'SOLDIER', 'ARTIST', 'SINGER', 'DANCER', 'ACTOR', 'WRITER', 'POET', 'PAINTER', 'MUSICIAN', 'COMPOSER', 'CONDUCTOR', 'PIANIST', 'DRUMMER', 'CELLIST', 'FLUTIST', 'HARP', 'BANJO', 'MANDOLIN', 'ACCORDION', 'HARMONICA', 'SAXOPHONE', 'CLARINET', 'OBOE', 'BASSOON', 'TUBA', 'HORN', 'CORNET', 'TROMBONE', 'MARIMBA', 'XYLOPHONE', 'TAMBOURINE', 'BAGPIPE', 'UKULELE', 'SITAR', 'LUTE', 'LYRE', 'ZITHER', 'MELODY', 'HARMONY', 'RHYTHM', 'TEMPO', 'BEAT', 'TUNE', 'ANTHEM', 'BALLAD', 'CAROL', 'VERSE', 'STANZA', 'REFRAIN', 'CHORUS', 'BRIDGE', 'INTRO', 'OUTRO', 'CODA', 'FINALE', 'OVERTURE', 'PRELUDE', 'NOCTURNE', 'SERENADE', 'CONCERTO', 'SYMPHONY', 'SONATA', 'SUITE', 'FUGUE', 'CANON', 'RONDO', 'MINUET', 'GAVOTTE', 'WALTZ', 'TANGO', 'FOXTROT', 'RUMBA', 'SAMBA', 'MAMBO', 'SALSA', 'SWING', 'JAZZ', 'BLUES', 'ROCK', 'FOLK', 'COUNTRY', 'SPIRITUAL', 'MOTET', 'MASS', 'REQUIEM', 'ORATORIO', 'OPERA', 'OPERETTA', 'MUSICAL', 'BALLET', 'REVUE', 'CABARET', 'PANTOMIME', 'COMEDY', 'TRAGEDY', 'DRAMA', 'SATIRE', 'PARODY', 'IRONY', 'HUMOR', 'JEST', 'PRANK', 'TRICK', 'JOKE', 'RIDDLE', 'PUZZLE', 'MAZE', 'GAME', 'PLAY', 'DOLL', 'KITE', 'BALL', 'MITT', 'GLOVE', 'HELMET', 'JERSEY', 'UNIFORM', 'CLEAT', 'SPIKE', 'RACKET', 'PADDLE', 'CLUB', 'IRON', 'WEDGE', 'PUTTER', 'CADDIE', 'BIRDIE', 'BOGEY', 'HOLE', 'GREEN', 'FAIRWAY', 'ROUGH', 'BUNKER', 'HAZARD', 'WATER', 'SAND', 'TRAP', 'FLAG', 'MARKER', 'DIVOT', 'STANCE', 'GRIP', 'STROKE', 'PUTT', 'CHIP', 'PITCH', 'DRIVE', 'LAYUP', 'DUNK', 'HOOP', 'COURT', 'FIELD', 'DIAMOND', 'MOUND', 'PLATE', 'BASE', 'BATTER', 'PITCHER', 'CATCHER', 'INFIELD', 'OUTFIELD', 'DUGOUT', 'BULLPEN', 'BLEACHER', 'STAND', 'CROWD', 'CHEER', 'WAVE', 'CLAP', 'STOMP', 'WHISTLE', 'SIREN', 'ALARM', 'CLOCK', 'WATCH', 'TIMER', 'CHIME', 'GONG', 'CYMBAL', 'TRIANGLE', 'MARACA', 'CLAVE', 'GUIRO', 'SHAKER', 'KALIMBA', 'MBIRA', 'CONGA', 'BONGO', 'DJEMBE', 'TABLA', 'FRAME', 'PERCUSSION', 'SECTION', 'ENSEMBLE', 'ORCHESTRA', 'BAND', 'QUARTET', 'QUINTET', 'TRIO', 'SOLO', 'DUET', 'OCTET', 'SEPTET', 'SEXTET', 'NONET', 'CHAMBER', 'CONCERT', 'RECITAL', 'SHOW', 'STAGE', 'CURTAIN', 'SPOTLIGHT', 'BACKSTAGE', 'REHEARSAL', 'AUDITION', 'CAST', 'CREW', 'DIRECTOR', 'PRODUCER', 'MANAGER', 'AGENT', 'PROMOTER', 'VENUE', 'ARENA', 'STADIUM', 'THEATER', 'HALL', 'PAVILION', 'GAZEBO', 'PERGOLA', 'ARBOR', 'TRELLIS', 'FENCE', 'GATE', 'WALL', 'ARCH', 'DOME', 'TOWER', 'SPIRE', 'STEEPLE', 'BELFRY', 'CUPOLA', 'ROTUNDA', 'ATRIUM', 'LOBBY', 'FOYER', 'CORRIDOR', 'HALLWAY', 'STAIR', 'ELEVATOR', 'RAMP', 'LANDING', 'BALCONY', 'TERRACE', 'PORCH', 'DECK', 'PATIO', 'YARD', 'LAWN', 'PATH', 'WALK', 'TRAIL', 'STREET', 'AVENUE', 'LANE', 'ALLEY', 'PLAZA', 'SQUARE', 'CIRCLE', 'CURB', 'GUTTER', 'DRAIN', 'SEWER', 'PIPE', 'VALVE', 'FAUCET', 'SHOWER', 'BASIN', 'SINK', 'MIRROR', 'TOWEL', 'SOAP', 'SHAMPOO', 'TOOTHPASTE', 'FLOSS', 'RAZOR', 'COMB', 'BRUSH', 'SCISSORS', 'NAIL', 'CLIPPER', 'FILE', 'TWEEZER', 'COTTON', 'BANDAGE', 'OINTMENT', 'PILL', 'TABLET', 'CAPSULE', 'DROPS', 'SPRAY', 'LOTION', 'POWDER', 'PERFUME', 'COLOGNE', 'LIPSTICK', 'MASCARA', 'EYELINER', 'BLUSH', 'PRIMER', 'SETTING', 'MIST', 'TONER', 'SERUM', 'ESSENCE', 'AMPOULE', 'MASK', 'PEEL', 'SCRUB', 'CLEANSER', 'WASH', 'RINSE', 'TREATMENT', 'THERAPY', 'MASSAGE', 'SAUNA', 'STEAM', 'BATH', 'SOAK', 'SWIM', 'DIVE', 'FLOAT', 'SPLASH', 'DRIP', 'DROP', 'POUR', 'SPILL', 'LEAK', 'FLOW', 'STREAM', 'BROOK', 'CREEK', 'POND', 'LAKE', 'POOL', 'COVE', 'INLET', 'OUTLET', 'HARBOR', 'PORT', 'DOCK', 'PIER', 'WHARF', 'QUAY', 'JETTY', 'LIGHTHOUSE', 'BEACON', 'BUOY', 'ANCHOR', 'CHAIN', 'ROPE', 'CABLE', 'KNOT', 'LOOP', 'HOOK', 'SPLICE', 'BINDING', 'WRAPPING', 'PACKING', 'CRATE', 'CARTON', 'CASE', 'CHEST', 'TRUNK', 'SUITCASE', 'POUCH', 'POCKET', 'WALLET', 'PURSE', 'HANDBAG', 'BACKPACK', 'SATCHEL', 'TOTE', 'DUFFEL', 'LUGGAGE', 'BAGGAGE', 'TICKET', 'BOARDING', 'PASSPORT', 'VISA', 'CUSTOMS', 'SECURITY', 'SCREENING', 'SCANNER', 'XRAY', 'METAL', 'DETECTOR', 'CONVEYOR', 'BELT', 'CAROUSEL', 'CLAIM', 'LOST', 'FOUND', 'OFFICE', 'DESK', 'COUNTER', 'DOOR', 'TERMINAL', 'CONCOURSE', 'HANGAR', 'RUNWAY', 'TAXIWAY', 'APRON', 'TARMAC', 'CONTROL', 'RADAR', 'NAVIGATION', 'COMPASS', 'CHART', 'ATLAS', 'GLOBE', 'SPHERE', 'ORBIT', 'AXIS', 'POLE', 'EQUATOR', 'MERIDIAN', 'PARALLEL', 'LATITUDE', 'LONGITUDE', 'TROPIC', 'ARCTIC', 'TEMPERATE', 'TROPICAL', 'POLAR', 'CLIMATE', 'WEATHER', 'SEASON', 'MONSOON', 'HURRICANE', 'TYPHOON', 'CYCLONE', 'TORNADO', 'TWISTER', 'FUNNEL', 'VORTEX', 'EDDY', 'CURRENT', 'TIDE', 'SURF', 'SWELL', 'RIPPLE', 'FOAM', 'HAZE', 'SMOG', 'DUST', 'SILT', 'CLAY', 'SOIL', 'LOAM', 'PEAT', 'HUMUS', 'COMPOST', 'MULCH', 'MANURE', 'SPROUT', 'SEEDLING', 'SAPLING', 'SHRUB', 'BUSH', 'HEDGE', 'VINE', 'MOSS', 'FERN', 'PALM', 'PINE', 'SPRUCE', 'CEDAR', 'BIRCH', 'ASPEN', 'WILLOW', 'POPLAR', 'BEECH', 'HICKORY', 'ACORN', 'CONE', 'NEEDLE', 'BARK', 'LIMB', 'TWIG', 'STICK', 'STUMP', 'RING', 'GRAIN', 'PLANK', 'BOARD', 'BEAM', 'JOIST', 'RAFTER', 'TRUSS', 'POST', 'PILLAR', 'COLUMN', 'CAPITAL', 'FOOTING', 'SLAB', 'BRICK', 'STONE', 'CONCRETE', 'MORTAR', 'CEMENT', 'PLASTER', 'DRYWALL', 'PANEL', 'TILE', 'SHINGLE', 'THATCH', 'SLATE', 'COPPER', 'BRASS', 'BRONZE', 'STEEL', 'ALUMINUM', 'LEAD', 'ZINC', 'NICKEL', 'CHROME', 'SILVER', 'GOLD', 'PLATINUM', 'RUBY', 'EMERALD', 'SAPPHIRE', 'TOPAZ', 'OPAL', 'PEARL', 'JADE', 'ONYX', 'QUARTZ', 'CRYSTAL', 'MARBLE', 'GRANITE', 'LIMESTONE', 'SANDSTONE', 'BASALT', 'OBSIDIAN', 'PUMICE', 'FLINT', 'CHERT', 'AGATE', 'JASPER', 'LAPIS', 'AMETHYST', 'CITRINE', 'GARNET', 'PERIDOT', 'SPINEL', 'ZIRCON', 'BERYL'];
 var WORD_COUNT = 7;
-var WORD_MIN_LEN = 4;
-var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, timerId: null, timeLeft: 0, timeUp: false, over: false, banked: false };
+var WORD_MIN_LEN = 3; // v16: hard floor — 2-letter words never allowed.
+var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, bonusPending: {}, puzzleId: 0, timerId: null, timeLeft: 0, timeUp: false, over: false, banked: false, startTime: 0, newFastest: false };
 var seedWords = { promoted: [], general: [] };
-var promotedSinceKey = 'player_promoted_since';
-function promotedSince() { try { var n = parseInt(localStorage.getItem(promotedSinceKey), 10); return isFinite(n) && n >= 0 ? n : 0; } catch (e) { return 0; } }
-function setPromotedSince(n) { try { localStorage.setItem(promotedSinceKey, String(n)); } catch (e) {} }
 function allWordsSet() {
   var s = {};
   WORD_LIST.forEach(function (w) { s[w] = true; });
@@ -1765,8 +2307,9 @@ function allWordsSet() {
   return s;
 }
 // Parse a words file: sections "# PROMOTED" and "# WORDS"; words separated by
-// spaces, commas, or new lines. Keeps 4-10 letter A-Z words, no duplicates,
-// nothing already in the built-in list.
+// spaces, commas, or new lines. Keeps 3-10 letter A-Z words (hard floor 3),
+// no duplicates, nothing already in the built-in list. The Settings length
+// range does not apply here: personal words ignore it (v16).
 function parseWordsText(text) {
   var out = { promoted: [], general: [] };
   var section = 'general';
@@ -1842,6 +2385,20 @@ function fmtClock(sec) {
   var m = Math.floor(sec / 60), s = sec % 60;
   return m + ':' + (s < 10 ? '0' : '') + s;
 }
+// v16: fastest Hidden Words completion (puzzle start -> all 7 found).
+var FASTEST_KEY = 'player_words_fastest';
+function fastestTime() { try { var n = parseFloat(localStorage.getItem(FASTEST_KEY)); return (isFinite(n) && n > 0) ? n : null; } catch (e) { return null; } }
+function checkFastest() {
+  if (!wordGame.startTime) return false;
+  var el = (Date.now() - wordGame.startTime) / 1000;
+  var best = fastestTime();
+  if (best == null || el < best) {
+    try { localStorage.setItem(FASTEST_KEY, String(Math.round(el * 10) / 10)); } catch (e) {}
+    wordGame.newFastest = true;
+    return true;
+  }
+  return false;
+}
 function renderWordTop() {
   var t = document.getElementById('words-timer');
   t.textContent = fmtClock(wordGame.timeLeft);
@@ -1849,7 +2406,9 @@ function renderWordTop() {
   // Total rises live: banked points from earlier games plus this game's points.
   var total = totalPoints() + (wordGame.banked ? 0 : wordGame.points);
   var pe = document.getElementById('words-points');
-  pe.innerHTML = 'Points: ' + wordGame.points + '<span class="total">Total: ' + total + '</span>';
+  var best = fastestTime();
+  var bestHtml = (best != null) ? '<span class="words-best">Best ' + fmtClock(best) + '</span>' : '';
+  pe.innerHTML = 'Points: ' + wordGame.points + bestHtml + '<span class="total">Total: ' + total + '</span>';
   renderBonusLine();
 }
 function renderBonusLine() {
@@ -1934,7 +2493,6 @@ function startWordTimer() {
 function showTimeUp() {
   var tu = document.getElementById('words-timeup');
   tu.classList.add('open');
-  document.getElementById('words-new-row').style.display = 'none';
   var found = wordGame.words.filter(function (w) { return wordGame.found[w.word]; }).length;
   document.getElementById('words-timeup-sub').textContent = 'You found ' + found + ' of 7 words. Finish now and keep your points, or buy more time.';
   // Finish keeps her earned points; the +30 bonus is already gone.
@@ -1965,19 +2523,26 @@ function showAwards(title, gamePts) {
   stopWordTimer();
   wordGame.over = true;
   hideTimeUp();
+  document.getElementById('words-startover-row').style.display = 'none';
   var total = totalPoints();
   document.getElementById('words-awards-title').textContent = title;
   var txt = 'You scored ' + gamePts + ' points. Total: ' + total + ' points.';
+  if (wordGame.newFastest) txt += ' New fastest time!';
   if (total >= settingTarget()) txt += ' You reached your target of ' + settingTarget() + ' points!';
   document.getElementById('words-awards-pts').textContent = txt;
   document.getElementById('words-awards').classList.add('open');
-  document.getElementById('words-new-row').style.display = '';
   renderBonusLine();
   if (title === 'You did it!') { showConfetti(); playWinSound(); }
 }
-function wordsNextPuzzle() {
+// v16: end of game — one button only, "Next game", in the top area.
+function wordsNextGame() {
   document.getElementById('words-awards').classList.remove('open');
-  document.getElementById('words-new-row').style.display = 'none';
+  newWordPuzzle();
+}
+// v16: one mid-game button. It asks first, then starts a new puzzle.
+function wordsStartOver() {
+  if (wordGame.over) return;
+  if (!window.confirm('Stop this game and start a new one?')) return;
   newWordPuzzle();
 }
 function wordsFinish() {
@@ -1993,30 +2558,41 @@ function wordsFinish() {
 function newWordPuzzle() {
   stopWordTimer();
   var size = wordGame.size;
-  // v14: the word length range comes from Settings (min never below 4).
+  // v16: the Settings length range applies ONLY to the general pool (the
+  // built-in list). Personal words ignore it; the hard floor is 3 letters.
   var wMin = settingWordMin(), wMax = settingWordMax();
   if (wMin > wMax) wMax = wMin;
   wMax = Math.min(wMax, size);
-  // Pick the words: a promoted word when one is due (none in 3 games), or
-  // sometimes; then seed general words; then the built-in list.
-  var promoted = seedWords.promoted.slice();
-  var due = promoted.length > 0 && promotedSince() >= 3;
-  var includePromoted = due || (promoted.length > 0 && Math.random() < 0.34);
-  var chosen = [];
-  var usedPromoted = false;
-  if (includePromoted) {
-    var pw = promoted[Math.floor(Math.random() * promoted.length)];
-    if (pw && pw.length >= wMin && pw.length <= wMax) {
-      chosen.push(pw);
-      usedPromoted = true;
-    }
-  }
-  var generalPool = shuffleArr(seedWords.general.slice().concat(WORD_LIST.slice()));
+  // Personal pool: every word from the extra words file (promoted and
+  // general sections), 3-10 letters, no duplicates.
+  var personalPool = shuffleArr(seedWords.promoted.slice().concat(seedWords.general.slice()).filter(function (w) {
+    return w.length >= WORD_MIN_LEN && w.length <= size;
+  }));
+  var seenP = {};
+  personalPool = personalPool.filter(function (w) { if (seenP[w]) return false; seenP[w] = true; return true; });
+  // General pool: the built-in list only, inside the Settings length range.
+  var generalPool = shuffleArr(WORD_LIST.slice().filter(function (w) {
+    return w.length >= wMin && w.length <= wMax;
+  }));
+  // How many personal words: between the Settings min and max.
+  var pMin = settingPersMin(), pMax = settingPersMax();
+  var target = pMin;
+  if (pMax > pMin) target = pMin + Math.floor(Math.random() * (pMax - pMin + 1));
+  target = Math.min(target, personalPool.length, WORD_COUNT);
+  var chosen = personalPool.slice(0, target);
   for (var i = 0; i < generalPool.length && chosen.length < WORD_COUNT; i++) {
     var w = generalPool[i];
-    if (w.length >= wMin && w.length <= wMax && chosen.indexOf(w) < 0) chosen.push(w);
+    if (chosen.indexOf(w) < 0) chosen.push(w);
   }
-  setPromotedSince(usedPromoted ? 0 : promotedSince() + 1);
+  // Safety net: if the pools ran short, fill from any usable word.
+  if (chosen.length < WORD_COUNT) {
+    var rest = shuffleArr(WORD_LIST.slice().concat(personalPool));
+    for (var j = 0; j < rest.length && chosen.length < WORD_COUNT; j++) {
+      var w2 = rest[j];
+      if (w2.length >= WORD_MIN_LEN && w2.length <= size && chosen.indexOf(w2) < 0) chosen.push(w2);
+    }
+  }
+  chosen = shuffleArr(chosen);
   var grid = [];
   for (var r = 0; r < size; r++) grid.push(new Array(size).fill(''));
   var placed = [];
@@ -2060,6 +2636,8 @@ function newWordPuzzle() {
   wordGame.foundCells = {};
   wordGame.bonusCells = {};
   wordGame.bonusWords = {};
+  wordGame.bonusPending = {};
+  wordGame.puzzleId = (wordGame.puzzleId || 0) + 1;
   wordGame.points = 0;
   wordGame.bonus = 30;
   wordGame.over = false;
@@ -2068,9 +2646,11 @@ function newWordPuzzle() {
   wordGame.selStart = null;
   wordGame.selEnd = null;
   wordGame.started = true;
+  wordGame.startTime = Date.now();
+  wordGame.newFastest = false;
   recordGame('words');
   document.getElementById('words-awards').classList.remove('open');
-  document.getElementById('words-new-row').style.display = 'none';
+  document.getElementById('words-startover-row').style.display = '';
   document.getElementById('words-bonus').textContent = '';
   hideTimeUp();
   renderWords();
@@ -2113,6 +2693,70 @@ function renderWords() {
   document.getElementById('words-status').textContent = 'Tap the first letter, then the last letter of a word. Found ' + nFound + ' of ' + wordGame.words.length + '.';
   renderWordTop();
 }
+// v18 revised: online word check for bonus words. A selected word that
+// is not in the built-in list is checked against the free dictionary API,
+// so real words that are not in the 944-word list still score. The
+// built-in list is checked first and scores instantly with no network.
+var DICT_API = 'https://api.dictionaryapi.dev/api/v2/entries/en/';
+var DICT_TIMEOUT_MS = 4000;
+// fetch that gives up after ms, even if the fetch ignores the abort.
+function fetchWithTimeout(url, ms) {
+  var ctrl = null;
+  try { ctrl = new AbortController(); } catch (e) { ctrl = null; }
+  var timer = null;
+  var timeoutP = new Promise(function (resolve, reject) {
+    timer = setTimeout(function () {
+      if (ctrl) { try { ctrl.abort(); } catch (e) {} }
+      reject(new Error('dict timeout'));
+    }, ms);
+  });
+  var fetchP;
+  try { fetchP = fetch(url, ctrl ? { signal: ctrl.signal } : {}); }
+  catch (e) { fetchP = Promise.reject(e); }
+  return Promise.race([fetchP, timeoutP]).then(function (res) {
+    if (timer) clearTimeout(timer);
+    return res;
+  }, function (err) {
+    if (timer) clearTimeout(timer);
+    throw err;
+  });
+}
+// Award a bonus word: its length in points, once per puzzle, with the
+// crossed-target hint and a brief highlight. Shared by the built-in list
+// (sync) and the online check (async).
+function awardBonusWord(word, cells) {
+  wordGame.bonusWords[word] = true;
+  wordGame.points += word.length;
+  cells.forEach(function (key) { wordGame.bonusCells[key] = true; });
+  var crossed = crossedTarget(cells);
+  showToast('Bonus! +' + word.length + ' for ' + word + (crossed ? '. Hint: it crosses ' + crossed + '.' : '.'));
+  // The highlight is brief: clear it after a few seconds.
+  setTimeout(function () {
+    cells.forEach(function (key) { delete wordGame.bonusCells[key]; });
+    if (!wordGame.over && document.getElementById('game-words').classList.contains('open')) renderWords();
+  }, 4000);
+}
+// Check an unlisted word online. 200 means it is a real word: award the
+// bonus. 404 means it is not a word: nothing, no toast. A failed request
+// (network, timeout) shows a toast and awards nothing.
+function checkBonusOnline(word, cells) {
+  wordGame.bonusPending[word] = true;
+  var puzzleId = wordGame.puzzleId;
+  var url = DICT_API + encodeURIComponent(word.toLowerCase());
+  fetchWithTimeout(url, DICT_TIMEOUT_MS).then(function (res) {
+    delete wordGame.bonusPending[word];
+    if (wordGame.puzzleId !== puzzleId || wordGame.over || wordGame.timeUp) return;
+    if (res && res.ok) {
+      awardBonusWord(word, cells);
+      renderWords();
+    }
+    // Any non-OK answer (404: not a word) scores nothing and shows no toast.
+  }).catch(function () {
+    delete wordGame.bonusPending[word];
+    if (wordGame.puzzleId !== puzzleId || wordGame.over || wordGame.timeUp) return;
+    showToast("No internet — can't check this word.");
+  });
+}
 function onWordCell(r, c) {
   if (wordGame.over || wordGame.timeUp) return;
   if (!wordGame.selStart) { wordGame.selStart = { r: r, c: c }; wordGame.selEnd = null; renderWords(); return; }
@@ -2148,6 +2792,7 @@ function onWordCell(r, c) {
       addTotalPoints(pts);
       recordWordsPoints(pts);
       wordGame.banked = true;
+      checkFastest();
       renderWords();
       showAwards('You did it!', pts);
       return;
@@ -2155,29 +2800,50 @@ function onWordCell(r, c) {
     renderWords();
     return;
   }
-  // Not a target word: a real word from the list still earns 1 point a letter.
-  // v14: a bonus word must also sit inside the Settings length range.
-  var wMin = settingWordMin(), wMax = settingWordMax();
-  if (wMin > wMax) wMax = wMin;
-  var cand = (letters.length >= wMin && letters.length <= wMax) ? letters : '';
-  var candRev = (rev.length >= wMin && rev.length <= wMax) ? rev : '';
+  // v16: bonus words. A valid dictionary word that is not a target scores
+  // its length in points (an 8-letter word scores 8, a 3-letter word
+  // scores 3), once per puzzle. Bonus words ignore the Settings length
+  // range (hard floor 3 letters). If the bonus word crosses an unfound
+  // target, the message names that target as a hint.
   var bonusWord = null;
   var all = allWordsSet();
-  if (cand && all[cand] && !wordGame.bonusWords[cand]) bonusWord = cand;
-  else if (candRev && all[candRev] && !wordGame.bonusWords[candRev]) bonusWord = candRev;
+  if (letters.length >= WORD_MIN_LEN && all[letters] && !wordGame.bonusWords[letters]) bonusWord = letters;
+  else if (rev.length >= WORD_MIN_LEN && all[rev] && !wordGame.bonusWords[rev]) bonusWord = rev;
   if (bonusWord) {
-    wordGame.bonusWords[bonusWord] = true;
-    wordGame.points += bonusWord.length;
-    cells.forEach(function (key) { wordGame.bonusCells[key] = true; });
-    document.getElementById('words-bonus').textContent = 'Bonus! +' + bonusWord.length + ' for ' + bonusWord + '.';
+    awardBonusWord(bonusWord, cells);
+  } else {
+    // Not in the built-in list: try the online dictionary for the longer
+    // candidate (letters first, then its reverse), if it has not already
+    // scored or been checked.
+    var cand = null;
+    if (letters.length >= WORD_MIN_LEN && !all[letters] && !wordGame.bonusWords[letters] && !wordGame.bonusPending[letters]) cand = letters;
+    else if (rev.length >= WORD_MIN_LEN && !all[rev] && !wordGame.bonusWords[rev] && !wordGame.bonusPending[rev]) cand = rev;
+    if (cand) checkBonusOnline(cand, cells);
   }
   renderWords();
 }
+// v16: the first unfound target word whose cells share a cell with the
+// given bonus-word cells, or null.
+function crossedTarget(cells) {
+  var set = {};
+  cells.forEach(function (k) { set[k] = true; });
+  for (var i = 0; i < wordGame.words.length; i++) {
+    var w = wordGame.words[i];
+    if (wordGame.found[w.word]) continue;
+    for (var k = 0; k < w.len; k++) {
+      var key = (w.horizontal ? w.r : w.r + k) + ',' + (w.horizontal ? w.c + k : w.c);
+      if (set[key]) return w.word;
+    }
+  }
+  return null;
+}
 
 (async function init() {
+  startWxTimer();
   setSizeIcon(false);
   markSpeedBtns(savedSpeed());
   applyThumbScale();
+  applyWordsScale();
   wireSettingsAutosave();
   renderTopStrip();
   // v15: bring the old medicine store into the activity store, and send
