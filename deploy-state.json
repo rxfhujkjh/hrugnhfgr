@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-12T08:05:01-06:00",
-  "serverVersion": "v95",
+  "generatedAt": "2026-11-12T10:09:17-06:00",
+  "serverVersion": "v96",
   "deployed": [
     {
       "file": "actions.html",
@@ -170,7 +170,7 @@
     "size": 317539,
     "mtime": "2026-11-12T12:50:44.584Z",
     "sha256": "6a33806dfd3c9025b4be7ad3c4a791c9b633bef5da256ffc1d48e2f6fb1ee612",
-    "serverVersion": "v95",
+    "serverVersion": "v96",
     "matchedBackup": "rpserver.v96.js",
     "version": "v96"
   },
