@@ -187,7 +187,7 @@
       .present-card .lab:first-of-type { margin-top: 0; }
       .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
       /* v7, design K: split toggle. Left = From M/D. Right = label + a
-         separate ↻ area that cycles Day Δ → Last move → Overnight.
+         separate ↻ area that cycles Day Δ → Overnight → Intraday.
          Unselected side is white with grey text; selected side is filled. */
       .toggle-btn.unselected { background: var(--surface); color: var(--ink-3); border-color: var(--line); }
       .split-toggle { display: inline-flex; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
@@ -220,7 +220,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v7</span>
+<span class="ver">v8</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -278,18 +278,22 @@
 (function () {
   'use strict';
   // v7: two controls, independently sticky. Left = From M/D (baseline).
-  // Right = one of day / last / overnight, cycled by the ↻ area.
+  // v8: Right = one of day / overnight / intraday, cycled by the ↻ area.
+  // Intraday replaces Last move: Day change is the whole span, Overnight
+  // the first part of it, Intraday the second (Overnight + Intraday = Day).
   // mode is what is shown now; rightMode is the right side's own last
   // state, preserved when the user goes back to From M/D.
-  var RIGHT_MODES = ['day', 'last', 'overnight'];
-  var RIGHT_LABELS = { day: 'Day \u0394', last: 'Last move', overnight: 'Overnight' };
+  var RIGHT_MODES = ['day', 'overnight', 'intraday'];
+  var RIGHT_LABELS = { day: 'Day \u0394', overnight: 'Overnight', intraday: 'Intraday' };
   var mode = 'baseline';
   var rightMode = 'day';
   try {
     var rm = localStorage.getItem('results_change_right_v2');
     if (RIGHT_MODES.indexOf(rm) >= 0) rightMode = rm;
+    else if (rm === 'last') rightMode = 'intraday'; // v8: Last move was replaced by Intraday.
     var m = localStorage.getItem('results_change_mode_v2');
-    if (m === 'last' || m === 'baseline' || m === 'day' || m === 'overnight') mode = m;
+    if (m === 'baseline' || m === 'day' || m === 'overnight' || m === 'intraday') mode = m;
+    else if (m === 'last') mode = 'intraday'; // v8: Last move was replaced by Intraday.
   } catch (e) {}
   var data = null;
   function $(id) { return document.getElementById(id); }
@@ -390,7 +394,7 @@
     $('pChangeN').textContent = noteText;
   }
   function showNA(noteText) {
-    $('pGapChange').textContent = 'N/A'; $('pPaceChange').textContent = 'N/A';
+    $('pGapChange').textContent = 'Coming'; $('pPaceChange').textContent = 'Coming';
     setCls($('pGapChange')); setCls($('pPaceChange'));
     $('pGapChangeNote').textContent = ''; $('pPaceChangeNote').textContent = '';
     $('pChangeN').textContent = noteText;
@@ -426,14 +430,12 @@
       } else {
         showChange(data.gapChangeOvernight, data.paceChangeOvernight, 'overnight', 'Yesterday\u2019s close to today\u2019s open');
       }
-    } else if (mode === 'last') {
-      if (data.gapChangeLast == null || data.paceChangeLast == null) {
-        $('pGapChange').textContent = '\u2014'; $('pPaceChange').textContent = '\u2014';
-        setCls($('pGapChange')); setCls($('pPaceChange'));
-        $('pGapChangeNote').textContent = ''; $('pPaceChangeNote').textContent = '';
-        $('pChangeN').textContent = 'No previous update yet \u2014 change will show after the next price update.';
+    } else if (mode === 'intraday') {
+      // v8: Intraday = today's open to now (server field gapChangeIntraday).
+      if (data.gapChangeIntraday == null || data.paceChangeIntraday == null) {
+        showNA('No intraday data yet \u2014 intraday change will show after the first push of a new day.');
       } else {
-        showChange(data.gapChangeLast, data.paceChangeLast, 'since last move', lastMoveNote());
+        showChange(data.gapChangeIntraday, data.paceChangeIntraday, 'intraday', 'Today\u2019s open to now');
       }
     } else {
       // Baseline: note below is duration only, no date repeated.
