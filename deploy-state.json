@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-11T15:04:45-06:00",
+  "generatedAt": "2026-11-12T05:20:26-06:00",
   "serverVersion": "v95",
   "deployed": [
     {
@@ -66,13 +66,13 @@
       "version": "v19"
     },
     {
-      "file": "portfolio_xirr.html",
-      "name": "portfolio_xirr",
-      "size": 1177201,
-      "mtime": "2026-10-31T01:59:18.219Z",
-      "sha256": "acc0e5d9bb6d7065b81a7b6207fbecdcb5e8261350576de90867152ba52225a0",
-      "matchedBackup": null,
-      "version": null
+      "file": "portfolio.html",
+      "name": "portfolio",
+      "size": 1192601,
+      "mtime": "2026-11-12T11:03:45.208Z",
+      "sha256": "9ca863cb958c2dcf4f5cf74cd8a8a4fd4722d73e3ea1956551197b6ad2797dd6",
+      "matchedBackup": "portfolio.v1300.html",
+      "version": "v1300"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -436,6 +436,11 @@
       "file": "portfolio_xirr.12_57a.html",
       "size": 1177723,
       "sha256": "90e87c479e41612c7994f20d399e3911fcb6c858ce7c6f90ba65831092ac252a"
+    },
+    {
+      "file": "portfolio.v1300.html",
+      "size": 1192601,
+      "sha256": "9ca863cb958c2dcf4f5cf74cd8a8a4fd4722d73e3ea1956551197b6ad2797dd6"
     },
     {
       "file": "results.v1.html",
