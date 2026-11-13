@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T05:35:09-06:00",
+  "generatedAt": "2026-11-13T13:07:25-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -59,20 +59,20 @@
     {
       "file": "player.html",
       "name": "player",
-      "size": 154846,
-      "mtime": "2026-11-11T18:49:35.186Z",
-      "sha256": "22927005a3e1dc33519fcbeac05f102b250c6276dfd4fa8af536d0e49e4e8fba",
-      "matchedBackup": "player.v19.html",
-      "version": "v19"
+      "size": 161958,
+      "mtime": "2026-11-13T19:02:48.192Z",
+      "sha256": "ff64a59dd2758d5de4d694a39490672cc4a6ae5daf9039c63a6f6bbca17c0821",
+      "matchedBackup": "player.v21.html",
+      "version": "v21"
     },
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1194298,
-      "mtime": "2026-11-12T11:55:42.708Z",
-      "sha256": "2aacf97b985fa966c1751a5d32dfdb6de745836db39a833bea570601eb2a65fd",
-      "matchedBackup": "portfolio.v1302.html",
-      "version": "v1302"
+      "size": 1198258,
+      "mtime": "2026-11-13T19:04:24.552Z",
+      "sha256": "8a91e88102259981ac0e363e78a531d7a52e64a451600b83a73232638e23acdf",
+      "matchedBackup": "portfolio.v1303.html",
+      "version": "v1303"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -191,6 +191,11 @@
       "file": "amort.html",
       "size": 19827,
       "sha256": "e07334936589d72d13e785f5b7641077f960555ab0da790bd2b71664985ff0ff"
+    },
+    {
+      "file": "beach-video.mp4",
+      "size": 680499,
+      "sha256": "e95be7e091773898370ba4be126d5e3b46d028f663a904b57c83b51f3be93523"
     },
     {
       "file": "beach.jpg",
@@ -403,6 +408,11 @@
       "sha256": "c92ca1f8a095e3a25eca266adfce9ce54c19bb7597a785e1ee43b34a99348fdd"
     },
     {
+      "file": "player.v21.html",
+      "size": 161958,
+      "sha256": "ff64a59dd2758d5de4d694a39490672cc4a6ae5daf9039c63a6f6bbca17c0821"
+    },
+    {
       "file": "player.v3.html",
       "size": 19487,
       "sha256": "d4bac014fc6979a3116144bebb23167bb68d75a4386c38975ef91ab4fc10516d"
@@ -451,6 +461,11 @@
       "file": "portfolio.v1302.html",
       "size": 1194298,
       "sha256": "2aacf97b985fa966c1751a5d32dfdb6de745836db39a833bea570601eb2a65fd"
+    },
+    {
+      "file": "portfolio.v1303.html",
+      "size": 1198258,
+      "sha256": "8a91e88102259981ac0e363e78a531d7a52e64a451600b83a73232638e23acdf"
     },
     {
       "file": "results.v1.html",
