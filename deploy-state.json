@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-12T10:09:17-06:00",
+  "generatedAt": "2026-11-13T05:35:09-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -149,11 +149,11 @@
     {
       "file": "video-transcriber.html",
       "name": "video-transcriber",
-      "size": 180995,
-      "mtime": "2026-09-20T18:04:23.807Z",
-      "sha256": "86ec7ebeb5836ea6fabd691a0c7578944930743fd0494de14dc0df5264f0640c",
-      "matchedBackup": null,
-      "version": null
+      "size": 183222,
+      "mtime": "2026-11-13T11:29:54.355Z",
+      "sha256": "dd22f7595b52a834c3ac13f5ca577f2c8d9da1da905daa8f54cd9033872cd88c",
+      "matchedBackup": "video-transcriber.v105.html",
+      "version": "v105"
     },
     {
       "file": "walker.html",
@@ -666,6 +666,11 @@
       "file": "video-transcriber.v104.html",
       "size": 180976,
       "sha256": "f3c14902599442c3c7b7622bc7318b84a5750e46f541cd0d287645ae3348017e"
+    },
+    {
+      "file": "video-transcriber.v105.html",
+      "size": 183222,
+      "sha256": "dd22f7595b52a834c3ac13f5ca577f2c8d9da1da905daa8f54cd9033872cd88c"
     },
     {
       "file": "walker.v23.html",
