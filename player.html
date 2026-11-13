@@ -63,6 +63,23 @@
   /* Hidden Words fits on one screen: no scrolling, grid shrinks to fit. */
   #game-words.open { display: flex; overflow: hidden; }
   #game-words .word-grid { flex: 0 1 auto; min-height: 0; width: calc(min(560px, 100%, calc(100vh - 470px)) * var(--words-scale, 1)); width: calc(min(560px, 100%, calc(100dvh - 470px)) * var(--words-scale, 1)); margin: 0 auto; }
+  /* v20: pause button — only while a game is playing. */
+  #game-words .words-pause { display: none; }
+  #game-words.playing .words-pause { display: inline-flex; }
+  /* v20: landscape while playing — isolate the game. Only the grid, the
+     word list, the timer/points row, the X and the pause button show;
+     title, scale buttons, bonus line, status and Start over are hidden,
+     so nothing overlays the grid. The grid gets the freed height. */
+  @media (orientation: landscape) {
+    #game-words.playing .game-head h1,
+    #game-words.playing .game-head .scale-btn:not(.words-pause),
+    #game-words.playing .words-bonus-line,
+    #game-words.playing .game-status,
+    #game-words.playing #words-startover-row { display: none; }
+    #game-words.playing .word-grid { width: calc(min(560px, 100%, calc(100dvh - 250px)) * var(--words-scale, 1)); }
+    #game-words.playing .words-top { margin-bottom: 6px; }
+    #game-words.playing .word-list { margin-top: 10px; }
+  }
   #game-words .word-list { flex: 0 0 auto; }
   .game-view.open { display: flex; }
   .game-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
@@ -173,8 +190,23 @@
   /* v16: fading toast (bonus words, day-check "Recorded"). */
   #toast { position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(8px); background: rgba(30,30,30,.95); border: 1px solid #555; color: #eee; border-radius: 12px; padding: 12px 18px; font-size: 18px; z-index: 70; opacity: 0; pointer-events: none; transition: opacity .3s ease, transform .3s ease; max-width: 92vw; text-align: center; }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  /* v18 revised: NEW badge on a video folder tile (file-age based). */
+  /* v19: NEW badge on a video folder tile (file-age based). */
   .tile.video-folder .new-badge { position: absolute; top: 4px; left: 6px; background: #ffd700; color: #111; font-size: 12px; font-weight: 700; letter-spacing: 1px; border-radius: 8px; padding: 2px 7px; z-index: 2; }
+  /* v19: play marker on video tiles (photos have none), so a mixed list
+     reads at a glance. Tiles are positioned so the marker can sit on
+     the thumbnail. */
+  .tile { position: relative; }
+  .tile .vplay { position: absolute; top: 4px; left: 8px; color: #fff; font-size: 22px; line-height: 1; text-shadow: 0 1px 4px rgba(0,0,0,.9); z-index: 1; pointer-events: none; }
+  /* v19: photo viewer — full-screen, image centred, name + prev/next below. */
+  #photo-view { display: none; position: fixed; inset: 0; background: #000; z-index: 20; flex-direction: column; }
+  #photo-view.open { display: flex; }
+  #photo-view img { flex: 1; width: 100%; min-height: 0; object-fit: contain; background: #000; }
+  .photo-bar { display: flex; align-items: center; gap: 12px; padding: 12px; background: #000; }
+  .photo-name { flex: 1; text-align: center; color: #eee; font-size: 18px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+  /* v20: slideshow — the photo bar hides while the show runs; only the X
+     stays, and a tap anywhere stops the show. */
+  #photo-view.slideshow .photo-bar { display: none; }
+  .slide-btn { background: #2e7d5b; color: #fff; border: none; border-radius: 10px; padding: 10px 16px; font-size: 17px; font-weight: 700; cursor: pointer; touch-action: manipulation; white-space: nowrap; }
   /* v18 revised: custom past-date confirm popup (replaces window.confirm). */
   #confirm-pop { position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 80; display: none; align-items: center; justify-content: center; padding: 20px; }
   #confirm-pop.open { display: flex; }
@@ -214,7 +246,7 @@
   <div class="list-top">
     <div class="list-top-left">
       <button class="back-btn" id="back-btn" style="display:none" onclick="goBack()" aria-label="Back">&times;</button>
-      <h1>Player<span class="v-pill">v18</span></h1>
+      <h1>Player<span class="v-pill">v21</span></h1>
     </div>
     <div class="list-top-btns">
       <button class="scale-btn" id="scale-down" onclick="changeThumbScale(-0.25)" aria-label="Smaller thumbnails">&minus;</button>
@@ -279,6 +311,7 @@
     <h1>Hidden Words</h1>
     <button class="scale-btn" onclick="changeWordsScale(-0.25)" aria-label="Smaller puzzle">&minus;</button>
     <button class="scale-btn" onclick="changeWordsScale(0.25)" aria-label="Bigger puzzle">+</button>
+    <button class="scale-btn words-pause" id="words-pause" onclick="toggleWordsPause()" aria-label="Pause">&#10074;&#10074;</button>
   </div>
   <div class="words-top">
     <div class="words-timer" id="words-timer"></div>
@@ -440,6 +473,19 @@
   </div>
 </div>
 
+<!-- v19: photo viewer — tap a photo to see it large, step to the next
+     or previous photo, X to go back to the list. -->
+<div id="photo-view">
+  <button class="close-btn" onclick="closePhoto()" aria-label="Back to list">&times;</button>
+  <img id="photo-img" alt="">
+  <div class="photo-bar">
+    <button class="big-btn" id="photo-prev" onclick="prevPhoto()" aria-label="Previous photo"><svg viewBox="0 0 64 64"><rect x="14" y="14" width="6" height="36" fill="#eee"/><path d="M46 14 L22 32 L46 50 Z" fill="#eee"/></svg></button>
+    <div class="photo-name" id="photo-name"></div>
+    <button class="big-btn" id="photo-next" onclick="nextPhoto()" aria-label="Next photo"><svg viewBox="0 0 64 64"><path d="M18 14 L42 32 L18 50 Z" fill="#eee"/><rect x="44" y="14" width="6" height="36" fill="#eee"/></svg></button>
+    <button class="slide-btn" id="photo-slide-btn" onclick="startSlideshow()" aria-label="Start slideshow">Slideshow</button>
+  </div>
+</div>
+
 <input type="file" id="dir-input" style="display:none" webkitdirectory multiple>
 
 <div id="folder-picker" class="folder-picker" style="display:none">
@@ -452,6 +498,7 @@
 <script>
 var DB_NAME = 'ma-videos-db';
 var VIDEO_EXTS = ['.mp4', '.webm', '.mov', '.m4v', '.ogv'];
+var PHOTO_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 var dirHandle = null;      // the picked folder (FileSystemDirectoryHandle)
 var DEFAULT_FOLDER = 'content'; // default server folder under the server root
 var FOLDER_KEY = 'player_folder';
@@ -459,7 +506,7 @@ var THUMB_SCALE_KEY = 'player_thumb_scale';
 var currentFolder = '';    // server folder path currently loaded ('content', 'mom', 'content/Entertainment')
 var serverMode = false;    // true when videos come from the server list
 var storedHandle = null;   // the handle saved in this browser, if any
-var videos = [];           // { name, file, url }
+var videos = [];           // media items { name, file, url, kind: 'video'|'photo' }
 var folders = [];          // subdirectories of the current folder: { name, rawName, path }
 var folderStack = [];      // navigation stack of { path, folders, videos }
 var current = null;
@@ -474,6 +521,12 @@ function isVideo(name) {
   var n = name.toLowerCase();
   return VIDEO_EXTS.some(function (ext) { return n.endsWith(ext); });
 }
+// v19: photos are media too. Items carry kind: 'video' | 'photo'.
+function isPhoto(name) {
+  var n = name.toLowerCase();
+  return PHOTO_EXTS.some(function (ext) { return n.endsWith(ext); });
+}
+function isMedia(name) { return isVideo(name) || isPhoto(name); }
 function cleanName(fileName) {
   var base = fileName.replace(/\.[^.]+$/, '');
   var cleaned = base.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
@@ -721,14 +774,15 @@ function pumpThumbQueue() {
   });
 }
 
-// Read one picked folder (FileSystemDirectoryHandle): its video files and
-// its subdirectories (each kept with its handle so it can be opened).
+// Read one picked folder (FileSystemDirectoryHandle): its media files
+// (videos and photos, v19) and its subdirectories (each kept with its
+// handle so it can be opened).
 async function readHandle(handle) {
   var files = [];
   var dirs = [];
   try {
     for await (var entry of handle.values()) {
-      if (entry.kind === 'file' && isVideo(entry.name)) {
+      if (entry.kind === 'file' && isMedia(entry.name)) {
         var f = await entry.getFile();
         files.push(f);
       } else if (entry.kind === 'directory') {
@@ -743,7 +797,7 @@ async function readHandle(handle) {
       return { name: cleanName(d.name), rawName: d.name, path: d.name, handle: d };
     }),
     videos: files.map(function (f) {
-      return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified };
+      return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified, kind: isVideo(f.name) ? 'video' : 'photo' };
     })
   };
 }
@@ -794,23 +848,24 @@ async function fetchFolder(path) {
       subfolders.push({ name: cleanName(entry.name), rawName: entry.name, path: subPath });
       return;
     }
-    if (!isVideo(entry.name)) return;
+    if (!isMedia(entry.name)) return;
     var vurl;
     try { vurl = new URL(urlBase + encodeURIComponent(entry.name), location.href).href; } catch (e) { return; }
-    vids.push({ name: cleanName(entry.name), file: null, fileName: entry.name, url: vurl, size: entry.length, mtime: entry.modified });
+    vids.push({ name: cleanName(entry.name), file: null, fileName: entry.name, url: vurl, size: entry.length, mtime: entry.modified, kind: isVideo(entry.name) ? 'video' : 'photo' });
   });
   subfolders.sort(function (a, b) { return a.rawName.localeCompare(b.rawName); });
   vids.sort(function (a, b) { return a.fileName.localeCompare(b.fileName); });
   return { folders: subfolders, videos: vids };
 }
 
-// v18 revised: a video folder shows a NEW badge when it holds a video
-// added or changed in the last 24 hours (file age, not viewing — anyone
-// may look without clearing it for anyone else, and family members may
-// add videos). The newest file time is cached briefly per folder.
+// v19: one fetch per folder tile gives both the tile label and the NEW
+// badge. folderMediaInfo returns { v, p, newest } — video count, photo
+// count, and the newest photo/video file time (null when the folder
+// holds no media). Cached briefly per folder, like the old NEW check.
+// A folder shows a NEW badge when it holds a photo or video added or
+// changed in the last 24 hours (file age, not viewing).
 var NEW_WINDOW_MS = 24 * 60 * 60 * 1000;
 var NEW_CACHE_MS = 60 * 1000;
-var folderNewCache = {}; // path -> { newest: number|null, at: ms }
 // File time as ms since the epoch. Handles the server's `modified` (ISO
 // string or epoch seconds/ms) and a picked file's `lastModified` (ms).
 function mtimeMs(m) {
@@ -831,38 +886,51 @@ function mtimeMs(m) {
   }
   return null;
 }
-// Newest video file time in a folder, or null if it holds no videos.
-// Rejects when the folder cannot be read (no badge, fail silent).
-async function folderNewestMtime(f) {
+var folderMediaCache = {}; // path -> { v, p, newest, at: ms }
+async function folderMediaInfo(f) {
+  var cached = folderMediaCache[f.path];
+  if (cached && (Date.now() - cached.at) < NEW_CACHE_MS) return cached;
+  var v = 0, p = 0, newest = null;
   if (f.handle) {
-    var newest = null;
     for await (var entry of f.handle.values()) {
-      if (entry.kind === 'file' && isVideo(entry.name)) {
-        var file = await entry.getFile();
-        var m = mtimeMs(file.lastModified);
-        if (m != null && (newest == null || m > newest)) newest = m;
-      }
+      if (entry.kind !== 'file') continue;
+      if (isVideo(entry.name)) v++;
+      else if (isPhoto(entry.name)) p++;
+      else continue;
+      var file = await entry.getFile();
+      var m = mtimeMs(file.lastModified);
+      if (m != null && (newest == null || m > newest)) newest = m;
     }
-    return newest;
+  } else {
+    var res = await fetchFolder(f.path);
+    if (!res) throw new Error('folder list failed');
+    res.videos.forEach(function (it) {
+      if (it.kind === 'photo') p++; else v++;
+      var m2 = mtimeMs(it.mtime);
+      if (m2 != null && (newest == null || m2 > newest)) newest = m2;
+    });
   }
-  var res = await fetchFolder(f.path);
-  if (!res) throw new Error('folder list failed');
-  var newest2 = null;
-  res.videos.forEach(function (v) {
-    var m2 = mtimeMs(v.mtime);
-    if (m2 != null && (newest2 == null || m2 > newest2)) newest2 = m2;
-  });
-  return newest2;
+  var info = { v: v, p: p, newest: newest, at: Date.now() };
+  folderMediaCache[f.path] = info;
+  return info;
 }
-// True when the folder holds a video from the last 24 hours.
+// True when the folder holds a photo or video from the last 24 hours.
 function folderHasNew(f) {
-  var now = Date.now();
-  var cached = folderNewCache[f.path];
-  if (cached && (now - cached.at) < NEW_CACHE_MS) return Promise.resolve(cached.newest != null && cached.newest > now - NEW_WINDOW_MS);
-  return folderNewestMtime(f).then(function (newest) {
-    folderNewCache[f.path] = { newest: newest, at: Date.now() };
-    return newest != null && newest > Date.now() - NEW_WINDOW_MS;
+  return folderMediaInfo(f).then(function (info) {
+    return info.newest != null && info.newest > Date.now() - NEW_WINDOW_MS;
   }).catch(function () { return false; });
+}
+// v19: folder tile label by item count (not size — one tile per item).
+// All one type: that type. One type at least twice the other: that type
+// with a '+'. Otherwise: Mixed. No media: no label.
+function folderMediaLabel(info) {
+  var v = info.v, p = info.p;
+  if (v <= 0 && p <= 0) return '';
+  if (p <= 0) return 'Videos';
+  if (v <= 0) return 'Photos';
+  if (v >= 2 * p) return 'Videos+';
+  if (p >= 2 * v) return 'Photos+';
+  return 'Mixed';
 }
 
 // Show one folder's contents (folder tiles + video tiles). reset=true starts
@@ -886,6 +954,45 @@ async function loadServerFolder(path, reset) {
   try { res = await fetchFolder(path); } catch (e) { res = null; }
   if (!res) return false;
   setFolderView({ path: path, folders: res.folders, videos: res.videos }, reset);
+  return true;
+}
+
+// v19: built-in samples for the GitHub Pages copy. When there is no
+// server and no saved folder, load samples.json from the repo root and
+// show its photos and videos, so the copy opens with something to look
+// at. Picking a folder (the Choose folder tile) replaces the samples.
+// Returns true when samples are showing.
+async function trySamples() {
+  if (typeof fetch !== 'function') return false;
+  var res;
+  try { res = await fetch('samples.json', { cache: 'no-store' }); } catch (e) { return false; }
+  if (!res || !res.ok) return false;
+  var data;
+  try { data = await res.json(); } catch (e) { return false; }
+  if (!Array.isArray(data) || !data.length) return false;
+  var items = [];
+  data.forEach(function (entry) {
+    if (!entry || typeof entry.url !== 'string' || !entry.url) return;
+    var kind = null;
+    if (entry.type === 'photo') kind = 'photo';
+    else if (entry.type === 'video') kind = 'video';
+    else if (isPhoto(entry.url)) kind = 'photo';
+    else if (isVideo(entry.url)) kind = 'video';
+    if (!kind) return;
+    var url;
+    try { url = new URL(entry.url, location.href).href; } catch (e) { return; }
+    var base = entry.url.split('/').pop() || 'Sample';
+    items.push({ name: cleanName(entry.name ? String(entry.name) : base), file: null, fileName: base, url: url, size: null, mtime: null, kind: kind });
+  });
+  if (!items.length) return false;
+  items.sort(function (a, b) { return a.fileName.localeCompare(b.fileName); });
+  videos = items;
+  folders = [];
+  folderStack = [{ path: '', folders: [], videos: videos, handle: null, serverMode: false }];
+  serverMode = false;
+  dirHandle = null;
+  currentFolder = '';
+  renderList();
   return true;
 }
 
@@ -1039,31 +1146,50 @@ function renderList() {
   folders.forEach(function (f) {
     var tile = document.createElement('button');
     tile.className = 'tile folder-tile video-folder';
-    tile.innerHTML = '<span class="vtag">VIDEO</span><div class="name"></div>';
+    tile.innerHTML = '<span class="vtag"></span><div class="name"></div>';
     tile.querySelector('.name').textContent = f.name;
     tile.onclick = function () { openSubfolder(f.path); };
     tiles.appendChild(tile);
-    // v18 revised: NEW badge when the folder holds a video from the last
-    // 24 hours (file age). Viewing never clears it.
-    folderHasNew(f).then(function (isNew) {
-      if (!isNew) return;
+    // v19: one fetch gives the tile label (Videos / Photos / Videos+ /
+    // Photos+ / Mixed, by item count) and the NEW badge (newest photo
+    // or video in the last 24 hours). Viewing never clears it.
+    folderMediaInfo(f).then(function (info) {
       if (!tile.isConnected) return;
-      if (tile.querySelector('.new-badge')) return;
-      var b = document.createElement('span');
-      b.className = 'new-badge';
-      b.textContent = 'NEW';
-      tile.appendChild(b);
-    });
+      var label = folderMediaLabel(info);
+      var tag = tile.querySelector('.vtag');
+      if (label) tag.textContent = label; else if (tag) tag.remove();
+      if (info.newest != null && info.newest > Date.now() - NEW_WINDOW_MS) {
+        if (tile.querySelector('.new-badge')) return;
+        var b = document.createElement('span');
+        b.className = 'new-badge';
+        b.textContent = 'NEW';
+        tile.appendChild(b);
+      }
+    }).catch(function () {});
   });
+  // v21: Slideshow tile first — this folder holds photos, so offer the
+  // show at the top. (v20 put it after the media tiles, so in a folder
+  // with hundreds of photos it sat at the very bottom, out of sight.)
+  if (videos.some(function (v) { return v.kind === 'photo'; })) {
+    var stile = document.createElement('button');
+    stile.className = 'tile folder-tile';
+    stile.innerHTML = '<div class="name"></div>';
+    stile.querySelector('.name').textContent = '\u25b6 Slideshow';
+    stile.onclick = function () { startSlideshow(); };
+    tiles.appendChild(stile);
+  }
   videos.forEach(function (v, i) {
     var tile = document.createElement('button');
     tile.className = 'tile';
-    tile.innerHTML = '<img class="thumb" alt=""><div class="name"></div>';
+    var isPh = v.kind === 'photo';
+    // v19: photos show the photo itself; videos show a captured frame
+    // with a play marker, so a mixed list reads at a glance.
+    tile.innerHTML = '<img class="thumb" alt=""><div class="name"></div>' + (isPh ? '' : '<span class="vplay">\u25b6</span>');
     var img = tile.querySelector('img');
-    img.src = THUMB_PLACEHOLDER;
-    loadThumb(v, img);
+    if (isPh) img.src = v.url;
+    else { img.src = THUMB_PLACEHOLDER; loadThumb(v, img); }
     tile.querySelector('.name').textContent = v.name;
-    tile.onclick = function () { openPlayer(i); };
+    tile.onclick = function () { if (v.kind === 'photo') openPhoto(i); else openPlayer(i); };
     tiles.appendChild(tile);
   });
   // Calculator last, bottom right.
@@ -1075,9 +1201,12 @@ function renderList() {
     ctile.onclick = function () { openCalc(); };
     tiles.appendChild(ctile);
   }
+  var nV = 0, nP = 0;
+  videos.forEach(function (v) { if (v.kind === 'photo') nP++; else nV++; });
   var parts = [];
   if (folders.length) parts.push(folders.length + (folders.length === 1 ? ' folder' : ' folders'));
-  if (videos.length) parts.push(videos.length + (videos.length === 1 ? ' video' : ' videos'));
+  if (nV) parts.push(nV + (nV === 1 ? ' video' : ' videos'));
+  if (nP) parts.push(nP + (nP === 1 ? ' photo' : ' photos'));
   document.getElementById('count').textContent = parts.length
     ? parts.join(' \u00b7 ')
     : (serverMode || dirHandle ? 'Nothing here.' : '');
@@ -1092,6 +1221,8 @@ function renderList() {
   else { fl.style.display = 'none'; fl.textContent = ''; }
   // v17: the home page and the video folders have separate tile sizes.
   applyThumbScale();
+  // v20: the list is showing again — restart the 5-minute slideshow clock.
+  resetSlideIdle();
 }
 
 async function chooseFolder() {
@@ -1117,10 +1248,10 @@ async function chooseFolder() {
 
 document.getElementById('dir-input').addEventListener('change', function (ev) {
   var picked = Array.prototype.slice.call(ev.target.files || []);
-  var files = picked.filter(function (f) { return isVideo(f.name); });
+  var files = picked.filter(function (f) { return isMedia(f.name); });
   files.sort(function (a, b) { return a.name.localeCompare(b.name); });
   videos = files.map(function (f) {
-    return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified };
+    return { name: cleanName(f.name), file: f, fileName: f.name, url: URL.createObjectURL(f), size: f.size, mtime: f.lastModified, kind: isVideo(f.name) ? 'video' : 'photo' };
   });
   dirHandle = { name: 'picked files' };
   folders = [];
@@ -1189,9 +1320,21 @@ function setBig(big) {
 }
 function toggleSize() { var pv = document.getElementById('player-view'); setBig(!pv.classList.contains('big')); }
 function toggleVolPop() { document.getElementById('vol-pop').classList.toggle('open'); }
-function openIndex(i) { if (!videos.length) return; openPlayer((i + videos.length) % videos.length); }
-function prevVideo() { openIndex(currentIndex - 1); }
-function nextVideo() { openIndex(currentIndex + 1); }
+function videoIndices() {
+  var idx = [];
+  videos.forEach(function (v, i) { if (v.kind !== 'photo') idx.push(i); });
+  return idx;
+}
+// v19: prev/next step through videos only (photos have their own viewer).
+function stepVideo(d) {
+  var idx = videoIndices();
+  if (!idx.length) return;
+  var pos = idx.indexOf(currentIndex);
+  if (pos < 0) pos = 0;
+  openPlayer(idx[(pos + d + idx.length) % idx.length]);
+}
+function prevVideo() { stepVideo(-1); }
+function nextVideo() { stepVideo(1); }
 
 // v15: video watching — counts and time, per folder, per day.
 var watchAccum = 0, watchLast = null, watchFolder = null;
@@ -1228,9 +1371,11 @@ function flushWatchTime() {
   watchLast = null;
 }
 function openPlayer(i) {
+  var it = videos[i];
+  if (!it || it.kind === 'photo') return;
   flushWatchTime();
   currentIndex = i;
-  current = videos[i];
+  current = it;
   recordWatch(currentFolderLabel());
   var player = document.getElementById('player');
   player.src = current.url;
@@ -1243,6 +1388,7 @@ function openPlayer(i) {
   document.getElementById('vol-pop').classList.remove('open');
   document.getElementById('list-view').style.display = 'none';
   document.getElementById('player-view').classList.add('open');
+  requestWakeLock();
   watchLast = null;
   watchFolder = null;
   document.getElementById('scrub').value = 0;
@@ -1254,6 +1400,7 @@ function openPlayer(i) {
 
 function closePlayer() {
   flushWatchTime();
+  releaseWakeLock();
   var player = document.getElementById('player');
   player.pause();
   player.removeAttribute('src');
@@ -1266,6 +1413,127 @@ function closePlayer() {
   setPlayBtn(false);
   maybeRefreshWeather();
 }
+
+// v19: photo viewer — one photo at a time, prev/next step through the
+// photos in this folder only (videos are skipped).
+var photoIndex = -1;
+function photoIndices() {
+  var idx = [];
+  videos.forEach(function (v, i) { if (v.kind === 'photo') idx.push(i); });
+  return idx;
+}
+function openPhoto(i) {
+  var it = videos[i];
+  if (!it || it.kind !== 'photo') return;
+  photoIndex = i;
+  document.getElementById('photo-img').src = it.url;
+  document.getElementById('photo-name').textContent = it.name;
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('photo-view').classList.add('open');
+}
+function closePhoto() {
+  stopSlideshow();
+  document.getElementById('photo-img').removeAttribute('src');
+  document.getElementById('photo-view').classList.remove('open');
+  document.getElementById('list-view').style.display = '';
+  photoIndex = -1;
+}
+function stepPhoto(d) {
+  var idx = photoIndices();
+  if (!idx.length) return;
+  var pos = idx.indexOf(photoIndex);
+  if (pos < 0) pos = 0;
+  openPhoto(idx[(pos + d + idx.length) % idx.length]);
+}
+function prevPhoto() { stepPhoto(-1); }
+function nextPhoto() { stepPhoto(1); }
+
+// v20: keep the screen on while a video plays or the slideshow runs.
+// The browser drops the lock when the page hides, so it is asked for
+// again when the page shows and the show is still on.
+var wakeLock = null;
+var wakeLockWanted = false;
+async function requestWakeLock() {
+  wakeLockWanted = true;
+  if (!('wakeLock' in navigator) || !navigator.wakeLock) return;
+  try {
+    var lock = await navigator.wakeLock.request('screen');
+    // Closed again before the request finished: let the fresh lock go.
+    if (!wakeLockWanted) { try { lock.release(); } catch (e) {} return; }
+    wakeLock = lock;
+  } catch (e) { wakeLock = null; }
+}
+function releaseWakeLock() {
+  wakeLockWanted = false;
+  if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
+}
+document.addEventListener('visibilitychange', function () {
+  if (!document.hidden && slideShow.on) requestWakeLock();
+});
+
+// v20: photo slideshow — photos only, folder order, 10 seconds a photo,
+// loops at the end. Start it with the Slideshow button (in a photo, or
+// in a photo folder), or it starts itself after 5 minutes untouched on
+// a photo folder. Tap anywhere (or the X) to stop and go back to the list.
+var SLIDE_SECS = 10;
+var SLIDE_IDLE_MS = 5 * 60 * 1000;
+var slideShow = { on: false, timerId: null, idleId: null };
+function startSlideshow() {
+  var idx = photoIndices();
+  if (!idx.length) { showToast('No photos in this folder.'); return; }
+  var start = idx[0];
+  if (photoIndex >= 0 && idx.indexOf(photoIndex) >= 0) start = photoIndex;
+  openPhoto(start);
+  slideShow.on = true;
+  document.getElementById('photo-view').classList.add('slideshow');
+  var pv = document.getElementById('photo-view');
+  if (typeof pv.requestFullscreen === 'function') { try { var p = pv.requestFullscreen(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+  requestWakeLock();
+  slideShow.timerId = setInterval(function () { stepPhoto(1); }, SLIDE_SECS * 1000);
+  resetSlideIdle();
+}
+function stopSlideshow() {
+  if (!slideShow.on) return;
+  slideShow.on = false;
+  if (slideShow.timerId) { clearInterval(slideShow.timerId); slideShow.timerId = null; }
+  document.getElementById('photo-view').classList.remove('slideshow');
+  if (document.fullscreenElement === document.getElementById('photo-view') && typeof document.exitFullscreen === 'function') {
+    try { var q = document.exitFullscreen(); if (q && q.catch) q.catch(function () {}); } catch (e) {}
+  }
+  releaseWakeLock();
+  resetSlideIdle();
+}
+document.getElementById('photo-view').addEventListener('click', function (ev) {
+  if (!slideShow.on) return;
+  if (ev.target.closest && ev.target.closest('button')) return;
+  stopSlideshow();
+  closePhoto();
+});
+// v20: start the show by itself after 5 minutes untouched on a photo
+// folder — only from the folder list, never over a video, a game, or a popup.
+function listViewActive() {
+  var lv = document.getElementById('list-view');
+  if (!lv || lv.style.display === 'none') return false;
+  if (document.getElementById('photo-view').classList.contains('open')) return false;
+  if (document.getElementById('player-view').classList.contains('open')) return false;
+  if (document.querySelectorAll('.game-view.open').length) return false;
+  var fp = document.getElementById('folder-picker');
+  if (fp && fp.style.display !== 'none') return false;
+  return true;
+}
+function maybeAutoSlideshow() {
+  if (slideShow.on) return;
+  if (!listViewActive()) return;
+  if (!photoIndices().length) return;
+  startSlideshow();
+}
+function resetSlideIdle() {
+  if (slideShow.idleId) { clearTimeout(slideShow.idleId); slideShow.idleId = null; }
+  slideShow.idleId = setTimeout(maybeAutoSlideshow, SLIDE_IDLE_MS);
+}
+['pointerdown', 'keydown'].forEach(function (evt) {
+  document.addEventListener(evt, function () { resetSlideIdle(); }, { passive: true });
+});
 
 function setPlayBtn(playing) {
   document.getElementById('play-btn').innerHTML = playing ? '&#10074;&#10074;' : '&#9654;';
@@ -1763,20 +2031,39 @@ function openGame(which) {
   } else if (which === 'words') {
     document.getElementById('game-words').classList.add('open');
     if (!wordGame.started) newWordPuzzle();
-    else if (!wordGame.over) resumeWordTimer();
+    else if (!wordGame.over && !wordGame.timeUp) { resumeWordTimer(); setWordsPlaying(true); }
   }
 }
 function closeGame() {
   stopWordTimer();
+  setWordsPlaying(false);
   ['game-make13', 'game-pairs', 'game-words'].forEach(function (id) {
     document.getElementById(id).classList.remove('open');
   });
   document.getElementById('games-view').classList.add('open');
 }
 function resumeWordTimer() {
-  if (wordGame.over || wordGame.timeUp || wordGame.timeLeft <= 0) return;
+  if (wordGame.over || wordGame.timeUp || wordGame.paused || wordGame.timeLeft <= 0) return;
   stopWordTimer();
   wordGame.timerId = setInterval(tickWordTimer, 1000);
+}
+// v20: pause — stops the timer; tap again to carry on. Only while playing.
+function setPauseBtn() {
+  var b = document.getElementById('words-pause');
+  if (!b) return;
+  b.innerHTML = wordGame.paused ? '&#9654;' : '&#10074;&#10074;';
+  b.setAttribute('aria-label', wordGame.paused ? 'Resume' : 'Pause');
+}
+function toggleWordsPause() {
+  if (!wordGame.started || wordGame.over || wordGame.timeUp) return;
+  wordGame.paused = !wordGame.paused;
+  if (wordGame.paused) stopWordTimer();
+  else resumeWordTimer();
+  setPauseBtn();
+}
+function setWordsPlaying(on) {
+  document.getElementById('game-words').classList.toggle('playing', !!on);
+  setPauseBtn();
 }
 
 // --- Calculator (simple, big buttons) ---
@@ -2297,7 +2584,7 @@ function afterGridMove(which) {
 var WORD_LIST = ['GOSPEL', 'MUSIC', 'FAITH', 'HOPE', 'LOVE', 'PEACE', 'SING', 'SONG', 'PIANO', 'CHURCH', 'PRAYER', 'ANGEL', 'FAMILY', 'FRIEND', 'HAPPY', 'SMILE', 'FLOWER', 'GARDEN', 'SUNSHINE', 'RIVER', 'OCEAN', 'MOUNTAIN', 'SPRING', 'SUMMER', 'AUTUMN', 'WINTER', 'APPLE', 'BANANA', 'ORANGE', 'BREAD', 'COFFEE', 'BOOK', 'STORY', 'DREAM', 'STAR', 'MOON', 'RAIN', 'SNOW', 'BIRD', 'TREE', 'HOME', 'HOUSE', 'TABLE', 'CHAIR', 'WINDOW', 'ROAD', 'TRAIN', 'PLANE', 'SHIP', 'FISH', 'CAKE', 'HONEY', 'MILK', 'SOUP', 'SALAD', 'PASTA', 'PIZZA', 'CHEESE', 'BUTTER', 'CORN', 'BEAN', 'RICE', 'PLUM', 'PEAR', 'MELON', 'LEMON', 'GRAPE', 'PEACH', 'CHERRY', 'BERRY', 'MANGO', 'LAUGH', 'DANCE', 'HEART', 'LIGHT', 'GRACE', 'BLESS', 'PSALM', 'HYMN', 'CHOIR', 'ORGAN', 'VIOLIN', 'GUITAR', 'TRUMPET', 'DRUM', 'BELL', 'CANDLE', 'CROSS', 'CROWN', 'CLOUD', 'STORM', 'BREEZE', 'MEADOW', 'FOREST', 'VALLEY', 'DESERT', 'ISLAND', 'BEACH', 'WAVES', 'SUNSET', 'SUNRISE', 'MORNING', 'EVENING', 'THUNDER', 'RAINBOW', 'LEAF', 'BLOOM', 'PETAL', 'ROSE', 'TULIP', 'DAISY', 'LILY', 'VIOLET', 'ORCHID', 'JASMINE', 'LAVENDER', 'HERB', 'MINT', 'BASIL', 'SAGE', 'THYME', 'ROSEMARY', 'GINGER', 'CINNAMON', 'VANILLA', 'COCOA', 'SUGAR', 'SALT', 'PEPPER', 'ONION', 'GARLIC', 'POTATO', 'CARROT', 'TOMATO', 'LETTUCE', 'CABBAGE', 'CELERY', 'SPINACH', 'BROCCOLI', 'CUCUMBER', 'ZUCCHINI', 'EGGPLANT', 'AVOCADO', 'COCONUT', 'PINEAPPLE', 'STRAWBERRY', 'BLUEBERRY', 'RASPBERRY', 'BLACKBERRY', 'WATERMELON', 'CANTALOUPE', 'APRICOT', 'NECTARINE', 'KIWI', 'PAPAYA', 'GUAVA', 'LYCHEE', 'DATE', 'OLIVE', 'ALMOND', 'WALNUT', 'PECAN', 'CASHEW', 'PEANUT', 'HAZELNUT', 'CHESTNUT', 'PISTACHIO', 'SESAME', 'POPCORN', 'PRETZEL', 'MUFFIN', 'BAGEL', 'DONUT', 'COOKIE', 'BROWNIE', 'CUPCAKE', 'PANCAKE', 'WAFFLE', 'SYRUP', 'JELLY', 'MAPLE', 'CREAM', 'YOGURT', 'CEREAL', 'OATMEAL', 'GRANOLA', 'TOAST', 'SANDWICH', 'BURGER', 'HOTDOG', 'TACOS', 'BURRITO', 'LASAGNA', 'SPAGHETTI', 'MACARONI', 'RAVIOLI', 'RISOTTO', 'PAELLA', 'CURRY', 'STEW', 'ROAST', 'GRILL', 'BAKED', 'FRIED', 'SAUCE', 'GRAVY', 'DRESSING', 'VINEGAR', 'MUSTARD', 'KETCHUP', 'MAYO', 'RELISH', 'PICKLE', 'CAPER', 'ANCHOVY', 'SARDINE', 'SALMON', 'TUNA', 'TROUT', 'BASS', 'PERCH', 'CATFISH', 'SHRIMP', 'CRAB', 'LOBSTER', 'OYSTER', 'MUSSEL', 'CLAM', 'SCALLOP', 'SQUID', 'OCTOPUS', 'WHALE', 'DOLPHIN', 'SHARK', 'SEAL', 'OTTER', 'BEAVER', 'RACCOON', 'SQUIRREL', 'CHIPMUNK', 'RABBIT', 'HARE', 'DEER', 'MOOSE', 'BISON', 'BUFFALO', 'HORSE', 'PONY', 'DONKEY', 'MULE', 'GOAT', 'SHEEP', 'LAMB', 'CHICKEN', 'DUCK', 'GOOSE', 'TURKEY', 'PIGEON', 'SPARROW', 'ROBIN', 'BLUEJAY', 'CARDINAL', 'FINCH', 'WREN', 'EAGLE', 'HAWK', 'FALCON', 'RAVEN', 'CROW', 'DOVE', 'SWAN', 'HERON', 'STORK', 'CRANE', 'FLAMINGO', 'PELICAN', 'PENGUIN', 'OSTRICH', 'PEACOCK', 'PARROT', 'CANARY', 'COCKATOO', 'MACAW', 'TOUCAN', 'BUTTERFLY', 'MOTH', 'WASP', 'SPIDER', 'LADYBUG', 'FIREFLY', 'DRAGONFLY', 'CICADA', 'CRICKET', 'BEETLE', 'SNAIL', 'SLUG', 'WORM', 'FROG', 'TOAD', 'LIZARD', 'SNAKE', 'TURTLE', 'TORTOISE', 'CROCODILE', 'ALLIGATOR', 'CHAMELEON', 'GECKO', 'IGUANA', 'PYTHON', 'COBRA', 'VIPER', 'ANACONDA', 'JAGUAR', 'LEOPARD', 'CHEETAH', 'LION', 'TIGER', 'PANTHER', 'PUMA', 'COUGAR', 'LYNX', 'BOBCAT', 'OCELOT', 'WOLF', 'COYOTE', 'HYENA', 'JACKAL', 'MEERKAT', 'MONKEY', 'GORILLA', 'CHIMP', 'BABOON', 'LEMUR', 'KOALA', 'PANDA', 'KANGAROO', 'WALLABY', 'WOMBAT', 'PLATYPUS', 'HEDGEHOG', 'PORCUPINE', 'ARMADILLO', 'ANTEATER', 'SLOTH', 'BADGER', 'WEASEL', 'FERRET', 'MINK', 'SKUNK', 'OPOSSUM', 'MOLE', 'VOLE', 'SHREW', 'MOUSE', 'HAMSTER', 'GERBIL', 'GUINEA', 'CAPYBARA', 'MOTHER', 'FATHER', 'SISTER', 'BROTHER', 'GRANDMA', 'GRANDPA', 'GRANNY', 'AUNTIE', 'UNCLE', 'COUSIN', 'NEPHEW', 'NIECE', 'BABY', 'CHILD', 'TEEN', 'ADULT', 'ELDER', 'NEIGHBOR', 'TEACHER', 'DOCTOR', 'NURSE', 'COOK', 'BAKER', 'FARMER', 'DRIVER', 'PILOT', 'SAILOR', 'SOLDIER', 'ARTIST', 'SINGER', 'DANCER', 'ACTOR', 'WRITER', 'POET', 'PAINTER', 'MUSICIAN', 'COMPOSER', 'CONDUCTOR', 'PIANIST', 'DRUMMER', 'CELLIST', 'FLUTIST', 'HARP', 'BANJO', 'MANDOLIN', 'ACCORDION', 'HARMONICA', 'SAXOPHONE', 'CLARINET', 'OBOE', 'BASSOON', 'TUBA', 'HORN', 'CORNET', 'TROMBONE', 'MARIMBA', 'XYLOPHONE', 'TAMBOURINE', 'BAGPIPE', 'UKULELE', 'SITAR', 'LUTE', 'LYRE', 'ZITHER', 'MELODY', 'HARMONY', 'RHYTHM', 'TEMPO', 'BEAT', 'TUNE', 'ANTHEM', 'BALLAD', 'CAROL', 'VERSE', 'STANZA', 'REFRAIN', 'CHORUS', 'BRIDGE', 'INTRO', 'OUTRO', 'CODA', 'FINALE', 'OVERTURE', 'PRELUDE', 'NOCTURNE', 'SERENADE', 'CONCERTO', 'SYMPHONY', 'SONATA', 'SUITE', 'FUGUE', 'CANON', 'RONDO', 'MINUET', 'GAVOTTE', 'WALTZ', 'TANGO', 'FOXTROT', 'RUMBA', 'SAMBA', 'MAMBO', 'SALSA', 'SWING', 'JAZZ', 'BLUES', 'ROCK', 'FOLK', 'COUNTRY', 'SPIRITUAL', 'MOTET', 'MASS', 'REQUIEM', 'ORATORIO', 'OPERA', 'OPERETTA', 'MUSICAL', 'BALLET', 'REVUE', 'CABARET', 'PANTOMIME', 'COMEDY', 'TRAGEDY', 'DRAMA', 'SATIRE', 'PARODY', 'IRONY', 'HUMOR', 'JEST', 'PRANK', 'TRICK', 'JOKE', 'RIDDLE', 'PUZZLE', 'MAZE', 'GAME', 'PLAY', 'DOLL', 'KITE', 'BALL', 'MITT', 'GLOVE', 'HELMET', 'JERSEY', 'UNIFORM', 'CLEAT', 'SPIKE', 'RACKET', 'PADDLE', 'CLUB', 'IRON', 'WEDGE', 'PUTTER', 'CADDIE', 'BIRDIE', 'BOGEY', 'HOLE', 'GREEN', 'FAIRWAY', 'ROUGH', 'BUNKER', 'HAZARD', 'WATER', 'SAND', 'TRAP', 'FLAG', 'MARKER', 'DIVOT', 'STANCE', 'GRIP', 'STROKE', 'PUTT', 'CHIP', 'PITCH', 'DRIVE', 'LAYUP', 'DUNK', 'HOOP', 'COURT', 'FIELD', 'DIAMOND', 'MOUND', 'PLATE', 'BASE', 'BATTER', 'PITCHER', 'CATCHER', 'INFIELD', 'OUTFIELD', 'DUGOUT', 'BULLPEN', 'BLEACHER', 'STAND', 'CROWD', 'CHEER', 'WAVE', 'CLAP', 'STOMP', 'WHISTLE', 'SIREN', 'ALARM', 'CLOCK', 'WATCH', 'TIMER', 'CHIME', 'GONG', 'CYMBAL', 'TRIANGLE', 'MARACA', 'CLAVE', 'GUIRO', 'SHAKER', 'KALIMBA', 'MBIRA', 'CONGA', 'BONGO', 'DJEMBE', 'TABLA', 'FRAME', 'PERCUSSION', 'SECTION', 'ENSEMBLE', 'ORCHESTRA', 'BAND', 'QUARTET', 'QUINTET', 'TRIO', 'SOLO', 'DUET', 'OCTET', 'SEPTET', 'SEXTET', 'NONET', 'CHAMBER', 'CONCERT', 'RECITAL', 'SHOW', 'STAGE', 'CURTAIN', 'SPOTLIGHT', 'BACKSTAGE', 'REHEARSAL', 'AUDITION', 'CAST', 'CREW', 'DIRECTOR', 'PRODUCER', 'MANAGER', 'AGENT', 'PROMOTER', 'VENUE', 'ARENA', 'STADIUM', 'THEATER', 'HALL', 'PAVILION', 'GAZEBO', 'PERGOLA', 'ARBOR', 'TRELLIS', 'FENCE', 'GATE', 'WALL', 'ARCH', 'DOME', 'TOWER', 'SPIRE', 'STEEPLE', 'BELFRY', 'CUPOLA', 'ROTUNDA', 'ATRIUM', 'LOBBY', 'FOYER', 'CORRIDOR', 'HALLWAY', 'STAIR', 'ELEVATOR', 'RAMP', 'LANDING', 'BALCONY', 'TERRACE', 'PORCH', 'DECK', 'PATIO', 'YARD', 'LAWN', 'PATH', 'WALK', 'TRAIL', 'STREET', 'AVENUE', 'LANE', 'ALLEY', 'PLAZA', 'SQUARE', 'CIRCLE', 'CURB', 'GUTTER', 'DRAIN', 'SEWER', 'PIPE', 'VALVE', 'FAUCET', 'SHOWER', 'BASIN', 'SINK', 'MIRROR', 'TOWEL', 'SOAP', 'SHAMPOO', 'TOOTHPASTE', 'FLOSS', 'RAZOR', 'COMB', 'BRUSH', 'SCISSORS', 'NAIL', 'CLIPPER', 'FILE', 'TWEEZER', 'COTTON', 'BANDAGE', 'OINTMENT', 'PILL', 'TABLET', 'CAPSULE', 'DROPS', 'SPRAY', 'LOTION', 'POWDER', 'PERFUME', 'COLOGNE', 'LIPSTICK', 'MASCARA', 'EYELINER', 'BLUSH', 'PRIMER', 'SETTING', 'MIST', 'TONER', 'SERUM', 'ESSENCE', 'AMPOULE', 'MASK', 'PEEL', 'SCRUB', 'CLEANSER', 'WASH', 'RINSE', 'TREATMENT', 'THERAPY', 'MASSAGE', 'SAUNA', 'STEAM', 'BATH', 'SOAK', 'SWIM', 'DIVE', 'FLOAT', 'SPLASH', 'DRIP', 'DROP', 'POUR', 'SPILL', 'LEAK', 'FLOW', 'STREAM', 'BROOK', 'CREEK', 'POND', 'LAKE', 'POOL', 'COVE', 'INLET', 'OUTLET', 'HARBOR', 'PORT', 'DOCK', 'PIER', 'WHARF', 'QUAY', 'JETTY', 'LIGHTHOUSE', 'BEACON', 'BUOY', 'ANCHOR', 'CHAIN', 'ROPE', 'CABLE', 'KNOT', 'LOOP', 'HOOK', 'SPLICE', 'BINDING', 'WRAPPING', 'PACKING', 'CRATE', 'CARTON', 'CASE', 'CHEST', 'TRUNK', 'SUITCASE', 'POUCH', 'POCKET', 'WALLET', 'PURSE', 'HANDBAG', 'BACKPACK', 'SATCHEL', 'TOTE', 'DUFFEL', 'LUGGAGE', 'BAGGAGE', 'TICKET', 'BOARDING', 'PASSPORT', 'VISA', 'CUSTOMS', 'SECURITY', 'SCREENING', 'SCANNER', 'XRAY', 'METAL', 'DETECTOR', 'CONVEYOR', 'BELT', 'CAROUSEL', 'CLAIM', 'LOST', 'FOUND', 'OFFICE', 'DESK', 'COUNTER', 'DOOR', 'TERMINAL', 'CONCOURSE', 'HANGAR', 'RUNWAY', 'TAXIWAY', 'APRON', 'TARMAC', 'CONTROL', 'RADAR', 'NAVIGATION', 'COMPASS', 'CHART', 'ATLAS', 'GLOBE', 'SPHERE', 'ORBIT', 'AXIS', 'POLE', 'EQUATOR', 'MERIDIAN', 'PARALLEL', 'LATITUDE', 'LONGITUDE', 'TROPIC', 'ARCTIC', 'TEMPERATE', 'TROPICAL', 'POLAR', 'CLIMATE', 'WEATHER', 'SEASON', 'MONSOON', 'HURRICANE', 'TYPHOON', 'CYCLONE', 'TORNADO', 'TWISTER', 'FUNNEL', 'VORTEX', 'EDDY', 'CURRENT', 'TIDE', 'SURF', 'SWELL', 'RIPPLE', 'FOAM', 'HAZE', 'SMOG', 'DUST', 'SILT', 'CLAY', 'SOIL', 'LOAM', 'PEAT', 'HUMUS', 'COMPOST', 'MULCH', 'MANURE', 'SPROUT', 'SEEDLING', 'SAPLING', 'SHRUB', 'BUSH', 'HEDGE', 'VINE', 'MOSS', 'FERN', 'PALM', 'PINE', 'SPRUCE', 'CEDAR', 'BIRCH', 'ASPEN', 'WILLOW', 'POPLAR', 'BEECH', 'HICKORY', 'ACORN', 'CONE', 'NEEDLE', 'BARK', 'LIMB', 'TWIG', 'STICK', 'STUMP', 'RING', 'GRAIN', 'PLANK', 'BOARD', 'BEAM', 'JOIST', 'RAFTER', 'TRUSS', 'POST', 'PILLAR', 'COLUMN', 'CAPITAL', 'FOOTING', 'SLAB', 'BRICK', 'STONE', 'CONCRETE', 'MORTAR', 'CEMENT', 'PLASTER', 'DRYWALL', 'PANEL', 'TILE', 'SHINGLE', 'THATCH', 'SLATE', 'COPPER', 'BRASS', 'BRONZE', 'STEEL', 'ALUMINUM', 'LEAD', 'ZINC', 'NICKEL', 'CHROME', 'SILVER', 'GOLD', 'PLATINUM', 'RUBY', 'EMERALD', 'SAPPHIRE', 'TOPAZ', 'OPAL', 'PEARL', 'JADE', 'ONYX', 'QUARTZ', 'CRYSTAL', 'MARBLE', 'GRANITE', 'LIMESTONE', 'SANDSTONE', 'BASALT', 'OBSIDIAN', 'PUMICE', 'FLINT', 'CHERT', 'AGATE', 'JASPER', 'LAPIS', 'AMETHYST', 'CITRINE', 'GARNET', 'PERIDOT', 'SPINEL', 'ZIRCON', 'BERYL'];
 var WORD_COUNT = 7;
 var WORD_MIN_LEN = 3; // v16: hard floor — 2-letter words never allowed.
-var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, bonusPending: {}, puzzleId: 0, timerId: null, timeLeft: 0, timeUp: false, over: false, banked: false, startTime: 0, newFastest: false };
+var wordGame = { started: false, size: 10, grid: [], words: [], found: {}, foundCells: {}, bonusCells: {}, selStart: null, selEnd: null, points: 0, bonus: 30, bonusWords: {}, bonusPending: {}, puzzleId: 0, timerId: null, timeLeft: 0, timeUp: false, over: false, banked: false, startTime: 0, newFastest: false, paused: false };
 var seedWords = { promoted: [], general: [] };
 function allWordsSet() {
   var s = {};
@@ -2491,6 +2778,7 @@ function startWordTimer() {
   wordGame.timerId = setInterval(tickWordTimer, 1000);
 }
 function showTimeUp() {
+  setWordsPlaying(false);
   var tu = document.getElementById('words-timeup');
   tu.classList.add('open');
   var found = wordGame.words.filter(function (w) { return wordGame.found[w.word]; }).length;
@@ -2516,12 +2804,14 @@ function wordsBuyTime(mins) {
   document.getElementById('words-status').textContent = 'Tap the first letter, then the last letter of a word.';
   renderWordTop();
   wordGame.timerId = setInterval(tickWordTimer, 1000);
+  setWordsPlaying(true);
 }
 function totalPoints() { try { var n = parseInt(localStorage.getItem('player_total_points'), 10); return isFinite(n) && n > 0 ? n : 0; } catch (e) { return 0; } }
 function addTotalPoints(n) { try { localStorage.setItem('player_total_points', String(totalPoints() + n)); } catch (e) {} }
 function showAwards(title, gamePts) {
   stopWordTimer();
   wordGame.over = true;
+  setWordsPlaying(false);
   hideTimeUp();
   document.getElementById('words-startover-row').style.display = 'none';
   var total = totalPoints();
@@ -2643,6 +2933,7 @@ function newWordPuzzle() {
   wordGame.over = false;
   wordGame.timeUp = false;
   wordGame.banked = false;
+  wordGame.paused = false;
   wordGame.selStart = null;
   wordGame.selEnd = null;
   wordGame.started = true;
@@ -2654,6 +2945,7 @@ function newWordPuzzle() {
   document.getElementById('words-bonus').textContent = '';
   hideTimeUp();
   renderWords();
+  setWordsPlaying(true);
   startWordTimer();
 }
 function isWordSelected(r, c) {
@@ -2758,7 +3050,7 @@ function checkBonusOnline(word, cells) {
   });
 }
 function onWordCell(r, c) {
-  if (wordGame.over || wordGame.timeUp) return;
+  if (wordGame.over || wordGame.timeUp || wordGame.paused) return;
   if (!wordGame.selStart) { wordGame.selStart = { r: r, c: c }; wordGame.selEnd = null; renderWords(); return; }
   var s = wordGame.selStart;
   if (s.r === r && s.c === c) { wordGame.selStart = null; renderWords(); return; }
@@ -2859,7 +3151,8 @@ function crossedTarget(cells) {
   var fromServer = false;
   try { fromServer = await tryServerList(); } catch (e) { fromServer = false; }
   if (fromServer) return;
-  // Otherwise fall back to the saved folder, then the choose screen.
+  // Otherwise fall back to the saved folder, then the samples, then the
+  // choose screen.
   if (db) {
     storedHandle = await loadStoredHandle();
     if (storedHandle) {
@@ -2868,6 +3161,10 @@ function crossedTarget(cells) {
         if (perm === 'granted') { dirHandle = storedHandle; await listVideos(); }
       } catch (e) {}
     }
+  }
+  // v19: no server, no saved folder — show the built-in samples.
+  if (!dirHandle) {
+    try { if (await trySamples()) return; } catch (e) {}
   }
   if (!dirHandle) renderList();
 })();
