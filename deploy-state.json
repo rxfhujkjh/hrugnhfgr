@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T13:07:25-06:00",
+  "generatedAt": "2026-11-13T15:37:23-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1198258,
-      "mtime": "2026-11-13T19:04:24.552Z",
-      "sha256": "8a91e88102259981ac0e363e78a531d7a52e64a451600b83a73232638e23acdf",
-      "matchedBackup": "portfolio.v1303.html",
-      "version": "v1303"
+      "size": 1205435,
+      "mtime": "2026-11-13T21:09:01.192Z",
+      "sha256": "1b1b828fe5644da16c3e539676674f3161db53a563c6eb9a5c436e1f06634232",
+      "matchedBackup": "portfolio.v1304.html",
+      "version": "v1304"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -193,16 +193,6 @@
       "sha256": "e07334936589d72d13e785f5b7641077f960555ab0da790bd2b71664985ff0ff"
     },
     {
-      "file": "beach-video.mp4",
-      "size": 680499,
-      "sha256": "e95be7e091773898370ba4be126d5e3b46d028f663a904b57c83b51f3be93523"
-    },
-    {
-      "file": "beach.jpg",
-      "size": 508787,
-      "sha256": "64eae473834064aa22042a957304b260f6589ff53256d74dabb575bddbf7250b"
-    },
-    {
       "file": "cd-guarantee-app.html",
       "size": 52618,
       "sha256": "d6bb0e0dfa0c46590a131ee8aa9255f91d14a863edf0907fed9298259f83c6b6"
@@ -221,11 +211,6 @@
       "file": "convert.v8.html",
       "size": 24047,
       "sha256": "4cd7f461911644c35f0e1bbfe5764a363664d7b010e952920a58d77d13ed5480"
-    },
-    {
-      "file": "garden.jpg",
-      "size": 920994,
-      "sha256": "d568b284cf5fb875416a62e658af79c28d71beefd88f25156c388f657f18ce81"
     },
     {
       "file": "georgianchatdemo.014.html",
@@ -468,6 +453,11 @@
       "sha256": "8a91e88102259981ac0e363e78a531d7a52e64a451600b83a73232638e23acdf"
     },
     {
+      "file": "portfolio.v1304.html",
+      "size": 1205435,
+      "sha256": "1b1b828fe5644da16c3e539676674f3161db53a563c6eb9a5c436e1f06634232"
+    },
+    {
       "file": "results.v1.html",
       "size": 5528,
       "sha256": "b65a2059769065297d09993b6485a4c6ec6ea7302361fc0cdbadea82f4b197a2"
@@ -623,11 +613,6 @@
       "sha256": "6a33806dfd3c9025b4be7ad3c4a791c9b633bef5da256ffc1d48e2f6fb1ee612"
     },
     {
-      "file": "samples.json",
-      "size": 245,
-      "sha256": "fc357ddb96184b813bb8cf01fd3a6375c13cedb5da7afa7ac1a31748b92b5b05"
-    },
-    {
       "file": "sidekicks.v1.html",
       "size": 26846,
       "sha256": "ce95248b9fc2cb3cee579212a5f5e560a287c4f7d2df67bfb790d80557db79b1"
@@ -671,11 +656,6 @@
       "file": "tools.v20.html",
       "size": 137645,
       "sha256": "0983d9fe5c252ece47576ba4e9054becfe02aebd9df456bb7bdf93da6634045a"
-    },
-    {
-      "file": "vase.jpg",
-      "size": 453994,
-      "sha256": "d2f517597f94eddbb0cf7d7f213ca045d7ffec0df861492c36904979a0987aea"
     },
     {
       "file": "video-transcriber.v104.html",
