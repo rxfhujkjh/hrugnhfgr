@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-13T15:37:23-06:00",
+  "generatedAt": "2026-11-14T06:32:01-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1205435,
-      "mtime": "2026-11-13T21:09:01.192Z",
-      "sha256": "1b1b828fe5644da16c3e539676674f3161db53a563c6eb9a5c436e1f06634232",
-      "matchedBackup": "portfolio.v1304.html",
-      "version": "v1304"
+      "size": 1209266,
+      "mtime": "2026-11-13T23:06:10.948Z",
+      "sha256": "c947d0ad014ae9e3a3af5ffcf07a7abb1a340dce213af1c6d6bec180b8166e9a",
+      "matchedBackup": "portfolio.v1307.html",
+      "version": "v1307"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -113,11 +113,11 @@
     {
       "file": "smb-browser.html",
       "name": "smb-browser",
-      "size": 379459,
-      "mtime": "2026-11-11T20:58:16.046Z",
-      "sha256": "b2eb26deef8f9dad285b434b0f4baf3993646ec8b67ffe2cf5b63a6c3e7490a4",
-      "matchedBackup": "smb-browser.v71.html",
-      "version": "v71"
+      "size": 380427,
+      "mtime": "2026-11-14T02:43:55.824Z",
+      "sha256": "ad98d54edac72784b946ada280fb25e2dac5ad9bd89431828947050efa2a105d",
+      "matchedBackup": "smb-browser.v72.html",
+      "version": "v72"
     },
     {
       "file": "split-viewer.html",
@@ -158,11 +158,11 @@
     {
       "file": "walker.html",
       "name": "walker",
-      "size": 82784,
-      "mtime": "2026-10-22T23:20:25.000Z",
-      "sha256": "8e080b8f36942cb3aaa0544e3c1b4aa5a9b5fae887abd039f5f4c6a6f2a7a86e",
-      "matchedBackup": null,
-      "version": null
+      "size": 94988,
+      "mtime": "2026-11-14T02:42:33.988Z",
+      "sha256": "3d431e5a14db6707076a5ad10dbe7559bd5afb40ed4c523d8389afde484d11d7",
+      "matchedBackup": "walker.v25.html",
+      "version": "v25"
     }
   ],
   "serverFile": {
@@ -458,6 +458,16 @@
       "sha256": "1b1b828fe5644da16c3e539676674f3161db53a563c6eb9a5c436e1f06634232"
     },
     {
+      "file": "portfolio.v1305.html",
+      "size": 1206695,
+      "sha256": "0b15cebb801d50ee3fd65987ef3f44e495b16fb93b0759add7bbb3e768a4b446"
+    },
+    {
+      "file": "portfolio.v1307.html",
+      "size": 1209266,
+      "sha256": "c947d0ad014ae9e3a3af5ffcf07a7abb1a340dce213af1c6d6bec180b8166e9a"
+    },
+    {
       "file": "results.v1.html",
       "size": 5528,
       "sha256": "b65a2059769065297d09993b6485a4c6ec6ea7302361fc0cdbadea82f4b197a2"
@@ -633,6 +643,11 @@
       "sha256": "b2eb26deef8f9dad285b434b0f4baf3993646ec8b67ffe2cf5b63a6c3e7490a4"
     },
     {
+      "file": "smb-browser.v72.html",
+      "size": 380427,
+      "sha256": "ad98d54edac72784b946ada280fb25e2dac5ad9bd89431828947050efa2a105d"
+    },
+    {
       "file": "split-viewer.v14.html",
       "size": 44235,
       "sha256": "d4e425b07ec2530bb22176b8c149aa820c2a3bbda8cd57fb22b16152c51e80d5"
@@ -658,6 +673,11 @@
       "sha256": "0983d9fe5c252ece47576ba4e9054becfe02aebd9df456bb7bdf93da6634045a"
     },
     {
+      "file": "transcriber-config-v105.txt",
+      "size": 2272,
+      "sha256": "3ebb75c33493a7b3cc6fc6b9dcde96e1af5f5c3d515b0aa91625fd7c2c8d71f4"
+    },
+    {
       "file": "video-transcriber.v104.html",
       "size": 180976,
       "sha256": "f3c14902599442c3c7b7622bc7318b84a5750e46f541cd0d287645ae3348017e"
@@ -676,6 +696,11 @@
       "file": "walker.v23b.html",
       "size": 82729,
       "sha256": "8cc672dfc07ff43bc2e8567feb21072518d06a732f21a0c3a94e91dba0e3a7e8"
+    },
+    {
+      "file": "walker.v25.html",
+      "size": 94988,
+      "sha256": "3d431e5a14db6707076a5ad10dbe7559bd5afb40ed4c523d8389afde484d11d7"
     }
   ]
 }
