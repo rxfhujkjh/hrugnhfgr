@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T13:19:02-06:00",
+  "generatedAt": "2026-11-14T13:58:36-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -158,11 +158,11 @@
     {
       "file": "walker.html",
       "name": "walker",
-      "size": 97726,
-      "mtime": "2026-11-14T18:00:17.874Z",
-      "sha256": "f8888d70377f52024b845003d3c91fa917bcf3c703d2a68904c9390e7eddaeca",
-      "matchedBackup": "walker.v2601.html",
-      "version": "v2601"
+      "size": 97724,
+      "mtime": "2026-11-14T19:36:16.878Z",
+      "sha256": "fac2757cf3a411a6d80bb2656ca3fe252395af852ce90c231dcd4ac77bcf9b23",
+      "matchedBackup": "walker.v26.1.html",
+      "version": "v26.1"
     }
   ],
   "serverFile": {
@@ -711,6 +711,11 @@
       "file": "walker.v25.html",
       "size": 94988,
       "sha256": "3d431e5a14db6707076a5ad10dbe7559bd5afb40ed4c523d8389afde484d11d7"
+    },
+    {
+      "file": "walker.v26.1.html",
+      "size": 97724,
+      "sha256": "fac2757cf3a411a6d80bb2656ca3fe252395af852ce90c231dcd4ac77bcf9b23"
     },
     {
       "file": "walker.v26.html",
