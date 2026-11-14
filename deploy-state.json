@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T06:32:01-06:00",
+  "generatedAt": "2026-11-14T12:01:59-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1209266,
-      "mtime": "2026-11-13T23:06:10.948Z",
-      "sha256": "c947d0ad014ae9e3a3af5ffcf07a7abb1a340dce213af1c6d6bec180b8166e9a",
-      "matchedBackup": "portfolio.v1307.html",
-      "version": "v1307"
+      "size": 1235302,
+      "mtime": "2026-11-14T17:58:12.030Z",
+      "sha256": "7d420aca99672fa1cbc62e3cc94912ccb48be7bcbd8ddec7a90eaba7c7f7261c",
+      "matchedBackup": "portfolio.v1308.html",
+      "version": "v1308"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -158,11 +158,11 @@
     {
       "file": "walker.html",
       "name": "walker",
-      "size": 94988,
-      "mtime": "2026-11-14T02:42:33.988Z",
-      "sha256": "3d431e5a14db6707076a5ad10dbe7559bd5afb40ed4c523d8389afde484d11d7",
-      "matchedBackup": "walker.v25.html",
-      "version": "v25"
+      "size": 97726,
+      "mtime": "2026-11-14T18:00:17.874Z",
+      "sha256": "f8888d70377f52024b845003d3c91fa917bcf3c703d2a68904c9390e7eddaeca",
+      "matchedBackup": "walker.v2601.html",
+      "version": "v2601"
     }
   ],
   "serverFile": {
@@ -468,6 +468,11 @@
       "sha256": "c947d0ad014ae9e3a3af5ffcf07a7abb1a340dce213af1c6d6bec180b8166e9a"
     },
     {
+      "file": "portfolio.v1308.html",
+      "size": 1235302,
+      "sha256": "7d420aca99672fa1cbc62e3cc94912ccb48be7bcbd8ddec7a90eaba7c7f7261c"
+    },
+    {
       "file": "results.v1.html",
       "size": 5528,
       "sha256": "b65a2059769065297d09993b6485a4c6ec6ea7302361fc0cdbadea82f4b197a2"
@@ -701,6 +706,16 @@
       "file": "walker.v25.html",
       "size": 94988,
       "sha256": "3d431e5a14db6707076a5ad10dbe7559bd5afb40ed4c523d8389afde484d11d7"
+    },
+    {
+      "file": "walker.v26.html",
+      "size": 97532,
+      "sha256": "f5bbd95d7b48e8d6a0efb6bb13f0d6b4501d776ed1651e2552cc1c6535085174"
+    },
+    {
+      "file": "walker.v2601.html",
+      "size": 97726,
+      "sha256": "f8888d70377f52024b845003d3c91fa917bcf3c703d2a68904c9390e7eddaeca"
     }
   ]
 }
