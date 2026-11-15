@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T13:58:36-06:00",
+  "generatedAt": "2026-11-15T12:30:11-06:00",
   "serverVersion": "v96",
   "deployed": [
     {
@@ -131,11 +131,11 @@
     {
       "file": "taxestimator.html",
       "name": "taxestimator",
-      "size": 36897,
-      "mtime": "2026-10-29T01:26:25.632Z",
-      "sha256": "f93843a9dd54898959beaa692447a60b98a04b3f34dc39fdda5da50988d9923c",
-      "matchedBackup": null,
-      "version": null
+      "size": 36709,
+      "mtime": "2026-11-15T02:06:38.925Z",
+      "sha256": "a19393a63e56bf972286994aa568bd4d692d13971792b4a9589657269876d31a",
+      "matchedBackup": "taxestimator.v32.html",
+      "version": "v32"
     },
     {
       "file": "tools.html",
@@ -158,11 +158,11 @@
     {
       "file": "walker.html",
       "name": "walker",
-      "size": 97724,
-      "mtime": "2026-11-14T19:36:16.878Z",
-      "sha256": "fac2757cf3a411a6d80bb2656ca3fe252395af852ce90c231dcd4ac77bcf9b23",
-      "matchedBackup": "walker.v26.1.html",
-      "version": "v26.1"
+      "size": 102992,
+      "mtime": "2026-11-15T13:28:05.189Z",
+      "sha256": "ebdfa4a252c2cb5440f7eccb60cc12932c2504e6678272a19b337d0b563a4b0a",
+      "matchedBackup": "walker.v27.html",
+      "version": "v27"
     }
   ],
   "serverFile": {
@@ -673,6 +673,16 @@
       "sha256": "3f60ae5effcb95a1a02fb92d4be1abaa25f88cf7a2d51bfe4876f380646cf76a"
     },
     {
+      "file": "taxestimator.v31.html",
+      "size": 36303,
+      "sha256": "357c5319678730500b8de4324791578fbcae6d4fa667be00d3fb3f3852ee0c98"
+    },
+    {
+      "file": "taxestimator.v32.html",
+      "size": 36709,
+      "sha256": "a19393a63e56bf972286994aa568bd4d692d13971792b4a9589657269876d31a"
+    },
+    {
       "file": "tools.v17a.html",
       "size": 136413,
       "sha256": "a4b6ec27f43e88afab43659b69eaad1de67eb02b4d74e5628241584892143971"
@@ -726,6 +736,11 @@
       "file": "walker.v2601.html",
       "size": 97726,
       "sha256": "f8888d70377f52024b845003d3c91fa917bcf3c703d2a68904c9390e7eddaeca"
+    },
+    {
+      "file": "walker.v27.html",
+      "size": 102992,
+      "sha256": "ebdfa4a252c2cb5440f7eccb60cc12932c2504e6678272a19b337d0b563a4b0a"
     }
   ]
 }
