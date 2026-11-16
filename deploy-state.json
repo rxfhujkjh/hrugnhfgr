@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-16T09:09:09-06:00",
-  "serverVersion": "v97",
+  "generatedAt": "2026-11-16T10:48:54-06:00",
+  "serverVersion": "v98",
   "deployed": [
     {
       "file": "actions.html",
@@ -158,21 +158,21 @@
     {
       "file": "walker.html",
       "name": "walker",
-      "size": 103778,
-      "mtime": "2026-11-16T15:06:23.584Z",
-      "sha256": "aba7fc6c39ebdada05bb0f88b14574511678a7df00661c9b26abc18d420169f3",
-      "matchedBackup": "walker.v28.html",
-      "version": "v28"
+      "size": 103955,
+      "mtime": "2026-11-16T16:45:49.132Z",
+      "sha256": "8ef4fc52dc668fa8ebd5bafd6cef4498a4a5659495f014d3b3ac8e2b4d46c808",
+      "matchedBackup": "walker.v29.html",
+      "version": "v29"
     }
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 325017,
-    "mtime": "2026-11-16T15:05:33.783Z",
-    "sha256": "2bd261a1165d7dfea43a2fb101e7f1bb8da1ffdf770725b1394a9e0b4d36dc90",
-    "serverVersion": "v97",
-    "matchedBackup": "rpserver.v97.js",
-    "version": "v97"
+    "size": 325379,
+    "mtime": "2026-11-16T16:45:57.384Z",
+    "sha256": "cd95471b31c895480ca721e0af568d52cbdfbf9427e6653b5a07daef2021c0b2",
+    "serverVersion": "v98",
+    "matchedBackup": "rpserver.v98.js",
+    "version": "v98"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -653,6 +653,11 @@
       "sha256": "2bd261a1165d7dfea43a2fb101e7f1bb8da1ffdf770725b1394a9e0b4d36dc90"
     },
     {
+      "file": "rpserver.v98.js",
+      "size": 325379,
+      "sha256": "cd95471b31c895480ca721e0af568d52cbdfbf9427e6653b5a07daef2021c0b2"
+    },
+    {
       "file": "sidekicks.v1.html",
       "size": 26846,
       "sha256": "ce95248b9fc2cb3cee579212a5f5e560a287c4f7d2df67bfb790d80557db79b1"
@@ -766,6 +771,11 @@
       "file": "walker.v28.html",
       "size": 103778,
       "sha256": "aba7fc6c39ebdada05bb0f88b14574511678a7df00661c9b26abc18d420169f3"
+    },
+    {
+      "file": "walker.v29.html",
+      "size": 103955,
+      "sha256": "8ef4fc52dc668fa8ebd5bafd6cef4498a4a5659495f014d3b3ac8e2b4d46c808"
     }
   ]
 }
