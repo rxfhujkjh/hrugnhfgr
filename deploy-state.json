@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-17T06:02:36-06:00",
+  "generatedAt": "2026-11-17T07:42:37-06:00",
   "serverVersion": "v98",
   "deployed": [
     {
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1290862,
-      "mtime": "2026-11-17T11:57:59.323Z",
-      "sha256": "3c3bfda63f825196dfa010e9bafe7c0c807d1afe225fbfe6cf49307042fcd3c9",
-      "matchedBackup": "portfolio.v1313.html",
-      "version": "v1313"
+      "size": 1310898,
+      "mtime": "2026-11-17T13:41:43.223Z",
+      "sha256": "9cb11e9661519632a99a51aa74a284dff318dbf500947d846c4f56470280a990",
+      "matchedBackup": "portfolio.v1314.html",
+      "version": "v1314"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -501,6 +501,11 @@
       "file": "portfolio.v1313.html",
       "size": 1290862,
       "sha256": "3c3bfda63f825196dfa010e9bafe7c0c807d1afe225fbfe6cf49307042fcd3c9"
+    },
+    {
+      "file": "portfolio.v1314.html",
+      "size": 1310898,
+      "sha256": "9cb11e9661519632a99a51aa74a284dff318dbf500947d846c4f56470280a990"
     },
     {
       "file": "results.v1.html",
