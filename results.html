@@ -220,7 +220,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v8</span>
+<span class="ver">v9</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -279,6 +279,7 @@
   'use strict';
   // v7: two controls, independently sticky. Left = From M/D (baseline).
   // v8: Right = one of day / overnight / intraday, cycled by the ↻ area.
+  // v9: Overnight shows the pre-market change until the open, then the overnight gap.
   // Intraday replaces Last move: Day change is the whole span, Overnight
   // the first part of it, Intraday the second (Overnight + Intraday = Day).
   // mode is what is shown now; rightMode is the right side's own last
@@ -399,6 +400,17 @@
     $('pGapChangeNote').textContent = ''; $('pPaceChangeNote').textContent = '';
     $('pChangeN').textContent = noteText;
   }
+  // v9: note under the pre-market change: yesterday's close to pre-market,
+  // with the time of the latest pre-market price and, when only some
+  // holdings traded pre-market, how many did.
+  function preMarketNote() {
+    var note = 'Yesterday\u2019s close to pre-market';
+    if (data.preMarketAsOf) note += ', ' + fmtTime(data.preMarketAsOf);
+    if (data.preMarketTraded != null && data.preMarketTotal != null && data.preMarketTraded < data.preMarketTotal) {
+      note += ' (' + data.preMarketTraded + ' of ' + data.preMarketTotal + ' holdings traded)';
+    }
+    return note;
+  }
   function renderChange() {
     if (!data) return;
     var baselineBtn = $('changeModeBaselineBtn'), split = $('changeRightSplit'), labelBtn = $('changeRightLabelBtn');
@@ -426,7 +438,13 @@
       }
     } else if (mode === 'overnight') {
       if (data.gapChangeOvernight == null || data.paceChangeOvernight == null) {
-        showNA('No overnight data yet \u2014 overnight change will show after the first push of a new day.');
+        // v9: before the open, show the pre-market change instead of
+        // Coming; after the open the gap above takes over.
+        if (data.gapChangePreMarket != null && data.paceChangePreMarket != null) {
+          showChange(data.gapChangePreMarket, data.paceChangePreMarket, 'pre-market', preMarketNote());
+        } else {
+          showNA('No overnight data yet \u2014 overnight change will show after the first push of a new day.');
+        }
       } else {
         showChange(data.gapChangeOvernight, data.paceChangeOvernight, 'overnight', 'Yesterday\u2019s close to today\u2019s open');
       }
