@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-17T07:42:37-06:00",
-  "serverVersion": "v98",
+  "generatedAt": "2026-11-17T08:05:53-06:00",
+  "serverVersion": "v99",
   "deployed": [
     {
       "file": "actions.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 325379,
-    "mtime": "2026-11-16T16:45:57.384Z",
-    "sha256": "cd95471b31c895480ca721e0af568d52cbdfbf9427e6653b5a07daef2021c0b2",
-    "serverVersion": "v98",
-    "matchedBackup": "rpserver.v98.js",
-    "version": "v98"
+    "size": 326492,
+    "mtime": "2026-11-17T14:04:29.251Z",
+    "sha256": "ebabd4997f6eb013733124afb586352db83581310a78263941aecdb374821819",
+    "serverVersion": "v99",
+    "matchedBackup": "rpserver.v99.js",
+    "version": "v99"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -676,6 +676,11 @@
       "file": "rpserver.v98.js",
       "size": 325379,
       "sha256": "cd95471b31c895480ca721e0af568d52cbdfbf9427e6653b5a07daef2021c0b2"
+    },
+    {
+      "file": "rpserver.v99.js",
+      "size": 326492,
+      "sha256": "ebabd4997f6eb013733124afb586352db83581310a78263941aecdb374821819"
     },
     {
       "file": "sidekicks.v1.html",
