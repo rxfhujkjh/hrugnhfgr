@@ -220,7 +220,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v9</span>
+<span class="ver">v10</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -280,12 +280,16 @@
   // v7: two controls, independently sticky. Left = From M/D (baseline).
   // v8: Right = one of day / overnight / intraday, cycled by the ↻ area.
   // v9: Overnight shows the pre-market change until the open, then the overnight gap.
+  // v10: the Overnight label reads Premarket while the pre-market change
+  // is showing; the left side follows the toggle endpoint in the
+  // Overnight state (pre-market before the open, the open after it);
+  // fourth toggle state Last day shows the left side at the prior close.
   // Intraday replaces Last move: Day change is the whole span, Overnight
   // the first part of it, Intraday the second (Overnight + Intraday = Day).
   // mode is what is shown now; rightMode is the right side's own last
   // state, preserved when the user goes back to From M/D.
-  var RIGHT_MODES = ['day', 'overnight', 'intraday'];
-  var RIGHT_LABELS = { day: 'Day \u0394', overnight: 'Overnight', intraday: 'Intraday' };
+  var RIGHT_MODES = ['day', 'overnight', 'intraday', 'lastday'];
+  var RIGHT_LABELS = { day: 'Day \u0394', overnight: 'Overnight', intraday: 'Intraday', lastday: 'Last day' };
   var mode = 'baseline';
   var rightMode = 'day';
   try {
@@ -293,7 +297,7 @@
     if (RIGHT_MODES.indexOf(rm) >= 0) rightMode = rm;
     else if (rm === 'last') rightMode = 'intraday'; // v8: Last move was replaced by Intraday.
     var m = localStorage.getItem('results_change_mode_v2');
-    if (m === 'baseline' || m === 'day' || m === 'overnight' || m === 'intraday') mode = m;
+    if (m === 'baseline' || m === 'day' || m === 'overnight' || m === 'intraday' || m === 'lastday') mode = m;
     else if (m === 'last') mode = 'intraday'; // v8: Last move was replaced by Intraday.
   } catch (e) {}
   var data = null;
@@ -390,7 +394,12 @@
     setCls($('pPaceChange'), paceV < 0 ? 'neg' : paceV > 0 ? 'pos' : null);
     $('pGapChangeNote').textContent = changeNote(gapV, true);
     $('pPaceChangeNote').textContent = changeNote(paceV, false);
-    if (data.cdProjectedToday != null) $('pGapN').textContent = 'projection ' + fmtMoney(data.cdProjectedToday) + ' · ' + arrowFor(gapV) + fmtMoney(gapV, true) + ' ' + sinceText;
+    // v10: in an endpoint state the projection is the benchmark at that
+    // endpoint (pre-market / open / prior close), not today's.
+    var proj = data.cdProjectedToday;
+    var epProj = endpointValues();
+    if (epProj && typeof epProj.bench === 'number') proj = epProj.bench;
+    if (proj != null) $('pGapN').textContent = 'projection ' + fmtMoney(proj) + ' · ' + arrowFor(gapV) + fmtMoney(gapV, true) + ' ' + sinceText;
     $('pPaceNote').textContent = arrowFor(paceV) + fmtPct(paceV, 1) + ' pts ' + sinceText;
     $('pChangeN').textContent = noteText;
   }
@@ -411,16 +420,74 @@
     }
     return note;
   }
+  // v10: the Overnight label reads Premarket while the pre-market change
+  // is showing (overnight fields null, pre-market fields present); once
+  // today's open is in it reads Overnight.
+  function rightLabel(m) {
+    if (m === 'overnight' && data && (data.gapChangeOvernight == null || data.paceChangeOvernight == null) && data.gapChangePreMarket != null && data.paceChangePreMarket != null) return 'Premarket';
+    return RIGHT_LABELS[m];
+  }
+  // v10: the left side follows the toggle endpoint. In the Overnight
+  // state the endpoint is the pre-market price before the open and
+  // today's open after it; in the Last day state it is the prior close.
+  // Day, Intraday and From keep the current values. An endpoint is used
+  // only when its value, gap and pace are all present; otherwise the
+  // current values stay (e.g. before the open with no pre-market trades,
+  // or an old results.json without the endpoint fields).
+  function endpointValues() {
+    if (!data) return null;
+    if (mode === 'overnight') {
+      if (data.gapChangeOvernight != null && data.paceChangeOvernight != null) {
+        if (typeof data.valueAtOpen === 'number' && typeof data.gapAtOpen === 'number' && typeof data.paceAtOpen === 'number') {
+          return { value: data.valueAtOpen, gap: data.gapAtOpen, pace: data.paceAtOpen, account: data.accountValueAtOpen, savings: data.savingsValueAtOpen, bench: data.cdProjectedAtOpen, moneyIn: data.moneyInPrior };
+        }
+      } else if (data.gapChangePreMarket != null && data.paceChangePreMarket != null) {
+        if (typeof data.valuePreMarket === 'number' && typeof data.gapPreMarket === 'number' && typeof data.pacePreMarket === 'number') {
+          return { value: data.valuePreMarket, gap: data.gapPreMarket, pace: data.pacePreMarket, account: data.accountValuePreMarket, savings: data.savingsValuePreMarket, bench: data.cdProjectedPreMarket, moneyIn: data.moneyInPrior };
+        }
+      }
+      return null;
+    }
+    if (mode === 'lastday') {
+      if (typeof data.valuePrior === 'number' && typeof data.gapPrior === 'number' && typeof data.pacePrior === 'number') {
+        return { value: data.valuePrior, gap: data.gapPrior, pace: data.pacePrior, account: data.accountValuePrior, savings: data.savingsValuePrior, bench: data.cdProjectedPrior, moneyIn: data.moneyInPrior };
+      }
+      return null;
+    }
+    return null;
+  }
+  function renderLeft() {
+    if (!data) return;
+    var ep = endpointValues();
+    var value = ep ? ep.value : data.valueToday;
+    var gap = ep ? ep.gap : data.vsCD;
+    var pace = ep ? ep.pace : data.actualPace;
+    var moneyIn = (ep && typeof ep.moneyIn === 'number') ? ep.moneyIn : data.moneyIn;
+    if (typeof value === 'number') $('pValueToday').textContent = fmtMoney(value);
+    if (ep && typeof ep.account === 'number' && typeof ep.savings === 'number') {
+      $('pValueTodayN').textContent = 'account ' + fmtMoney(ep.account) + ' + savings ' + fmtMoney(ep.savings);
+    } else if (typeof data.accountValue === 'number' && typeof data.savingsValue === 'number') {
+      $('pValueTodayN').textContent = 'account ' + fmtMoney(data.accountValue) + ' + savings ' + fmtMoney(data.savingsValue);
+    }
+    if (typeof value === 'number' && typeof moneyIn === 'number') {
+      var vmi = value - moneyIn;
+      $('pGapMoneyIn').innerHTML = fmtMoney(vmi, true); setCls($('pGapMoneyIn'), vmi > 0.5 ? 'pos' : vmi < -0.5 ? 'neg' : null);
+      $('pGapMoneyInN').textContent = 'money in ' + fmtMoney(moneyIn);
+    }
+    if (typeof gap === 'number') { $('pGap').innerHTML = fmtMoney(gap, true); setCls($('pGap'), gap > 0.5 ? 'pos' : gap < -0.5 ? 'neg' : null); }
+    if (typeof pace === 'number') { $('pPaceActual').textContent = fmtPct(pace, 1) + ' a year'; setCls($('pPaceActual'), pace < 0 ? 'neg' : 'pos'); }
+  }
   function renderChange() {
     if (!data) return;
     var baselineBtn = $('changeModeBaselineBtn'), split = $('changeRightSplit'), labelBtn = $('changeRightLabelBtn');
     baselineBtn.textContent = fmtFromLabel();
-    labelBtn.innerHTML = RIGHT_LABELS[rightMode];
+    labelBtn.innerHTML = rightLabel(rightMode);
     var onRight = mode !== 'baseline';
     baselineBtn.classList.toggle('active', !onRight);
     baselineBtn.classList.toggle('unselected', onRight);
     split.classList.toggle('unselected', !onRight);
     labelBtn.classList.toggle('active', onRight);
+    renderLeft();
     if (mode === 'day') {
       // v87: true prior-close day change. Fall back to the v6 last-move
       // approximation only when the server has no day fields yet.
@@ -455,6 +522,16 @@
       } else {
         showChange(data.gapChangeIntraday, data.paceChangeIntraday, 'intraday', 'Today\u2019s open to now');
       }
+    } else if (mode === 'lastday') {
+      // v10: Last day = the end of last day: the change since the
+      // baseline as of the prior close. Null when the server did not
+      // compute the prior close (old results.json, or the
+      // day/overnight calc failed).
+      if (data.gapChangePrior == null || data.paceChangePrior == null) {
+        showNA('No prior-day data yet \u2014 last-day change will show after the first push of a new day.');
+      } else {
+        showChange(data.gapChangePrior, data.paceChangePrior, 'since ' + fmtFromLabel().replace('From ', ''), 'End of ' + (data.priorDayDate ? fmtDateOnly(data.priorDayDate) : 'last day'));
+      }
     } else {
       // Baseline: note below is duration only, no date repeated.
       showChange(data.gapChange, data.paceChange, 'since ' + fmtFromLabel().replace('From ', ''), durationAgo(data.baselineDate, data.updated));
@@ -486,15 +563,13 @@
       $('updatedLine').textContent = 'Results up to ' + (isNaN(dt) ? String(d.updated) : dt.toLocaleString(undefined, {dateStyle: 'medium', timeStyle: 'short'}));
     }
     if (typeof d.moneyIn === 'number') $('pMoneyIn').textContent = fmtMoney(d.moneyIn);
-    if (typeof d.valueToday === 'number') $('pValueToday').textContent = fmtMoney(d.valueToday);
     if (typeof d.deposits === 'number' && typeof d.withdrawals === 'number') $('pMoneyInN').textContent = fmtMoney(d.deposits) + ' in · ' + fmtMoney(d.withdrawals) + ' out';
-    if (typeof d.accountValue === 'number' && typeof d.savingsValue === 'number') $('pValueTodayN').textContent = 'account ' + fmtMoney(d.accountValue) + ' + savings ' + fmtMoney(d.savingsValue);
-    if (typeof d.vsMoneyIn === 'number') { $('pGapMoneyIn').innerHTML = fmtMoney(d.vsMoneyIn, true); setCls($('pGapMoneyIn'), d.vsMoneyIn > 0.5 ? 'pos' : d.vsMoneyIn < -0.5 ? 'neg' : null); }
     if (typeof d.moneyIn === 'number') $('pGapMoneyInN').textContent = 'money in ' + fmtMoney(d.moneyIn);
-    if (typeof d.vsCD === 'number') { $('pGap').innerHTML = fmtMoney(d.vsCD, true); setCls($('pGap'), d.vsCD > 0.5 ? 'pos' : d.vsCD < -0.5 ? 'neg' : null); }
     if (typeof d.cdProjectedToday === 'number') $('pGapN').textContent = 'projection ' + fmtMoney(d.cdProjectedToday);
-    if (typeof d.actualPace === 'number') { $('pPaceActual').textContent = fmtPct(d.actualPace, 1) + ' a year'; setCls($('pPaceActual'), d.actualPace < 0 ? 'neg' : 'pos'); }
     if (typeof d.cdPace === 'number') $('pPaceCD').textContent = fmtPct(d.cdPace, 2) + ' a year';
+    // v10: Value today, vs-CD gap, vs-money-in and the Actual pace are
+    // rendered by renderLeft(), which follows the toggle endpoint in
+    // the Overnight and Last day states (called from renderChange).
     renderChange();
   }).catch(function () {
     $('msg').hidden = false;
