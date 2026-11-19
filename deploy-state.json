@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T08:29:11-06:00",
+  "generatedAt": "2026-11-19T11:09:03-06:00",
   "serverVersion": "v101",
   "deployed": [
     {
@@ -563,6 +563,11 @@
       "sha256": "d6d404d6d3c2c91ded90bb4bf37eeebe6bf4c31a573f26439fb68a2bcb247991"
     },
     {
+      "file": "rpserver.js",
+      "size": 345614,
+      "sha256": "aa2d7b982d18de99ecab3b264724c100c739a4e33011e390bc8ee3c4de85fee2"
+    },
+    {
       "file": "rpserver.v100.js",
       "size": 332764,
       "sha256": "698b9162f67bf3830b6421760eb6dccc2464b7f98d65461c1f02956266136dac"
@@ -571,6 +576,11 @@
       "file": "rpserver.v101.js",
       "size": 337759,
       "sha256": "615bd61df631865e2731d4fbca49677976f29d06dfc8f17bdafc82710d88be6d"
+    },
+    {
+      "file": "rpserver.v102.js",
+      "size": 345614,
+      "sha256": "aa2d7b982d18de99ecab3b264724c100c739a4e33011e390bc8ee3c4de85fee2"
     },
     {
       "file": "rpserver.v72.js",
@@ -696,6 +706,16 @@
       "file": "rpserver.v99.js",
       "size": 326492,
       "sha256": "ebabd4997f6eb013733124afb586352db83581310a78263941aecdb374821819"
+    },
+    {
+      "file": "scorecard.html",
+      "size": 121553,
+      "sha256": "491d49e35611c15bb9b02b38503f23339a65c814327fc1e7e47b3073499ed035"
+    },
+    {
+      "file": "scorecard.v2.9.html",
+      "size": 121553,
+      "sha256": "491d49e35611c15bb9b02b38503f23339a65c814327fc1e7e47b3073499ed035"
     },
     {
       "file": "sidekicks.v1.html",
