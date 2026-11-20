@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T16:25:37-06:00",
-  "serverVersion": "v104",
+  "generatedAt": "2026-11-20T17:43:08-06:00",
+  "serverVersion": "v105",
   "deployed": [
     {
       "file": "actions.html",
@@ -113,11 +113,11 @@
     {
       "file": "smb-browser.html",
       "name": "smb-browser",
-      "size": 387402,
-      "mtime": "2026-11-20T22:23:53.424Z",
-      "sha256": "fc397c54c40d80a581cad725ddd4b6afdfa402e262603954706148738d674ec8",
-      "matchedBackup": "smb-browser.v74.html",
-      "version": "v74"
+      "size": 392229,
+      "mtime": "2026-11-20T23:40:35.416Z",
+      "sha256": "1b0a20ae1ed660edc4e3702dc72f55e3a8c83744c11e15bb6da9a7f9e938d6d3",
+      "matchedBackup": "smb-browser.v75.html",
+      "version": "v75"
     },
     {
       "file": "split-viewer.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 361921,
-    "mtime": "2026-11-20T22:24:02.028Z",
-    "sha256": "6f7dc215c34d4b109d051b46c8827dfa4c0d4c2dc4c6741323f7f0d52b83eaa8",
-    "serverVersion": "v104",
-    "matchedBackup": "rpserver.v104.js",
-    "version": "v104"
+    "size": 368438,
+    "mtime": "2026-11-20T23:40:44.952Z",
+    "sha256": "c251f00477c42dfd89aae110b5bf16d62304c2b8751e317289b91906cf8e0573",
+    "serverVersion": "v105",
+    "matchedBackup": "rpserver.v105.js",
+    "version": "v105"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -608,6 +608,11 @@
       "sha256": "6f7dc215c34d4b109d051b46c8827dfa4c0d4c2dc4c6741323f7f0d52b83eaa8"
     },
     {
+      "file": "rpserver.v105.js",
+      "size": 368438,
+      "sha256": "c251f00477c42dfd89aae110b5bf16d62304c2b8751e317289b91906cf8e0573"
+    },
+    {
       "file": "rpserver.v72.js",
       "size": 219550,
       "sha256": "50af14702c9b2cfdc00b151a857a2e7a8f0816a14ab7f8f96c16b953599ad051"
@@ -771,6 +776,11 @@
       "file": "smb-browser.v74.html",
       "size": 387402,
       "sha256": "fc397c54c40d80a581cad725ddd4b6afdfa402e262603954706148738d674ec8"
+    },
+    {
+      "file": "smb-browser.v75.html",
+      "size": 392229,
+      "sha256": "1b0a20ae1ed660edc4e3702dc72f55e3a8c83744c11e15bb6da9a7f9e938d6d3"
     },
     {
       "file": "split-viewer.v14.html",
