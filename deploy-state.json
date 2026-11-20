@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T11:09:03-06:00",
+  "generatedAt": "2026-11-20T06:09:08-06:00",
   "serverVersion": "v101",
   "deployed": [
     {
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1310898,
-      "mtime": "2026-11-17T13:41:43.223Z",
-      "sha256": "9cb11e9661519632a99a51aa74a284dff318dbf500947d846c4f56470280a990",
-      "matchedBackup": "portfolio.v1314.html",
-      "version": "v1314"
+      "size": 1319284,
+      "mtime": "2026-11-20T12:03:52.076Z",
+      "sha256": "df624c2170da780f8caf249bd6657aec5649c9a0b3caebf249945a70a851c43f",
+      "matchedBackup": "portfolio.v13.15.html",
+      "version": "v13.15"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -95,11 +95,11 @@
     {
       "file": "scorecard.html",
       "name": "scorecard",
-      "size": 86499,
-      "mtime": "2026-11-01T21:24:01.890Z",
-      "sha256": "6df0a935b83ed18db4c7704b27d2cb8e76880f45e45672f46c59cfead32ac883",
-      "matchedBackup": null,
-      "version": null
+      "size": 121553,
+      "mtime": "2026-11-19T16:59:10.792Z",
+      "sha256": "491d49e35611c15bb9b02b38503f23339a65c814327fc1e7e47b3073499ed035",
+      "matchedBackup": "scorecard.v2.9.html",
+      "version": "v2.9"
     },
     {
       "file": "sidekicks.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 337759,
-    "mtime": "2026-11-19T14:26:51.016Z",
-    "sha256": "615bd61df631865e2731d4fbca49677976f29d06dfc8f17bdafc82710d88be6d",
+    "size": 351201,
+    "mtime": "2026-11-20T12:03:43.788Z",
+    "sha256": "178f1dc2a03cac33b924a8a700976d575c57669148b2afa65da5b8caa78b7dcd",
     "serverVersion": "v101",
-    "matchedBackup": "rpserver.v101.js",
-    "version": "v101"
+    "matchedBackup": "rpserver.v103.js",
+    "version": "v103"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -438,6 +438,11 @@
       "sha256": "90e87c479e41612c7994f20d399e3911fcb6c858ce7c6f90ba65831092ac252a"
     },
     {
+      "file": "portfolio.v13.15.html",
+      "size": 1319284,
+      "sha256": "df624c2170da780f8caf249bd6657aec5649c9a0b3caebf249945a70a851c43f"
+    },
+    {
       "file": "portfolio.v1300.html",
       "size": 1192601,
       "sha256": "9ca863cb958c2dcf4f5cf74cd8a8a4fd4722d73e3ea1956551197b6ad2797dd6"
@@ -563,11 +568,6 @@
       "sha256": "d6d404d6d3c2c91ded90bb4bf37eeebe6bf4c31a573f26439fb68a2bcb247991"
     },
     {
-      "file": "rpserver.js",
-      "size": 345614,
-      "sha256": "aa2d7b982d18de99ecab3b264724c100c739a4e33011e390bc8ee3c4de85fee2"
-    },
-    {
       "file": "rpserver.v100.js",
       "size": 332764,
       "sha256": "698b9162f67bf3830b6421760eb6dccc2464b7f98d65461c1f02956266136dac"
@@ -581,6 +581,11 @@
       "file": "rpserver.v102.js",
       "size": 345614,
       "sha256": "aa2d7b982d18de99ecab3b264724c100c739a4e33011e390bc8ee3c4de85fee2"
+    },
+    {
+      "file": "rpserver.v103.js",
+      "size": 351201,
+      "sha256": "178f1dc2a03cac33b924a8a700976d575c57669148b2afa65da5b8caa78b7dcd"
     },
     {
       "file": "rpserver.v72.js",
@@ -706,11 +711,6 @@
       "file": "rpserver.v99.js",
       "size": 326492,
       "sha256": "ebabd4997f6eb013733124afb586352db83581310a78263941aecdb374821819"
-    },
-    {
-      "file": "scorecard.html",
-      "size": 121553,
-      "sha256": "491d49e35611c15bb9b02b38503f23339a65c814327fc1e7e47b3073499ed035"
     },
     {
       "file": "scorecard.v2.9.html",
