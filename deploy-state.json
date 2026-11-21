@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-21T14:18:38-06:00",
-  "serverVersion": "v109",
+  "generatedAt": "2026-11-21T16:47:01-06:00",
+  "serverVersion": "v110",
   "deployed": [
     {
       "file": "actions.html",
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1403505,
-      "mtime": "2026-11-20T18:28:11.984Z",
-      "sha256": "7fc53992a06935a7b0c27b2b431b3bc8aecdd5c560a4ff8bc58c2023ed02d4e2",
-      "matchedBackup": "portfolio.v13.18.html",
-      "version": "v13.18"
+      "size": 1427524,
+      "mtime": "2026-11-21T22:20:40.780Z",
+      "sha256": "1eab630881e450cd4f33f115c8ca3f82ee9a7d10012f5173d9ee4b3a407f62fd",
+      "matchedBackup": "portfolio.v13.20.html",
+      "version": "v13.20"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 394401,
-    "mtime": "2026-11-21T19:36:47.232Z",
-    "sha256": "944d37b697ed886a5ed80f8bfcafba8fe83ce602e0cd69b42f9b14a76a2a3437",
-    "serverVersion": "v109",
-    "matchedBackup": "rpserver.v109.js",
-    "version": "v109"
+    "size": 398524,
+    "mtime": "2026-11-21T22:20:51.368Z",
+    "sha256": "b60a994e750b85dd76567ca475fb7fef59cebbafdc89d99d11b93ca60c973ad5",
+    "serverVersion": "v110",
+    "matchedBackup": "rpserver.v110.js",
+    "version": "v110"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -458,6 +458,11 @@
       "sha256": "7fc53992a06935a7b0c27b2b431b3bc8aecdd5c560a4ff8bc58c2023ed02d4e2"
     },
     {
+      "file": "portfolio.v13.20.html",
+      "size": 1427524,
+      "sha256": "1eab630881e450cd4f33f115c8ca3f82ee9a7d10012f5173d9ee4b3a407f62fd"
+    },
+    {
       "file": "portfolio.v1300.html",
       "size": 1192601,
       "sha256": "9ca863cb958c2dcf4f5cf74cd8a8a4fd4722d73e3ea1956551197b6ad2797dd6"
@@ -631,6 +636,11 @@
       "file": "rpserver.v109.js",
       "size": 394401,
       "sha256": "944d37b697ed886a5ed80f8bfcafba8fe83ce602e0cd69b42f9b14a76a2a3437"
+    },
+    {
+      "file": "rpserver.v110.js",
+      "size": 398524,
+      "sha256": "b60a994e750b85dd76567ca475fb7fef59cebbafdc89d99d11b93ca60c973ad5"
     },
     {
       "file": "rpserver.v72.js",
