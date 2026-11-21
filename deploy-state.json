@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-20T17:43:08-06:00",
-  "serverVersion": "v105",
+  "generatedAt": "2026-11-20T18:55:39-06:00",
+  "serverVersion": "v106",
   "deployed": [
     {
       "file": "actions.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 368438,
-    "mtime": "2026-11-20T23:40:44.952Z",
-    "sha256": "c251f00477c42dfd89aae110b5bf16d62304c2b8751e317289b91906cf8e0573",
-    "serverVersion": "v105",
-    "matchedBackup": "rpserver.v105.js",
-    "version": "v105"
+    "size": 371673,
+    "mtime": "2026-11-21T00:49:30.092Z",
+    "sha256": "65c0b17bf3518d9a2fda75c408f35ac3ab7a63d1a0330d817a523bbc2fa822b9",
+    "serverVersion": "v106",
+    "matchedBackup": "rpserver.v106.js",
+    "version": "v106"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -611,6 +611,11 @@
       "file": "rpserver.v105.js",
       "size": 368438,
       "sha256": "c251f00477c42dfd89aae110b5bf16d62304c2b8751e317289b91906cf8e0573"
+    },
+    {
+      "file": "rpserver.v106.js",
+      "size": 371673,
+      "sha256": "65c0b17bf3518d9a2fda75c408f35ac3ab7a63d1a0330d817a523bbc2fa822b9"
     },
     {
       "file": "rpserver.v72.js",
