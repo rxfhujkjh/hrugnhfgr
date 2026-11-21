@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-21T10:07:00-06:00",
+  "generatedAt": "2026-11-21T12:37:00-06:00",
   "serverVersion": "v107",
   "deployed": [
     {
@@ -113,11 +113,11 @@
     {
       "file": "smb-browser.html",
       "name": "smb-browser",
-      "size": 392229,
-      "mtime": "2026-11-20T23:40:35.416Z",
-      "sha256": "1b0a20ae1ed660edc4e3702dc72f55e3a8c83744c11e15bb6da9a7f9e938d6d3",
-      "matchedBackup": "smb-browser.v75.html",
-      "version": "v75"
+      "size": 393536,
+      "mtime": "2026-11-21T18:11:51.764Z",
+      "sha256": "5c0fde1eb2946eaff402e5ed9021e485d359cc658f97bc41dd22588809d8f3d3",
+      "matchedBackup": "smb-browser.v76.html",
+      "version": "v76"
     },
     {
       "file": "split-viewer.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 373148,
-    "mtime": "2026-11-21T14:58:30.268Z",
-    "sha256": "ec7b6ff3e9e35dd2fc53f3b32ead4da1a407b3595ea809f9cbaf34916e363090",
+    "size": 380340,
+    "mtime": "2026-11-21T18:11:46.056Z",
+    "sha256": "df9af0ece9572ee0ec75f1fe69287849a18d0c3fbecf55a5e08b5b3a95697ce2",
     "serverVersion": "v107",
-    "matchedBackup": "rpserver.v107.js",
-    "version": "v107"
+    "matchedBackup": "rpserver.v108.js",
+    "version": "v108"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -623,6 +623,11 @@
       "sha256": "ec7b6ff3e9e35dd2fc53f3b32ead4da1a407b3595ea809f9cbaf34916e363090"
     },
     {
+      "file": "rpserver.v108.js",
+      "size": 380340,
+      "sha256": "df9af0ece9572ee0ec75f1fe69287849a18d0c3fbecf55a5e08b5b3a95697ce2"
+    },
+    {
       "file": "rpserver.v72.js",
       "size": 219550,
       "sha256": "50af14702c9b2cfdc00b151a857a2e7a8f0816a14ab7f8f96c16b953599ad051"
@@ -801,6 +806,11 @@
       "file": "smb-browser.v75.html",
       "size": 392229,
       "sha256": "1b0a20ae1ed660edc4e3702dc72f55e3a8c83744c11e15bb6da9a7f9e938d6d3"
+    },
+    {
+      "file": "smb-browser.v76.html",
+      "size": 393536,
+      "sha256": "5c0fde1eb2946eaff402e5ed9021e485d359cc658f97bc41dd22588809d8f3d3"
     },
     {
       "file": "split-viewer.v14.html",
