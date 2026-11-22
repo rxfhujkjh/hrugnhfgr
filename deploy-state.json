@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-21T16:47:01-06:00",
+  "generatedAt": "2026-11-22T04:23:19-06:00",
   "serverVersion": "v110",
   "deployed": [
     {
@@ -95,11 +95,11 @@
     {
       "file": "scorecard.html",
       "name": "scorecard",
-      "size": 138301,
-      "mtime": "2026-11-21T19:36:55.176Z",
-      "sha256": "1ef111a43030177806e6b667ce7d88af7154addbc247d775e96dc8e9c224ae61",
-      "matchedBackup": "scorecard.v2.13.html",
-      "version": "v2.13"
+      "size": 101643,
+      "mtime": "2026-11-22T01:09:56.288Z",
+      "sha256": "ff9666da556a968d6fa2cea8fedfdfccaecf7f5c794b93ec24a8245a0ea762e0",
+      "matchedBackup": "scorecard.v2.14.html",
+      "version": "v2.14"
     },
     {
       "file": "sidekicks.html",
@@ -786,6 +786,11 @@
       "file": "scorecard.v2.13.html",
       "size": 138301,
       "sha256": "1ef111a43030177806e6b667ce7d88af7154addbc247d775e96dc8e9c224ae61"
+    },
+    {
+      "file": "scorecard.v2.14.html",
+      "size": 101643,
+      "sha256": "ff9666da556a968d6fa2cea8fedfdfccaecf7f5c794b93ec24a8245a0ea762e0"
     },
     {
       "file": "scorecard.v2.9.html",
