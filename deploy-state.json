@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-22T04:23:19-06:00",
+  "generatedAt": "2026-11-22T12:53:17-06:00",
   "serverVersion": "v110",
   "deployed": [
     {
@@ -768,6 +768,11 @@
       "sha256": "ebabd4997f6eb013733124afb586352db83581310a78263941aecdb374821819"
     },
     {
+      "file": "scorecard.html",
+      "size": 103105,
+      "sha256": "50b9842cfdcbd71e385bb011c9261fcd58372d40a1cda59fbe0e4775cbc9093a"
+    },
+    {
       "file": "scorecard.v2.10.html",
       "size": 123765,
       "sha256": "1aa790885b24a69d427e214662e26856c96f2e03a52ffe77596c3d933ac24c63"
@@ -791,6 +796,11 @@
       "file": "scorecard.v2.14.html",
       "size": 101643,
       "sha256": "ff9666da556a968d6fa2cea8fedfdfccaecf7f5c794b93ec24a8245a0ea762e0"
+    },
+    {
+      "file": "scorecard.v2.15.html",
+      "size": 103105,
+      "sha256": "50b9842cfdcbd71e385bb011c9261fcd58372d40a1cda59fbe0e4775cbc9093a"
     },
     {
       "file": "scorecard.v2.9.html",
