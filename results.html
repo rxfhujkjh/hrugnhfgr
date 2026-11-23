@@ -187,7 +187,7 @@
       .present-card .lab:first-of-type { margin-top: 0; }
       .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
       /* v7, design K: split toggle. Left = From M/D. Right = label + a
-         separate ↻ area that cycles Day Δ → Overnight → Intraday.
+         separate ↻ area that cycles Since close → Overnight → Intraday → Last day.
          Unselected side is white with grey text; selected side is filled. */
       .toggle-btn.unselected { background: var(--surface); color: var(--ink-3); border-color: var(--line); }
       .split-toggle { display: inline-flex; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
@@ -220,7 +220,7 @@
 <header class="top">
 <div class="head-row">
 <h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v10</span>
+<span class="ver">v11</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -264,7 +264,7 @@
 <div class="change-toggle">
 <button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From &mdash;</button>
 <span class="split-toggle unselected" id="changeRightSplit">
-<button class="toggle-btn" id="changeRightLabelBtn" type="button" title="Show this view">Day &Delta;</button>
+<button class="toggle-btn" id="changeRightLabelBtn" type="button" title="Show this view">Since close</button>
 <button class="toggle-btn cycle" id="changeRightCycleBtn" type="button" title="Tap to see the next view" aria-label="Next view">&#8635;</button>
 </span>
 </div>
@@ -284,12 +284,16 @@
   // is showing; the left side follows the toggle endpoint in the
   // Overnight state (pre-market before the open, the open after it);
   // fourth toggle state Last day shows the left side at the prior close.
-  // Intraday replaces Last move: Day change is the whole span, Overnight
-  // the first part of it, Intraday the second (Overnight + Intraday = Day).
+  // Intraday replaces Last move: Since-close change is the whole span,
+  // Overnight the first part of it, Intraday the second (Overnight +
+  // Intraday = Since close).
   // mode is what is shown now; rightMode is the right side's own last
   // state, preserved when the user goes back to From M/D.
   var RIGHT_MODES = ['day', 'overnight', 'intraday', 'lastday'];
-  var RIGHT_LABELS = { day: 'Day \u0394', overnight: 'Overnight', intraday: 'Intraday', lastday: 'Last day' };
+  // v11: the Day label is now Since close — the figure is the change
+  // since the last trading day's close (Ron, Nov 23; 'Day' misled over
+  // weekends, when the CD benchmark accrues 2-3 days).
+  var RIGHT_LABELS = { day: 'Since close', overnight: 'Overnight', intraday: 'Intraday', lastday: 'Last day' };
   var mode = 'baseline';
   var rightMode = 'day';
   try {
@@ -430,7 +434,7 @@
   // v10: the left side follows the toggle endpoint. In the Overnight
   // state the endpoint is the pre-market price before the open and
   // today's open after it; in the Last day state it is the prior close.
-  // Day, Intraday and From keep the current values. An endpoint is used
+  // Since close, Intraday and From keep the current values. An endpoint is used
   // only when its value, gap and pace are all present; otherwise the
   // current values stay (e.g. before the open with no pre-market trades,
   // or an old results.json without the endpoint fields).
@@ -489,19 +493,19 @@
     labelBtn.classList.toggle('active', onRight);
     renderLeft();
     if (mode === 'day') {
-      // v87: true prior-close day change. Fall back to the v6 last-move
+      // v87: true prior-close change. Fall back to the v6 last-move
       // approximation only when the server has no day fields yet.
       var g = data.gapChangeDay, pc = data.paceChangeDay;
       if (g == null || pc == null) {
         var updDay = data.updated ? String(data.updated).slice(0, 10) : null;
         var hasPriorDay = data.lastUpdateDate && updDay && data.lastUpdateDate < updDay;
         if (!hasPriorDay || data.gapChangeLast == null || data.paceChangeLast == null) {
-          showNA('No prior-day data yet \u2014 day change will show after the first push of a new day.');
+          showNA('No prior-day data yet \u2014 since-close change will show after the first push of a new day.');
         } else {
-          showChange(data.gapChangeLast, data.paceChangeLast, 'since day change', lastMoveNote());
+          showChange(data.gapChangeLast, data.paceChangeLast, 'since close', lastMoveNote());
         }
       } else {
-        showChange(g, pc, 'since day change', 'Yesterday\u2019s close to now');
+        showChange(g, pc, 'since close', 'Yesterday\u2019s close to now');
       }
     } else if (mode === 'overnight') {
       if (data.gapChangeOvernight == null || data.paceChangeOvernight == null) {
