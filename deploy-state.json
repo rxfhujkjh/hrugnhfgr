@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T02:53:05-06:00",
+  "generatedAt": "2026-11-23T06:53:05-06:00",
   "serverVersion": "v110",
   "deployed": [
     {
@@ -86,20 +86,20 @@
     {
       "file": "results.html",
       "name": "results",
-      "size": 32254,
-      "mtime": "2026-11-19T14:26:59.552Z",
-      "sha256": "29975482d14254677698678c8eac7037b2b8dac16736a83acf134a74977fed78",
-      "matchedBackup": "results.v10.html",
-      "version": "v10"
+      "size": 32496,
+      "mtime": "2026-11-23T12:33:12.492Z",
+      "sha256": "e7bb4595f5b14dde1e6139fad7851b8ad138a1013fa51873f89cbfc5fcbf7a68",
+      "matchedBackup": "results.v11.html",
+      "version": "v11"
     },
     {
       "file": "scorecard.html",
       "name": "scorecard",
-      "size": 103105,
-      "mtime": "2026-11-22T18:46:22.704Z",
-      "sha256": "50b9842cfdcbd71e385bb011c9261fcd58372d40a1cda59fbe0e4775cbc9093a",
-      "matchedBackup": "scorecard.v2.15.html",
-      "version": "v2.15"
+      "size": 103306,
+      "mtime": "2026-11-23T12:32:57.716Z",
+      "sha256": "2b8caadd7cb4dc0120851c81b13552f58705faa33288ff5359c7466f25874011",
+      "matchedBackup": "scorecard.v2.16.html",
+      "version": "v2.16"
     },
     {
       "file": "sidekicks.html",
@@ -543,6 +543,11 @@
       "sha256": "29975482d14254677698678c8eac7037b2b8dac16736a83acf134a74977fed78"
     },
     {
+      "file": "results.v11.html",
+      "size": 32496,
+      "sha256": "e7bb4595f5b14dde1e6139fad7851b8ad138a1013fa51873f89cbfc5fcbf7a68"
+    },
+    {
       "file": "results.v2.html",
       "size": 18861,
       "sha256": "631e58961f8f12c4dc4a3eca30dd7d2ea7888580798d6f5114eaf28402cc0bf3"
@@ -796,6 +801,11 @@
       "file": "scorecard.v2.15.html",
       "size": 103105,
       "sha256": "50b9842cfdcbd71e385bb011c9261fcd58372d40a1cda59fbe0e4775cbc9093a"
+    },
+    {
+      "file": "scorecard.v2.16.html",
+      "size": 103306,
+      "sha256": "2b8caadd7cb4dc0120851c81b13552f58705faa33288ff5359c7466f25874011"
     },
     {
       "file": "scorecard.v2.9.html",
