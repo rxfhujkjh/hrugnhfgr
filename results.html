@@ -5,7 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
 <link rel="icon" href="data:," />
-<title>Market Scorecard: Investments vs CD — Tracked over time</title>
+<title>Results: Investments vs CD — Tracked over time</title>
+<script>
+// GitHub Pages marker: on github.io, tag the app name in the tab
+// title (now, while the head parses) and in the heading (once the
+// page has parsed), so the deployments are distinguishable in
+// browser tabs. Anywhere else — home server, localhost, a LAN
+// address, file:// — the title and heading stay untagged.
+(function () {
+  if (!location.hostname.endsWith('.github.io')) return;
+  document.title = document.title.replace(': ', ' (GitHub): ');
+  function tagHeading() {
+    var h = document.querySelector('h1');
+    if (h) h.textContent = h.textContent.replace(': ', ' (GitHub): ');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tagHeading);
+  else tagHeading();
+})();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -187,7 +204,7 @@
       .present-card .lab:first-of-type { margin-top: 0; }
       .change-toggle { display: flex; gap: 6px; margin-top: 10px; }
       /* v7, design K: split toggle. Left = From M/D. Right = label + a
-         separate ↻ area that cycles Since close → Overnight → Intraday → Last day.
+         separate ↻ area that cycles To Prior Close → Since close → Overnight → Intraday.
          Unselected side is white with grey text; selected side is filled. */
       .toggle-btn.unselected { background: var(--surface); color: var(--ink-3); border-color: var(--line); }
       .split-toggle { display: inline-flex; border: 1px solid var(--accent); border-radius: 999px; overflow: hidden; }
@@ -219,8 +236,8 @@
 <div class="wrap">
 <header class="top">
 <div class="head-row">
-<h1>Market Scorecard: Investments vs CD</h1>
-<span class="ver">v11</span>
+<h1>Results: Investments vs CD</h1>
+<span class="ver">v14</span>
 </div>
 <div class="subtitle">Tracked over time · <span id="updatedLine">Results up to &mdash;</span></div>
 </header>
@@ -264,7 +281,7 @@
 <div class="change-toggle">
 <button class="toggle-btn active" id="changeModeBaselineBtn" type="button">From &mdash;</button>
 <span class="split-toggle unselected" id="changeRightSplit">
-<button class="toggle-btn" id="changeRightLabelBtn" type="button" title="Show this view">Since close</button>
+<button class="toggle-btn" id="changeRightLabelBtn" type="button" title="Show this view">To Prior Close</button>
 <button class="toggle-btn cycle" id="changeRightCycleBtn" type="button" title="Tap to see the next view" aria-label="Next view">&#8635;</button>
 </span>
 </div>
@@ -283,19 +300,26 @@
   // v10: the Overnight label reads Premarket while the pre-market change
   // is showing; the left side follows the toggle endpoint in the
   // Overnight state (pre-market before the open, the open after it);
-  // fourth toggle state Last day shows the left side at the prior close.
+  // the Prior close state shows the left side at the prior close.
+  // v12: toggle order rotated — Prior close first, fresh-load default;
+  // the old label renamed 'Prior close' (Nov 23).
   // Intraday replaces Last move: Since-close change is the whole span,
   // Overnight the first part of it, Intraday the second (Overnight +
   // Intraday = Since close).
   // mode is what is shown now; rightMode is the right side's own last
   // state, preserved when the user goes back to From M/D.
-  var RIGHT_MODES = ['day', 'overnight', 'intraday', 'lastday'];
+  // v12: order rotated — Prior close first; fresh-load default is
+  // now 'lastday' (same cycle, same keys, same persistence).
+  var RIGHT_MODES = ['lastday', 'day', 'overnight', 'intraday'];
   // v11: the Day label is now Since close — the figure is the change
-  // since the last trading day's close (Ron, Nov 23; 'Day' misled over
+  // since the last trading day's close (Nov 23; 'Day' misled over
   // weekends, when the CD benchmark accrues 2-3 days).
-  var RIGHT_LABELS = { day: 'Since close', overnight: 'Overnight', intraday: 'Intraday', lastday: 'Last day' };
+  // v12: the old label is now 'Prior close'.
+  // v14: the label is now 'To Prior Close' — the view shows the
+  // 11/2 baseline measured to the prior close.
+  var RIGHT_LABELS = { day: 'Since close', overnight: 'Overnight', intraday: 'Intraday', lastday: 'To Prior Close' };
   var mode = 'baseline';
-  var rightMode = 'day';
+  var rightMode = 'lastday'; // v12: fresh-load default is now To Prior Close.
   try {
     var rm = localStorage.getItem('results_change_right_v2');
     if (RIGHT_MODES.indexOf(rm) >= 0) rightMode = rm;
@@ -317,11 +341,25 @@
     return (n < 0 ? '−' : '') + Math.abs(n).toFixed(dp == null ? 2 : dp) + '%';
   }
   function fmtDateOnly(s) {
-    if (!s) return '—';
+    if (!s) return '\u2014';
     var p = String(s).slice(0, 10).split('-');
     if (p.length !== 3) return String(s);
     var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
     return d.toLocaleDateString(undefined, {month: 'short', day: 'numeric', year: 'numeric'});
+  }
+  // v12: M/D without a year, for the Since-close date span.
+  function fmtMD(s) {
+    if (!s) return '';
+    var p = String(s).slice(0, 10).split('-');
+    if (p.length !== 3) return String(s);
+    return Number(p[1]) + '/' + Number(p[2]);
+  }
+  // v12: Since-close note is the date span prior close -> today (the
+  // push date), e.g. '11/20 \u2013 11/23'; falls back to the old
+  // wording when either date is missing.
+  function sinceCloseNote() {
+    if (data.priorDayDate && data.updated) return fmtMD(data.priorDayDate) + ' \u2013 ' + fmtMD(String(data.updated).slice(0, 10));
+    return 'Yesterday\u2019s close to now';
   }
   function setCls(el, cls) { el.classList.remove('pos', 'neg'); if (cls) el.classList.add(cls); }
   function arrowFor(n) { if (n == null || !isFinite(n)) return ''; return n > 0 ? '↑ ' : n < 0 ? '↓ ' : ''; }
@@ -414,11 +452,12 @@
     $('pChangeN').textContent = noteText;
   }
   // v9: note under the pre-market change: yesterday's close to pre-market,
-  // with the time of the latest pre-market price and, when only some
-  // holdings traded pre-market, how many did.
+  // with the time of the latest pre-market trade (labelled, v12 — a bare
+  // time read as stale) and, when only some holdings traded pre-market,
+  // how many did.
   function preMarketNote() {
     var note = 'Yesterday\u2019s close to pre-market';
-    if (data.preMarketAsOf) note += ', ' + fmtTime(data.preMarketAsOf);
+    if (data.preMarketAsOf) note += ', last trade ' + fmtTime(data.preMarketAsOf);
     if (data.preMarketTraded != null && data.preMarketTotal != null && data.preMarketTraded < data.preMarketTotal) {
       note += ' (' + data.preMarketTraded + ' of ' + data.preMarketTotal + ' holdings traded)';
     }
@@ -433,7 +472,7 @@
   }
   // v10: the left side follows the toggle endpoint. In the Overnight
   // state the endpoint is the pre-market price before the open and
-  // today's open after it; in the Last day state it is the prior close.
+  // today's open after it; in the Prior close state it is the prior close.
   // Since close, Intraday and From keep the current values. An endpoint is used
   // only when its value, gap and pace are all present; otherwise the
   // current values stay (e.g. before the open with no pre-market trades,
@@ -505,7 +544,7 @@
           showChange(data.gapChangeLast, data.paceChangeLast, 'since close', lastMoveNote());
         }
       } else {
-        showChange(g, pc, 'since close', 'Yesterday\u2019s close to now');
+        showChange(g, pc, 'since close', sinceCloseNote());
       }
     } else if (mode === 'overnight') {
       if (data.gapChangeOvernight == null || data.paceChangeOvernight == null) {
@@ -527,14 +566,14 @@
         showChange(data.gapChangeIntraday, data.paceChangeIntraday, 'intraday', 'Today\u2019s open to now');
       }
     } else if (mode === 'lastday') {
-      // v10: Last day = the end of last day: the change since the
-      // baseline as of the prior close. Null when the server did not
-      // compute the prior close (old results.json, or the
+      // v10: Prior close = the end of the prior day: the change since
+      // the baseline as of the prior close. Null when the server did
+      // not compute the prior close (old results.json, or the
       // day/overnight calc failed).
       if (data.gapChangePrior == null || data.paceChangePrior == null) {
-        showNA('No prior-day data yet \u2014 last-day change will show after the first push of a new day.');
+        showNA('No prior-day data yet \u2014 prior-close change will show after the first push of a new day.');
       } else {
-        showChange(data.gapChangePrior, data.paceChangePrior, 'since ' + fmtFromLabel().replace('From ', ''), 'End of ' + (data.priorDayDate ? fmtDateOnly(data.priorDayDate) : 'last day'));
+        showChange(data.gapChangePrior, data.paceChangePrior, 'since ' + fmtFromLabel().replace('From ', ''), 'End of ' + (data.priorDayDate ? fmtDateOnly(data.priorDayDate) : 'prior close'));
       }
     } else {
       // Baseline: note below is duration only, no date repeated.
@@ -573,7 +612,7 @@
     if (typeof d.cdPace === 'number') $('pPaceCD').textContent = fmtPct(d.cdPace, 2) + ' a year';
     // v10: Value today, vs-CD gap, vs-money-in and the Actual pace are
     // rendered by renderLeft(), which follows the toggle endpoint in
-    // the Overnight and Last day states (called from renderChange).
+    // the Overnight and Prior close states (called from renderChange).
     renderChange();
   }).catch(function () {
     $('msg').hidden = false;
