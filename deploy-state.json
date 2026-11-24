@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T06:41:25-06:00",
+  "generatedAt": "2026-11-24T11:20:31-06:00",
   "serverVersion": "v111",
   "deployed": [
     {
@@ -113,11 +113,11 @@
     {
       "file": "smb-browser.html",
       "name": "smb-browser",
-      "size": 393536,
-      "mtime": "2026-11-21T18:11:51.764Z",
-      "sha256": "5c0fde1eb2946eaff402e5ed9021e485d359cc658f97bc41dd22588809d8f3d3",
-      "matchedBackup": "smb-browser.v76.html",
-      "version": "v76"
+      "size": 395200,
+      "mtime": "2026-11-24T17:11:04.017Z",
+      "sha256": "c74d2bf006ce63265cfa2537d9f742c5f71a61dc884d24b91a1cde979d0777d7",
+      "matchedBackup": "smb-browser.v77.html",
+      "version": "v77"
     },
     {
       "file": "split-viewer.html",
@@ -881,6 +881,11 @@
       "file": "smb-browser.v76.html",
       "size": 393536,
       "sha256": "5c0fde1eb2946eaff402e5ed9021e485d359cc658f97bc41dd22588809d8f3d3"
+    },
+    {
+      "file": "smb-browser.v77.html",
+      "size": 395200,
+      "sha256": "c74d2bf006ce63265cfa2537d9f742c5f71a61dc884d24b91a1cde979d0777d7"
     },
     {
       "file": "split-viewer.v14.html",
