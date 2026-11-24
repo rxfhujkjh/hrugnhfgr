@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T11:20:31-06:00",
+  "generatedAt": "2026-11-24T17:14:20-06:00",
   "serverVersion": "v111",
   "deployed": [
     {
@@ -50,11 +50,11 @@
     {
       "file": "index.html",
       "name": "index",
-      "size": 65177,
-      "mtime": "2026-11-08T15:56:20.055Z",
-      "sha256": "c59a23cb6841db8c58f256411503e4c7bf35ba7efaaa1b4c24ffb8bc2a6aa681",
-      "matchedBackup": "index.v32.html",
-      "version": "v32"
+      "size": 69748,
+      "mtime": "2026-11-24T22:00:47.727Z",
+      "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2",
+      "matchedBackup": "index.v33.html",
+      "version": "v33"
     },
     {
       "file": "player.html",
@@ -336,6 +336,11 @@
       "file": "index.v32.html",
       "size": 65177,
       "sha256": "c59a23cb6841db8c58f256411503e4c7bf35ba7efaaa1b4c24ffb8bc2a6aa681"
+    },
+    {
+      "file": "index.v33.html",
+      "size": 69748,
+      "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2"
     },
     {
       "file": "player.v10.html",
