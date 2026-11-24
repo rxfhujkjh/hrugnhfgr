@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-23T06:53:05-06:00",
+  "generatedAt": "2026-11-24T05:55:35-06:00",
   "serverVersion": "v110",
   "deployed": [
     {
@@ -86,20 +86,20 @@
     {
       "file": "results.html",
       "name": "results",
-      "size": 32496,
-      "mtime": "2026-11-23T12:33:12.492Z",
-      "sha256": "e7bb4595f5b14dde1e6139fad7851b8ad138a1013fa51873f89cbfc5fcbf7a68",
-      "matchedBackup": "results.v11.html",
-      "version": "v11"
+      "size": 34275,
+      "mtime": "2026-11-24T11:53:17.750Z",
+      "sha256": "ff4adcee827a1794272cda14e77c27455ed97da909f76e42c5c8cd0f213a29fb",
+      "matchedBackup": "results.v13.html",
+      "version": "v13"
     },
     {
       "file": "scorecard.html",
       "name": "scorecard",
-      "size": 103306,
-      "mtime": "2026-11-23T12:32:57.716Z",
-      "sha256": "2b8caadd7cb4dc0120851c81b13552f58705faa33288ff5359c7466f25874011",
-      "matchedBackup": "scorecard.v2.16.html",
-      "version": "v2.16"
+      "size": 115491,
+      "mtime": "2026-11-24T11:53:23.330Z",
+      "sha256": "18234e6cefbd4aacda2608094cde92c2f4cecea3cfc1fe9a18ae890cb9cbdbdc",
+      "matchedBackup": "scorecard.v2.18.html",
+      "version": "v2.18"
     },
     {
       "file": "sidekicks.html",
@@ -167,12 +167,12 @@
   ],
   "serverFile": {
     "file": "rpserver.js",
-    "size": 398524,
-    "mtime": "2026-11-21T22:20:51.368Z",
-    "sha256": "b60a994e750b85dd76567ca475fb7fef59cebbafdc89d99d11b93ca60c973ad5",
+    "size": 413348,
+    "mtime": "2026-11-24T11:54:31.478Z",
+    "sha256": "c0ea676764dbea0fbff75bc294d60a3dc6efaed57eab8217f59c9620bedfa724",
     "serverVersion": "v110",
-    "matchedBackup": "rpserver.v110.js",
-    "version": "v110"
+    "matchedBackup": "rpserver.v111.js",
+    "version": "v111"
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
@@ -548,6 +548,11 @@
       "sha256": "e7bb4595f5b14dde1e6139fad7851b8ad138a1013fa51873f89cbfc5fcbf7a68"
     },
     {
+      "file": "results.v13.html",
+      "size": 34275,
+      "sha256": "ff4adcee827a1794272cda14e77c27455ed97da909f76e42c5c8cd0f213a29fb"
+    },
+    {
       "file": "results.v2.html",
       "size": 18861,
       "sha256": "631e58961f8f12c4dc4a3eca30dd7d2ea7888580798d6f5114eaf28402cc0bf3"
@@ -646,6 +651,11 @@
       "file": "rpserver.v110.js",
       "size": 398524,
       "sha256": "b60a994e750b85dd76567ca475fb7fef59cebbafdc89d99d11b93ca60c973ad5"
+    },
+    {
+      "file": "rpserver.v111.js",
+      "size": 413348,
+      "sha256": "c0ea676764dbea0fbff75bc294d60a3dc6efaed57eab8217f59c9620bedfa724"
     },
     {
       "file": "rpserver.v72.js",
@@ -806,6 +816,11 @@
       "file": "scorecard.v2.16.html",
       "size": 103306,
       "sha256": "2b8caadd7cb4dc0120851c81b13552f58705faa33288ff5359c7466f25874011"
+    },
+    {
+      "file": "scorecard.v2.18.html",
+      "size": 115491,
+      "sha256": "18234e6cefbd4aacda2608094cde92c2f4cecea3cfc1fe9a18ae890cb9cbdbdc"
     },
     {
       "file": "scorecard.v2.9.html",
