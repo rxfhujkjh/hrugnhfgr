@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-24T05:55:35-06:00",
+  "generatedAt": "2026-11-24T06:25:35-06:00",
   "serverVersion": "v110",
   "deployed": [
     {
@@ -86,20 +86,20 @@
     {
       "file": "results.html",
       "name": "results",
-      "size": 34275,
-      "mtime": "2026-11-24T11:53:17.750Z",
-      "sha256": "ff4adcee827a1794272cda14e77c27455ed97da909f76e42c5c8cd0f213a29fb",
-      "matchedBackup": "results.v13.html",
-      "version": "v13"
+      "size": 34402,
+      "mtime": "2026-11-24T12:20:39.354Z",
+      "sha256": "6d1d84ee590c1867fb216e0e8e770080a9ff0ee7d2d3469c038be9364500f3b3",
+      "matchedBackup": "results.v14.html",
+      "version": "v14"
     },
     {
       "file": "scorecard.html",
       "name": "scorecard",
-      "size": 115491,
-      "mtime": "2026-11-24T11:53:23.330Z",
-      "sha256": "18234e6cefbd4aacda2608094cde92c2f4cecea3cfc1fe9a18ae890cb9cbdbdc",
-      "matchedBackup": "scorecard.v2.18.html",
-      "version": "v2.18"
+      "size": 115623,
+      "mtime": "2026-11-24T12:20:46.174Z",
+      "sha256": "ee4e170b3e765fa3532b3b669748f69fb435102f59ee8184b7ac681bf7fe23f5",
+      "matchedBackup": "scorecard.v2.19.html",
+      "version": "v2.19"
     },
     {
       "file": "sidekicks.html",
@@ -168,7 +168,7 @@
   "serverFile": {
     "file": "rpserver.js",
     "size": 413348,
-    "mtime": "2026-11-24T11:54:31.478Z",
+    "mtime": "2026-11-24T12:20:52.334Z",
     "sha256": "c0ea676764dbea0fbff75bc294d60a3dc6efaed57eab8217f59c9620bedfa724",
     "serverVersion": "v110",
     "matchedBackup": "rpserver.v111.js",
@@ -553,6 +553,11 @@
       "sha256": "ff4adcee827a1794272cda14e77c27455ed97da909f76e42c5c8cd0f213a29fb"
     },
     {
+      "file": "results.v14.html",
+      "size": 34402,
+      "sha256": "6d1d84ee590c1867fb216e0e8e770080a9ff0ee7d2d3469c038be9364500f3b3"
+    },
+    {
       "file": "results.v2.html",
       "size": 18861,
       "sha256": "631e58961f8f12c4dc4a3eca30dd7d2ea7888580798d6f5114eaf28402cc0bf3"
@@ -821,6 +826,11 @@
       "file": "scorecard.v2.18.html",
       "size": 115491,
       "sha256": "18234e6cefbd4aacda2608094cde92c2f4cecea3cfc1fe9a18ae890cb9cbdbdc"
+    },
+    {
+      "file": "scorecard.v2.19.html",
+      "size": 115623,
+      "sha256": "ee4e170b3e765fa3532b3b669748f69fb435102f59ee8184b7ac681bf7fe23f5"
     },
     {
       "file": "scorecard.v2.9.html",
