@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-11-24T17:14:20-06:00",
+  "generatedAt": "2026-11-25T19:06:58-06:00",
   "serverVersion": "v111",
   "deployed": [
     {
       "file": "actions.html",
       "name": "actions",
       "size": 18862,
-      "mtime": "2026-11-06T14:46:36.380Z",
+      "mtime": "2026-11-06T14:46:36.000Z",
       "sha256": "4d16a520b63928ecd4213a1844929208975895207e57477e7cd4871bd586ee99",
       "matchedBackup": "actions.v2.html",
       "version": "v2"
@@ -15,7 +15,7 @@
       "file": "circle-pack-demo.html",
       "name": "circle-pack-demo",
       "size": 4099,
-      "mtime": "2026-11-07T01:32:42.057Z",
+      "mtime": "2026-11-07T01:32:42.000Z",
       "sha256": "a8b05bcdaec46ed12251b624a7b77354ece568ce27f9c0e08acd439cd337a210",
       "matchedBackup": null,
       "version": null
@@ -24,7 +24,7 @@
       "file": "drift_history_mockup.html",
       "name": "drift_history_mockup",
       "size": 10217,
-      "mtime": "2026-10-19T12:27:53.011Z",
+      "mtime": "2026-10-19T12:27:53.000Z",
       "sha256": "1ab6f6375bdb5e7cdbfed9da401b4010c4ed95fcb1667921faf29923e20c4556",
       "matchedBackup": null,
       "version": null
@@ -33,7 +33,7 @@
       "file": "georgianchatdemo.html",
       "name": "georgianchatdemo",
       "size": 38099,
-      "mtime": "2026-10-31T02:21:09.365Z",
+      "mtime": "2026-10-31T02:21:09.000Z",
       "sha256": "83fb994826fd07fa5d28f579667fdf22a8ba1cf656c71ac0cafac1e1c90d8244",
       "matchedBackup": null,
       "version": null
@@ -42,7 +42,7 @@
       "file": "hub.html",
       "name": "hub",
       "size": 25658,
-      "mtime": "2026-11-07T01:32:44.612Z",
+      "mtime": "2026-11-07T01:32:44.000Z",
       "sha256": "d28689c90cb7f631d0a09a5fffdc30f7facad4bf96ae17ee6296ed380f4ee888",
       "matchedBackup": "hub.v5.html",
       "version": "v5"
@@ -51,7 +51,7 @@
       "file": "index.html",
       "name": "index",
       "size": 69748,
-      "mtime": "2026-11-24T22:00:47.727Z",
+      "mtime": "2026-11-24T22:00:47.000Z",
       "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2",
       "matchedBackup": "index.v33.html",
       "version": "v33"
@@ -60,7 +60,7 @@
       "file": "player.html",
       "name": "player",
       "size": 166760,
-      "mtime": "2026-11-16T15:05:44.476Z",
+      "mtime": "2026-11-16T15:05:44.000Z",
       "sha256": "87059448f41fb4be41932787fe50fd0b8f8e30272acd79eab16af18679cff502",
       "matchedBackup": "player.v22.html",
       "version": "v22"
@@ -69,7 +69,7 @@
       "file": "portfolio.html",
       "name": "portfolio",
       "size": 1427524,
-      "mtime": "2026-11-21T22:20:40.780Z",
+      "mtime": "2026-11-21T22:20:40.000Z",
       "sha256": "1eab630881e450cd4f33f115c8ca3f82ee9a7d10012f5173d9ee4b3a407f62fd",
       "matchedBackup": "portfolio.v13.20.html",
       "version": "v13.20"
@@ -78,7 +78,7 @@
       "file": "rebalancer_mockup.html",
       "name": "rebalancer_mockup",
       "size": 11541,
-      "mtime": "2026-10-19T12:26:26.188Z",
+      "mtime": "2026-10-19T12:26:26.000Z",
       "sha256": "93b01d0605a13a6a71760ade8e67056212c6beb7c5911e02d079782d85157af2",
       "matchedBackup": null,
       "version": null
@@ -87,7 +87,7 @@
       "file": "results.html",
       "name": "results",
       "size": 34402,
-      "mtime": "2026-11-24T12:20:39.354Z",
+      "mtime": "2026-11-24T12:20:39.000Z",
       "sha256": "6d1d84ee590c1867fb216e0e8e770080a9ff0ee7d2d3469c038be9364500f3b3",
       "matchedBackup": "results.v14.html",
       "version": "v14"
@@ -96,7 +96,7 @@
       "file": "scorecard.html",
       "name": "scorecard",
       "size": 115623,
-      "mtime": "2026-11-24T12:20:46.174Z",
+      "mtime": "2026-11-24T12:20:46.000Z",
       "sha256": "ee4e170b3e765fa3532b3b669748f69fb435102f59ee8184b7ac681bf7fe23f5",
       "matchedBackup": "scorecard.v2.19.html",
       "version": "v2.19"
@@ -105,7 +105,7 @@
       "file": "sidekicks.html",
       "name": "sidekicks",
       "size": 26846,
-      "mtime": "2026-11-07T12:57:30.932Z",
+      "mtime": "2026-11-07T12:57:30.000Z",
       "sha256": "ce95248b9fc2cb3cee579212a5f5e560a287c4f7d2df67bfb790d80557db79b1",
       "matchedBackup": "sidekicks.v1.html",
       "version": "v1"
@@ -114,7 +114,7 @@
       "file": "smb-browser.html",
       "name": "smb-browser",
       "size": 395200,
-      "mtime": "2026-11-24T17:11:04.017Z",
+      "mtime": "2026-11-24T17:11:04.000Z",
       "sha256": "c74d2bf006ce63265cfa2537d9f742c5f71a61dc884d24b91a1cde979d0777d7",
       "matchedBackup": "smb-browser.v77.html",
       "version": "v77"
@@ -123,7 +123,7 @@
       "file": "split-viewer.html",
       "name": "split-viewer",
       "size": 44304,
-      "mtime": "2026-06-06T22:27:27.930Z",
+      "mtime": "2026-06-06T22:27:27.000Z",
       "sha256": "bb336bbb216258ba5cf1513e3b5708bc9017d8c48d228a21f974f161d6a3ec4c",
       "matchedBackup": null,
       "version": null
@@ -132,7 +132,7 @@
       "file": "taxestimator.html",
       "name": "taxestimator",
       "size": 36709,
-      "mtime": "2026-11-15T02:06:38.925Z",
+      "mtime": "2026-11-15T02:06:38.000Z",
       "sha256": "a19393a63e56bf972286994aa568bd4d692d13971792b4a9589657269876d31a",
       "matchedBackup": "taxestimator.v32.html",
       "version": "v32"
@@ -141,7 +141,7 @@
       "file": "tools.html",
       "name": "tools",
       "size": 190503,
-      "mtime": "2026-10-30T12:58:24.963Z",
+      "mtime": "2026-10-30T12:58:24.000Z",
       "sha256": "29e31904307d4c355ddf6e43dca497be6e7e9473190e46ec9e477d4668cd5504",
       "matchedBackup": null,
       "version": null
@@ -150,7 +150,7 @@
       "file": "video-transcriber.html",
       "name": "video-transcriber",
       "size": 183222,
-      "mtime": "2026-11-13T11:29:54.355Z",
+      "mtime": "2026-11-13T11:29:54.000Z",
       "sha256": "dd22f7595b52a834c3ac13f5ca577f2c8d9da1da905daa8f54cd9033872cd88c",
       "matchedBackup": "video-transcriber.v105.html",
       "version": "v105"
@@ -159,7 +159,7 @@
       "file": "walker.html",
       "name": "walker",
       "size": 103955,
-      "mtime": "2026-11-16T16:45:49.132Z",
+      "mtime": "2026-11-16T16:45:49.000Z",
       "sha256": "8ef4fc52dc668fa8ebd5bafd6cef4498a4a5659495f014d3b3ac8e2b4d46c808",
       "matchedBackup": "walker.v29.html",
       "version": "v29"
@@ -168,7 +168,7 @@
   "serverFile": {
     "file": "rpserver.js",
     "size": 413348,
-    "mtime": "2026-11-24T12:20:52.334Z",
+    "mtime": "2026-11-24T12:20:52.000Z",
     "sha256": "c0ea676764dbea0fbff75bc294d60a3dc6efaed57eab8217f59c9620bedfa724",
     "serverVersion": "v111",
     "matchedBackup": "rpserver.v111.js",
