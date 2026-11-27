@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T09:48:13-06:00",
+  "generatedAt": "2026-11-27T15:51:08-06:00",
   "serverVersion": "v111",
   "deployed": [
     {
@@ -53,8 +53,8 @@
       "size": 69748,
       "mtime": "2026-11-24T22:00:47.000Z",
       "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2",
-      "matchedBackup": null,
-      "version": null
+      "matchedBackup": "index.v33.html",
+      "version": "v33"
     },
     {
       "file": "player.html",
@@ -175,6 +175,11 @@
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
   "backups": [
+    {
+      "file": "index.v33.html",
+      "size": 69748,
+      "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2"
+    },
     {
       "file": "portfolio.v13.21.html",
       "size": 1436875,
