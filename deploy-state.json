@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-26T15:51:44-06:00",
+  "generatedAt": "2026-11-27T09:48:13-06:00",
   "serverVersion": "v111",
   "deployed": [
     {
@@ -68,11 +68,11 @@
     {
       "file": "portfolio.html",
       "name": "portfolio",
-      "size": 1427524,
-      "mtime": "2026-11-21T22:20:40.000Z",
-      "sha256": "1eab630881e450cd4f33f115c8ca3f82ee9a7d10012f5173d9ee4b3a407f62fd",
-      "matchedBackup": null,
-      "version": null
+      "size": 1436875,
+      "mtime": "2026-11-27T15:42:06.698Z",
+      "sha256": "de36fbcac56f8edb9c2a359626751d8c0d04946877e1cdebaf6cf7eb11d24c83",
+      "matchedBackup": "portfolio.v13.21.html",
+      "version": "v13.21"
     },
     {
       "file": "rebalancer_mockup.html",
@@ -174,5 +174,11 @@
   },
   "backupsDir": "/storage/emulated/0/Download/apps/backups",
   "backupsDirExists": true,
-  "backups": []
+  "backups": [
+    {
+      "file": "portfolio.v13.21.html",
+      "size": 1436875,
+      "sha256": "de36fbcac56f8edb9c2a359626751d8c0d04946877e1cdebaf6cf7eb11d24c83"
+    }
+  ]
 }
