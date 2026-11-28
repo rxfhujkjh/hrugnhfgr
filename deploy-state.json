@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-27T15:51:08-06:00",
+  "generatedAt": "2026-11-28T05:47:00-06:00",
   "serverVersion": "v111",
   "deployed": [
     {
@@ -50,11 +50,11 @@
     {
       "file": "index.html",
       "name": "index",
-      "size": 69748,
-      "mtime": "2026-11-24T22:00:47.000Z",
-      "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2",
-      "matchedBackup": "index.v33.html",
-      "version": "v33"
+      "size": 80589,
+      "mtime": "2026-11-27T23:31:14.434Z",
+      "sha256": "396ad823de85e29d18f1df0787b86262755087fe5f4fce70b59fbc937baf2989",
+      "matchedBackup": "index.v35.html",
+      "version": "v35"
     },
     {
       "file": "player.html",
@@ -107,6 +107,24 @@
       "size": 26846,
       "mtime": "2026-11-07T12:57:30.000Z",
       "sha256": "ce95248b9fc2cb3cee579212a5f5e560a287c4f7d2df67bfb790d80557db79b1",
+      "matchedBackup": null,
+      "version": null
+    },
+    {
+      "file": "sk-amortization.html",
+      "name": "sk-amortization",
+      "size": 18723,
+      "mtime": "2026-11-28T00:13:24.186Z",
+      "sha256": "3f8aa9dd0a45c0070f996dbf68849e4afbfb361d7d0b9fa6aed5d5c3b0309f51",
+      "matchedBackup": null,
+      "version": null
+    },
+    {
+      "file": "sk-converter.html",
+      "name": "sk-converter",
+      "size": 24556,
+      "mtime": "2026-11-28T00:13:28.622Z",
+      "sha256": "adec67476bd542c71e4ee08777cece1a48e88d5aa9728c3c95017281c118759a",
       "matchedBackup": null,
       "version": null
     },
@@ -179,6 +197,16 @@
       "file": "index.v33.html",
       "size": 69748,
       "sha256": "0264de0132f58f10f15a6b7a73a108255faa23c29edd2b11bbe85387026347d2"
+    },
+    {
+      "file": "index.v34.html",
+      "size": 75977,
+      "sha256": "1f33bb67082a6891cffa2f7a07dc6ccbdcc6b97b86aa85d0419811fb847b1b39"
+    },
+    {
+      "file": "index.v35.html",
+      "size": 80589,
+      "sha256": "396ad823de85e29d18f1df0787b86262755087fe5f4fce70b59fbc937baf2989"
     },
     {
       "file": "portfolio.v13.21.html",
